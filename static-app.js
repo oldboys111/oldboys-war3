@@ -869,7 +869,14 @@ function saveKkRank() {
 
 // 渲染对战记录
 function renderMatches(filterType = 'all', playerSearch = '') {
-    let matches = getMatches().sort((a, b) => new Date(b.date) - new Date(a.date));
+    let matches = getMatches().sort((a, b) => {
+        const dateDiff = new Date(b.date) - new Date(a.date);
+        if (dateDiff !== 0) return dateDiff;
+        // 日期相同时按 ID 倒序（假设新记录 ID 数字部分更大，如 m11 > m10 > m9）
+        const numA = parseInt(String(a.id).replace(/\D/g, '')) || 0;
+        const numB = parseInt(String(b.id).replace(/\D/g, '')) || 0;
+        return numB - numA;
+    });
     
     if (filterType !== 'all') {
         matches = matches.filter(m => m.type === filterType);
