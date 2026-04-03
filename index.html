@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Old boys' War3-老男孩天梯排行榜</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="main-header">
+        <div class="header-left">
+            <div class="logo">
+                <img class="logo-icon" src="images/frostmourne.png" alt="Frostmourne">
+                Old boys' War3-老男孩天梯排行榜
+            </div>
+        </div>
+        <nav class="main-nav">
+            <a href="#" class="nav-item active" data-page="overview">总览</a>
+            <a href="#" class="nav-item" data-page="members">成员</a>
+            <a href="#" class="nav-item" data-page="matches">对战</a>
+            <a href="#" class="nav-item" data-page="honors">荣誉</a>
+            <a href="#" class="nav-item" data-page="events">赛事</a>
+            <a href="#" class="nav-item" data-page="heroes">英雄</a>
+        </nav>
+        <div class="header-right">
+            <button class="btn-login" onclick="showLoginModal()">登录</button>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 总览页面 -->
+        <section id="page-overview" class="page active">
+            <div class="section-header">
+                <h2>总览</h2>
+            </div>
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <h3>最近对战</h3>
+                    <div id="recent-matches-list" class="recent-matches"></div>
+                </div>
+                <div class="overview-card">
+                    <h3>积分排行 TOP10</h3>
+                    <div id="top-players-list" class="top-players"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 成员页面 -->
+        <section id="page-members" class="page">
+            <div class="section-header">
+                <h2>成员</h2>
+                <div class="header-buttons">
+                    <button class="btn-add" onclick="showAddPlayerModal()" id="btn-add-player" style="display:none">添加成员</button>
+                    <button class="btn-remove" onclick="showDeletePlayerModal()" id="btn-remove-player" style="display:none">删减成员</button>
+                </div>
+            </div>
+            <div class="member-filter-bar">
+                <input type="text" id="member-search" class="member-search-input" placeholder="搜索成员名称...">
+            </div>
+            <div class="race-tabs">
+                <a href="#" class="race-tab active" data-race="all">全部</a>
+                <a href="#" class="race-tab" data-race="HUM" style="--race-color: #4a90d9">人族</a>
+                <a href="#" class="race-tab" data-race="ORC" style="--race-color: #e67e22">兽族</a>
+                <a href="#" class="race-tab" data-race="UD" style="--race-color: #8e44ad">亡灵</a>
+                <a href="#" class="race-tab" data-race="NE" style="--race-color: #27ae60">暗夜</a>
+            </div>
+            <div class="level-tabs">
+                <a href="#" class="level-tab active" data-level="all">全部段位</a>
+                <a href="#" class="level-tab level-SR" data-level="SR">SR</a>
+                <a href="#" class="level-tab level-S" data-level="S">S</a>
+                <a href="#" class="level-tab level-A" data-level="A">A</a>
+                <a href="#" class="level-tab level-B" data-level="B">B</a>
+                <a href="#" class="level-tab level-C" data-level="C">C</a>
+                <a href="#" class="level-tab level-D" data-level="D">D</a>
+                <a href="#" class="level-tab level-E" data-level="E">E</a>
+                <a href="#" class="level-tab level-F" data-level="F">F</a>
+                <a href="#" class="level-tab level-G" data-level="G">G</a>
+            </div>
+            <div class="members-list-wrapper">
+                <table class="members-table">
+                    <thead>
+                        <tr>
+                            <th class="th-rank">排名</th>
+                            <th class="th-level">等级</th>
+                            <th class="th-name">ID</th>
+                            <th class="th-race">种族</th>
+                            <th class="th-kkname">KK昵称</th>
+                            <th class="th-points">积分</th>
+                        </tr>
+                    </thead>
+                    <tbody id="members-tbody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 对战页面 -->
+        <section id="page-matches" class="page">
+            <div class="section-header">
+                <h2>对战记录</h2>
+                <button class="btn-add" onclick="showAddMatchModal()" id="btn-add-match" style="display:none">录入比赛</button>
+            </div>
+            <div class="match-filter-bar">
+                <select id="match-filter" class="filter-select">
+                    <option value="all">全部类型</option>
+                    <option value="ladder">天梯</option>
+                    <option value="custom">自定义</option>
+                </select>
+                <input type="text" id="match-player-search" class="player-search-input" placeholder="搜索成员...">
+            </div>
+            <div class="matches-list" id="matches-list"></div>
+        </section>
+
+        <!-- 荣誉页面 -->
+        <section id="page-honors" class="page">
+            <div class="honors-header">
+                <span class="honors-icon">🏆</span>
+                <h2>荣誉榜</h2>
+                <p class="honors-subtitle">记录每一份热爱与荣耀</p>
+            </div>
+            
+            <div class="honors-tabs" id="honors-tabs-container">
+                <button class="honors-tab active" data-category="personal">个人赛</button>
+                <button class="honors-tab" data-category="cup">杯赛</button>
+                <button class="honors-tab" data-category="bird">大鸟杯</button>
+                <button class="honors-tab" data-category="team">团队赛</button>
+                <button class="honors-tab" data-category="2v2">2v2赛</button>
+            </div>
+            
+            <div class="honors-content" id="honors-content">
+                <!-- 动态渲染赛事卡片 -->
+            </div>
+            
+            <!-- 管理员编辑按钮 -->
+            <button class="admin-btn honors-edit-btn" id="honors-edit-btn" onclick="openHonorsEditor()" style="display: none;">
+                编辑荣誉
+            </button>
+        </section>
+
+        <!-- 赛事页面 -->
+        <section id="page-events" class="page">
+            <div class="section-header">
+                <h2>赛事</h2>
+                <button class="btn-edit" onclick="openEventsEditor()" id="btn-edit-events" style="display:none">✏️ 编辑赛事</button>
+            </div>
+            <div class="events-filter-bar">
+                <div class="events-status-tabs">
+                    <button class="status-tab active" data-status="all">全部赛事</button>
+                    <button class="status-tab" data-status="ongoing">进行中</button>
+                    <button class="status-tab" data-status="finished">已结束</button>
+                </div>
+            </div>
+            <div class="events-content" id="events-content">
+                <!-- 赛事列表将通过JS动态渲染 -->
+            </div>
+        </section>
+
+        <!-- 赛事详情页面 -->
+        <section id="page-event-detail" class="page">
+            <div class="player-detail-header">
+                <button class="btn-back" onclick="goBackToEvents()">← 返回</button>
+                <h2 id="detail-event-name"></h2>
+            </div>
+            <div class="player-detail-content">
+                <!-- 赛事信息卡 -->
+                <div class="event-info-card">
+                    <div class="event-avatar-large" id="detail-event-avatar"></div>
+                    <div class="event-info-text">
+                        <div class="event-name-line">
+                            <span id="detail-event-display-name"></span>
+                            <span class="event-status-badge" id="detail-event-status"></span>
+                        </div>
+                        <div class="event-subtitle" id="detail-event-subtitle"></div>
+                    </div>
+                </div>
+
+                <!-- 赛事信息概览 -->
+                <div class="event-stats-grid">
+                    <div class="event-stat-card">
+                        <div class="event-stat-icon">📅</div>
+                        <div class="event-stat-value" id="detail-event-date"></div>
+                        <div class="event-stat-label">开始时间</div>
+                    </div>
+                    <div class="event-stat-card">
+                        <div class="event-stat-icon">🎮</div>
+                        <div class="event-stat-value" id="detail-event-format"></div>
+                        <div class="event-stat-label">赛制</div>
+                    </div>
+                    <div class="event-stat-card">
+                        <div class="event-stat-icon">👥</div>
+                        <div class="event-stat-value" id="detail-event-players"></div>
+                        <div class="event-stat-label">参赛人数</div>
+                    </div>
+                    <div class="event-stat-card">
+                        <div class="event-stat-icon">🏆</div>
+                        <div class="event-stat-value" id="detail-event-prize"></div>
+                        <div class="event-stat-label">冠军</div>
+                    </div>
+                </div>
+
+                <!-- 地图池 -->
+                <div class="player-glory-section">
+                    <div class="section-title">
+                        <h3>地图池</h3>
+                    </div>
+                    <div class="event-maps-content" id="detail-event-maps">
+                        <span class="glory-text">暂无地图信息</span>
+                    </div>
+                </div>
+
+                <!-- 赛程进度 -->
+                <div class="player-honors-section">
+                    <div class="section-title">
+                        <h3>赛程进度</h3>
+                        <button class="btn-edit-honors" id="btn-edit-event-progress" onclick="editEventProgress()" style="display:none">编辑</button>
+                    </div>
+                    <div class="event-progress-content" id="detail-event-progress">
+                        <!-- 树形结构赛程将在这里渲染 -->
+                    </div>
+                </div>
+
+                <!-- 冠军记录 -->
+                <div class="player-kk-rank-section">
+                    <div class="section-title">
+                        <h3>历届冠军</h3>
+                    </div>
+                    <div class="event-champions-list" id="detail-event-champions">
+                        <span class="kk-rank-text">暂无冠军记录</span>
+                    </div>
+                </div>
+
+                <!-- 赛事描述 -->
+                <div class="player-trait-section" id="event-description-section">
+                    <div class="section-title">
+                        <h3>赛事说明</h3>
+                    </div>
+                    <div class="event-description-content" id="detail-event-description">
+                        <span class="trait-text">暂无赛事说明</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 赛事编辑弹窗 -->
+        <div id="events-editor-modal" class="modal">
+            <div class="modal-content events-editor-modal-content">
+                <div class="modal-header">
+                    <h3>编辑赛事</h3>
+                    <button class="modal-close" onclick="closeEventsEditor()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="event-edit-section">
+                        <div class="event-edit-row">
+                            <label>赛事名称</label>
+                            <input type="text" id="event-edit-name" placeholder="输入赛事名称">
+                        </div>
+                        <div class="event-edit-row">
+                            <label>赛事图标</label>
+                            <div class="event-emoji-picker" id="event-emoji-picker">
+                                <button type="button" class="emoji-btn" data-emoji="🏆">🏆</button>
+                                <button type="button" class="emoji-btn" data-emoji="⚔️">⚔️</button>
+                                <button type="button" class="emoji-btn" data-emoji="👑">👑</button>
+                                <button type="button" class="emoji-btn" data-emoji="💎">💎</button>
+                                <button type="button" class="emoji-btn" data-emoji="🌟">🌟</button>
+                                <button type="button" class="emoji-btn" data-emoji="🔥">🔥</button>
+                                <button type="button" class="emoji-btn" data-emoji="🎯">🎯</button>
+                                <button type="button" class="emoji-btn" data-emoji="🏅">🏅</button>
+                                <button type="button" class="emoji-btn" data-emoji="🎖️">🎖️</button>
+                                <button type="button" class="emoji-btn" data-emoji="⭐">⭐</button>
+                                <button type="button" class="emoji-btn" data-emoji="🎲">🎲</button>
+                                <button type="button" class="emoji-btn" data-emoji="🐉">🐉</button>
+                            </div>
+                            <input type="hidden" id="event-edit-emoji" value="🏆">
+                        </div>
+                        <div class="event-edit-row">
+                            <label>副标题</label>
+                            <input type="text" id="event-edit-subtitle" placeholder="赛事副标题（可选）">
+                        </div>
+                        <div class="event-edit-row">
+                            <label>赛事状态</label>
+                            <select id="event-edit-status">
+                                <option value="ongoing">进行中</option>
+                                <option value="finished">已结束</option>
+                            </select>
+                        </div>
+                        <div class="event-edit-row">
+                            <label>开始时间</label>
+                            <input type="date" id="event-edit-date">
+                        </div>
+                        <div class="event-edit-row">
+                            <label>赛制</label>
+                            <select id="event-edit-format">
+                                <option value="淘汰赛">淘汰赛</option>
+                                <option value="循环赛">循环赛</option>
+                                <option value="双败淘汰">双败淘汰</option>
+                                <option value="积分制">积分制</option>
+                            </select>
+                        </div>
+                        <div class="event-edit-row">
+                            <label>参赛人数</label>
+                            <input type="number" id="event-edit-players" placeholder="参赛人数" value="8">
+                        </div>
+                        <div class="event-edit-row">
+                            <label>地图池 (用逗号分隔)</label>
+                            <input type="text" id="event-edit-maps" placeholder="TR,TS,AI,LR,TM">
+                        </div>
+                        <div class="event-edit-row">
+                            <label>冠军</label>
+                            <input type="text" id="event-edit-prize" placeholder="冠军选手名称（可选）">
+                        </div>
+                        <div class="event-edit-row">
+                            <label>往届冠军</label>
+                            <textarea id="event-edit-champions" placeholder="往届冠军，如：第1届：张三，第2届：李四" rows="2"></textarea>
+                        </div>
+                        <div class="event-edit-row">
+                            <label>赛程图选手 (用逗号分隔选手ID)</label>
+                            <textarea id="event-edit-players-list" placeholder="输入选手ID，如：1,2,3,4,5,6,7,8" rows="2"></textarea>
+                            <div class="event-progress-hint">支持人数：4, 8, 16, 32</div>
+                        </div>
+                        <div class="event-edit-row">
+                            <label>赛程进度</label>
+                            <textarea id="event-edit-progress" placeholder="当前赛程进度描述（可选）" rows="2"></textarea>
+                        </div>
+                        <div class="event-edit-row">
+                            <label>赛事说明</label>
+                            <textarea id="event-edit-description" placeholder="赛事简介或描述（可选）" rows="3"></textarea>
+                        </div>
+                        <div class="event-edit-actions">
+                            <button class="btn-primary" onclick="saveEvent()">保存</button>
+                            <button class="btn-cancel" onclick="closeEventsEditor()">取消</button>
+                        </div>
+                    </div>
+                    
+                    <div class="event-list-section">
+                        <h4>已添加的赛事</h4>
+                        <div id="event-list" class="event-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 英雄页面 -->
+
+        <!-- 成员详情页面 -->
+        <section id="page-player-detail" class="page">
+            <div class="player-detail-header">
+                <button class="btn-back" onclick="goBack()">← 返回</button>
+                <h2 id="detail-player-name"></h2>
+            </div>
+            <div class="player-detail-content">
+                <!-- 头部信息卡 -->
+                <div class="player-info-card">
+                    <div class="player-info-left">
+                        <div class="player-avatar-large" id="detail-avatar"></div>
+                        <div class="player-basic-info">
+                            <div class="player-name-race">
+                                <span id="detail-name"></span>
+                                <span class="race-tag" id="detail-race-tag"></span>
+                            </div>
+                            <div class="player-kkname" id="detail-kkname"></div>
+                            <div class="player-level">等级 <span id="detail-level" class="level-cell"></span></div>
+                        </div>
+                    </div>
+                    <div class="player-info-right">
+                        <div class="player-stat-item">
+                            <div class="stat-label">基础分</div>
+                            <div class="stat-value" id="detail-base-points">1000</div>
+                        </div>
+                        <div class="player-stat-item">
+                            <div class="stat-label">对战加减分</div>
+                            <div class="stat-value stat-change">
+                                <span id="detail-points-change">+0</span>
+                            </div>
+                        </div>
+                        <div class="player-stat-item">
+                            <div class="stat-label">APM</div>
+                            <div class="stat-value" id="detail-apm">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 总战绩统计 -->
+                <div class="player-total-stats">
+                    <div class="total-stat-item">
+                        <div class="total-stat-value" id="detail-total-wins">0</div>
+                        <div class="total-stat-label">胜场</div>
+                    </div>
+                    <div class="total-stat-item">
+                        <div class="total-stat-value" id="detail-total-losses">0</div>
+                        <div class="total-stat-label">败场</div>
+                    </div>
+                    <div class="total-stat-item highlight">
+                        <div class="total-stat-value" id="detail-winrate">0%</div>
+                        <div class="total-stat-label">胜率</div>
+                    </div>
+                    <div class="total-stat-item highlight-gold">
+                        <div class="total-stat-value" id="detail-total-points">0</div>
+                        <div class="total-stat-label">积分</div>
+                    </div>
+                </div>
+
+                <!-- 个人辉煌战绩 -->
+                <div class="player-glory-section">
+                    <div class="section-title">
+                        <h3>个人辉煌战绩</h3>
+                        <button class="btn-edit-glory" id="btn-edit-glory" onclick="editGlory()" style="display:none">编辑</button>
+                    </div>
+                    <div class="player-glory-content" id="detail-glory">
+                        <span class="glory-text">暂无辉煌战绩</span>
+                    </div>
+                    <div class="glory-edit-form" id="glory-edit-form" style="display:none">
+                        <textarea id="glory-input" placeholder="输入辉煌战绩，如：2024年大鸟群冠军、5连胜纪录..."></textarea>
+                        <div class="glory-edit-actions">
+                            <button class="btn-cancel" onclick="cancelEditGlory()">取消</button>
+                            <button class="btn-save" onclick="saveGlory()">保存</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 比赛荣誉 -->
+                <div class="player-honors-section">
+                    <div class="section-title">
+                        <h3>比赛荣誉</h3>
+                        <button class="btn-edit-honors" id="btn-edit-honors" onclick="editHonors()" style="display:none">编辑</button>
+                    </div>
+                    <div class="player-honors-content" id="detail-honors">
+                        <span class="honors-text">暂无比赛荣誉</span>
+                    </div>
+                    <div class="honors-edit-form" id="honors-edit-form" style="display:none">
+                        <textarea id="honors-input" placeholder="输入比赛荣誉，如：黄金联赛冠军、WCG亚军..."></textarea>
+                        <div class="honors-edit-actions">
+                            <button class="btn-cancel" onclick="cancelEditHonors()">取消</button>
+                            <button class="btn-save" onclick="saveHonors()">保存</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KK平台历史最高段位 -->
+                <div class="player-kk-rank-section">
+                    <div class="section-title">
+                        <h3>KK平台历史最高段位</h3>
+                        <button class="btn-edit-kk-rank" id="btn-edit-kk-rank" onclick="editKkRank()" style="display:none">编辑</button>
+                    </div>
+                    <div class="player-kk-rank-content" id="detail-kk-rank">
+                        <span class="kk-rank-text">暂无记录</span>
+                    </div>
+                    <div class="kk-rank-edit-form" id="kk-rank-edit-form" style="display:none">
+                        <input type="text" id="kk-rank-input" placeholder="输入KK平台最高段位，如：宗师、大师、钻石...">
+                        <div class="kk-rank-edit-actions">
+                            <button class="btn-cancel" onclick="cancelEditKkRank()">取消</button>
+                            <button class="btn-save" onclick="saveKkRank()">保存</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 性格特点 -->
+                <div class="player-trait-section">
+                    <div class="section-title">
+                        <h3>性格特点</h3>
+                        <button class="btn-edit-trait" id="btn-edit-trait" onclick="editTrait()" style="display:none">编辑</button>
+                    </div>
+                    <div class="player-trait-content" id="detail-trait">
+                        <span class="trait-text">暂无性格特点</span>
+                    </div>
+                    <div class="trait-edit-form" id="trait-edit-form" style="display:none">
+                        <textarea id="trait-input" placeholder="输入性格特点..."></textarea>
+                        <div class="trait-edit-actions">
+                            <button class="btn-cancel" onclick="cancelEditTrait()">取消</button>
+                            <button class="btn-save" onclick="saveTrait()">保存</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 群内互殴 -->
+                <div class="player-battles-section">
+                    <div class="section-title">
+                        <h3>群内互殴</h3>
+                        <span class="battles-count">共 <span id="detail-battles-count">0</span> 场</span>
+                    </div>
+                    <div class="battles-list" id="detail-battles-list"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 荣誉编辑弹窗 -->
+    <div id="honors-editor-modal" class="modal">
+        <div class="modal-content honors-editor-modal-content">
+            <div class="honors-editor-header">
+                <h3>编辑荣誉</h3>
+                <button class="modal-close" onclick="closeHonorsEditor()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="honors-editor-body">
+                <!-- 上部：选择赛事 -->
+                <div class="editor-section">
+                    <div class="editor-label-row">
+                        <label class="editor-label">选择赛事</label>
+                        <button type="button" class="btn-add-event" onclick="toggleAddEventForm()" id="toggle-add-event-btn">➕ 添加赛事</button>
+                    </div>
+                    
+                    <!-- 添加赛事表单（默认隐藏） -->
+                    <div class="add-event-form" id="add-event-form" style="display:none;">
+                        <div class="add-event-row">
+                            <input type="text" id="new-event-name" placeholder="赛事名称" class="input-name">
+                        </div>
+                        <div class="add-event-row">
+                            <span class="add-event-label">选择图标</span>
+                            <div class="emoji-picker" id="emoji-picker">
+                                <button type="button" class="emoji-btn" data-emoji="🏆">🏆</button>
+                                <button type="button" class="emoji-btn" data-emoji="⚔️">⚔️</button>
+                                <button type="button" class="emoji-btn" data-emoji="👑">👑</button>
+                                <button type="button" class="emoji-btn" data-emoji="💎">💎</button>
+                                <button type="button" class="emoji-btn" data-emoji="🌟">🌟</button>
+                                <button type="button" class="emoji-btn" data-emoji="🔥">🔥</button>
+                                <button type="button" class="emoji-btn" data-emoji="🎯">🎯</button>
+                                <button type="button" class="emoji-btn" data-emoji="🏅">🏅</button>
+                                <button type="button" class="emoji-btn" data-emoji="🎖️">🎖️</button>
+                                <button type="button" class="emoji-btn" data-emoji="⭐">⭐</button>
+                                <button type="button" class="emoji-btn" data-emoji="🎲">🎲</button>
+                                <button type="button" class="emoji-btn" data-emoji="🐉">🐉</button>
+                            </div>
+                            <input type="hidden" id="new-event-emoji" value="🏆">
+                        </div>
+                        <div class="add-event-row">
+                            <input type="text" id="new-event-subtitle" placeholder="副标题（可选）" class="input-name">
+                        </div>
+                        <div class="add-event-actions">
+                            <button class="btn-primary btn-small" onclick="addNewEvent()">确认添加</button>
+                            <button type="button" class="btn-cancel btn-small" onclick="toggleAddEventForm()">取消</button>
+                        </div>
+                    </div>
+                    
+                    <div class="editor-row">
+                        <select id="honors-category-select" onchange="onCategoryChange()">
+                            <option value="personal">个人赛</option>
+                            <option value="cup">杯赛</option>
+                            <option value="bird">大鸟杯</option>
+                            <option value="team">团队赛</option>
+                            <option value="2v2">2v2赛</option>
+                        </select>
+                        <select id="honors-event-select">
+                            <option value="">请选择赛事</option>
+                        </select>
+                        <input type="hidden" id="edit-event-id">
+                        <button type="button" class="btn-danger btn-small" onclick="deleteCurrentEvent()" id="delete-event-btn" style="display:none;">🗑️ 删除</button>
+                    </div>
+                </div>
+                
+                <!-- 中部：添加记录 -->
+                <div class="editor-section">
+                    <label class="editor-label">添加记录</label>
+                    <div class="editor-row editor-row-inputs">
+                        <input type="text" id="edit-champion-period" placeholder="届次" class="input-short">
+                        <input type="text" id="edit-champion-name" placeholder="冠军" class="input-medium">
+                        <input type="text" id="edit-runnerup-name" placeholder="亚军" class="input-medium">
+                        <button class="btn-primary" onclick="addChampion()">添加</button>
+                    </div>
+                </div>
+                
+                <!-- 下部：已添加列表 -->
+                <div class="editor-section editor-section-list">
+                    <label class="editor-label">已添加的记录</label>
+                    <div class="editor-list" id="champion-list">
+                        <div class="empty-hint">请选择赛事后添加记录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录弹窗 -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeLoginModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </span>
+            <h2>管理员登录</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>账号</label>
+                    <input type="text" id="login-username" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn-submit">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加成员弹窗 -->
+    <div id="add-player-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAddPlayerModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </span>
+            <h2>添加成员</h2>
+            <form onsubmit="handleAddPlayer(event)">
+                <div class="form-group">
+                    <label>昵称</label>
+                    <input type="text" id="player-name" required>
+                </div>
+                <div class="form-group">
+                    <label>种族</label>
+                    <select id="player-race" required>
+                        <option value="HUM">人族</option>
+                        <option value="ORC">兽族</option>
+                        <option value="UD">亡灵</option>
+                        <option value="NE">暗夜</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>KK昵称</label>
+                    <input type="text" id="player-kkname">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>初始积分</label>
+                        <input type="number" id="player-points" value="1000" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>APM</label>
+                        <input type="number" id="player-apm" value="120" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>性格特点</label>
+                    <input type="text" id="player-trait" placeholder="描述性格特点...">
+                </div>
+                <div class="form-group">
+                    <label>个人辉煌战绩</label>
+                    <input type="text" id="player-glory" placeholder="如：2024年大鸟群杯冠军...">
+                </div>
+                <div class="form-group">
+                    <label>比赛荣誉</label>
+                    <input type="text" id="player-honors" placeholder="如：黄金联赛亚军...">
+                </div>
+                <div class="form-group">
+                    <label>KK平台历史最高段位</label>
+                    <input type="text" id="player-kk-rank" placeholder="如：宗师、大师、钻石...">
+                </div>
+                <button type="submit" class="btn-submit">添加</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 删减成员弹窗 -->
+    <div id="delete-player-modal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="modal-close" onclick="closeDeletePlayerModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </span>
+            <h2>删减成员</h2>
+            <p class="modal-hint">选择要删除的成员（可多选）：</p>
+            <div id="delete-player-list" class="delete-player-list"></div>
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" onclick="closeDeletePlayerModal()">取消</button>
+                <button type="button" class="btn-confirm-delete" onclick="confirmDeletePlayers()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 录入比赛弹窗 -->
+    <div id="add-match-modal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="modal-close" onclick="closeAddMatchModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </span>
+            <h2>录入比赛</h2>
+            <form onsubmit="handleAddMatch(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>比赛类型</label>
+                        <select id="match-type" required>
+                            <option value="ladder">天梯</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>比赛时间</label>
+                        <input type="datetime-local" id="match-time" required>
+                    </div>
+                </div>
+                <div class="teams-input">
+                    <div class="team-side">
+                        <h4>部落</h4>
+                        <div id="team-red-players"></div>
+                    </div>
+                    <div class="vs-divider">VS</div>
+                    <div class="team-side">
+                        <h4>联盟</h4>
+                        <div id="team-blue-players"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>比分</label>
+                    <div class="score-input">
+                        <input type="number" id="score-red" min="0" max="10" value="1" required>
+                        <span>:</span>
+                        <input type="number" id="score-blue" min="0" max="10" value="0" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">提交</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
