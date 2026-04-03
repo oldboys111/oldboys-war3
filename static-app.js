@@ -247,10 +247,14 @@ async function loadAllData() {
         const events = await loadJSON('events.json');
         const champions = await loadJSON('champions.json');
 
+        console.log('原始数据:', { players, matches, events, champions });
+
         if (players) cachedPlayers = players;
-        if (matches) {
-            // 数据格式兼容性处理：将旧格式转换为新格式
-            cachedMatches = matches.map(m => {
+        
+        // 处理 matches 数据格式兼容性
+        if (matches && Array.isArray(matches)) {
+            cachedMatches = matches.map((m, idx) => {
+                console.log(`处理第 ${idx + 1} 条对战记录:`, m);
                 // 新格式已经有 redPlayers/bluePlayers
                 if (m.redPlayers && m.bluePlayers) {
                     return m;
@@ -268,9 +272,14 @@ async function loadAllData() {
                         blueScore: isP1Winner ? parseInt(m.score?.split('-')[1]) || 0 : parseInt(m.score?.split('-')[0]) || 1
                     };
                 }
+                // 未知格式，返回原始数据
+                console.warn('未知对战记录格式:', m);
                 return m;
             });
+        } else {
+            cachedMatches = [];
         }
+        
         if (events) cachedEvents = events;
         if (champions) cachedChampions = champions;
     }
@@ -280,6 +289,7 @@ async function loadAllData() {
         players: cachedPlayers.length,
         matches: cachedMatches.length
     });
+    console.log('cachedMatches 示例:', cachedMatches.slice(0, 2));
 }
 
 // 初始化数据
