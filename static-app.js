@@ -2569,12 +2569,11 @@ async function handleAddMatch(e) {
         return;
     }
 
-    const matches = getMatches();
-
     const redScore = parseInt(document.getElementById('score-red').value);
     const blueScore = parseInt(document.getElementById('score-blue').value);
 
     const match = {
+        id: 'm' + Date.now(),
         type: document.getElementById('match-type').value,
         date: document.getElementById('match-time').value,
         redPlayers,
@@ -2583,69 +2582,49 @@ async function handleAddMatch(e) {
         blueScore
     };
 
-    // 通过 API 添加
-    const result = await apiPost('/matches', match);
-    if (result && !result.error) {
-        matches.unshift(result);
-        cachedMatches = matches;
-    }
+    // 添加到缓存
+    const matches = getMatches();
+    matches.unshift(match);
+    cachedMatches = matches;
 
     // 计算积分变化并更新
-    updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore);
+    const pointsInfo = await updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore);
 
-    const scoreDiff = Math.abs(redScore - blueScore);
-    const players = getPlayers();
-    
-    // 计算双方平均积分和段位
-    const redAvgPoints = redPlayers.reduce((sum, id) => {
-        const p = players.find(pl => pl.id === id);
-        return sum + (p ? p.points : 1000);
-    }, 0) / redPlayers.length;
-    
-    const blueAvgPoints = bluePlayers.reduce((sum, id) => {
-        const p = players.find(pl => pl.id === id);
-        return sum + (p ? p.points : 1000);
-    }, 0) / bluePlayers.length;
-    
-    const redLevel = getLevelByPoints(redAvgPoints);
-    const blueLevel = getLevelByPoints(blueAvgPoints);
-    const redLevelValue = LEVEL_VALUE[redLevel] || 0;
-    const blueLevelValue = LEVEL_VALUE[blueLevel] || 0;
-    
-    // 基础分 = 比分差 × 10
-    const basePoints = scoreDiff * 10;
-    
-    let pointsChange, winnerSide;
-    
-    if (redScore > blueScore) {
-        let multiplier = 1;
-        if (redLevelValue < blueLevelValue) {
-            multiplier = 2;
-        } else if (redLevelValue > blueLevelValue) {
-            multiplier = 0.5;
-        }
-        pointsChange = Math.round(basePoints * multiplier);
-        winnerSide = '部落';
-        
-        alert(`比赛录入成功！\n\n${winnerSide}（${redLevel}）\n每人：+${pointsChange}分`);
-    } else {
-        let multiplier = 1;
-        if (blueLevelValue < redLevelValue) {
-            multiplier = 2;
-        } else if (blueLevelValue > redLevelValue) {
-            multiplier = 0.5;
-        }
-        pointsChange = Math.round(basePoints * multiplier);
-        winnerSide = '联盟';
-        
-        alert(`比赛录入成功！\n\n${winnerSide}（${blueLevel}）\n每人：+${pointsChange}分`);
+    // 在静态模式下，需要下载更新后的数据文件
+    if (RUNTIME_MODE !== 'api') {
+        downloadUpdatedData();
     }
 
     closeAddMatchModal();
     renderMatches(document.getElementById('match-filter').value);
+    renderOverview();
+    
+    alert(`比赛录入成功！\n\n${pointsInfo.message}`);
 }
 
-// 更新玩家统计 - 使用新积分规则 (API 版本)
+// 下载更新后的数据文件（静态模式）
+function downloadUpdatedData() {
+    const data = {
+        players: cachedPlayers,
+        matches: cachedMatches,
+        events: cachedEvents,
+        champions: cachedChampions
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'wc3-data-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    alert('⚠️ 重要提示：\n\n积分数据已更新到内存，但 GitHub Pages 无法直接保存文件。\n\n请使用「WC3战绩管理工具」打开刚下载的 wc3-data-backup.json 文件，然后导出到 GitHub 仓库的 data 文件夹。\n\n或者把以下文件内容手动更新到仓库：\n- data/players.json（成员积分）\n- data/matches.json（对战记录）');
+}
+
+// 更新玩家统计 - 使用新积分规则
 async function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
     const players = getPlayers();
     const scoreDiff = Math.abs(redScore - blueScore);
@@ -2669,10 +2648,9 @@ async function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
     // 基础分 = 比分差 × 10
     const basePoints = scoreDiff * 10;
     
-    // 计算部落获胜时的积分
-    let redPointChange, bluePointChange;
+    // 计算积分变化
+    let redPointChange, bluePointChange, winnerSide, winnerLevel;
     
-    // 部落获胜
     if (redScore > blueScore) {
         let multiplier = 1;
         if (redLevelValue < blueLevelValue) {
@@ -2680,9 +2658,10 @@ async function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
         } else if (redLevelValue > blueLevelValue) {
             multiplier = 0.5;
         }
-        
         redPointChange = Math.round(basePoints * multiplier);
         bluePointChange = -Math.round(basePoints * multiplier);
+        winnerSide = '部落';
+        winnerLevel = redLevel;
     } else {
         let multiplier = 1;
         if (blueLevelValue < redLevelValue) {
@@ -2690,9 +2669,10 @@ async function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
         } else if (blueLevelValue > redLevelValue) {
             multiplier = 0.5;
         }
-        
         bluePointChange = Math.round(basePoints * multiplier);
         redPointChange = -Math.round(basePoints * multiplier);
+        winnerSide = '联盟';
+        winnerLevel = blueLevel;
     }
     
     // 应用积分和胜败变化
@@ -2728,16 +2708,24 @@ async function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
         });
     }
 
-    // 更新到服务器
+    // 更新缓存
+    cachedPlayers = players;
+    
+    // 尝试更新到服务器
     const updates = players.filter(p => 
         redPlayers.includes(p.id) || bluePlayers.includes(p.id)
     ).map(p => ({ id: p.id, points: p.points }));
     
-    if (updates.length > 0) {
+    try {
         await apiPost('/players/updatePoints', updates);
+    } catch (e) {
+        // 静态模式下忽略 API 错误
     }
     
-    cachedPlayers = players;
+    // 返回积分变化信息
+    return {
+        message: `${winnerSide}（${winnerLevel}）\n每人：+${Math.abs(redPointChange)}分\n败方每人：${redPointChange}分`
+    };
 }
 
 // 删除比赛 (API 版本)
