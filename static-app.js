@@ -248,7 +248,29 @@ async function loadAllData() {
         const champions = await loadJSON('champions.json');
 
         if (players) cachedPlayers = players;
-        if (matches) cachedMatches = matches;
+        if (matches) {
+            // 数据格式兼容性处理：将旧格式转换为新格式
+            cachedMatches = matches.map(m => {
+                // 新格式已经有 redPlayers/bluePlayers
+                if (m.redPlayers && m.bluePlayers) {
+                    return m;
+                }
+                // 旧格式 (player1, player2, score) 转换为新格式
+                if (m.player1 && m.player2) {
+                    const isP1Winner = m.result && m.result.includes(m.player1);
+                    return {
+                        id: m.id || 'm' + Date.now(),
+                        type: m.type || '自定义',
+                        date: m.date || new Date().toISOString(),
+                        redPlayers: isP1Winner ? [m.player1] : [m.player2],
+                        bluePlayers: isP1Winner ? [m.player2] : [m.player1],
+                        redScore: isP1Winner ? parseInt(m.score?.split('-')[0]) || 1 : parseInt(m.score?.split('-')[1]) || 0,
+                        blueScore: isP1Winner ? parseInt(m.score?.split('-')[1]) || 0 : parseInt(m.score?.split('-')[0]) || 1
+                    };
+                }
+                return m;
+            });
+        }
         if (events) cachedEvents = events;
         if (champions) cachedChampions = champions;
     }
