@@ -26,5 +26,19 @@
     "honors": "",
     "kkRank": "",
     "id": "p2"
+  },
+  {
+    "name": "电法",
+    "race": "",
+    "kkname": "",
+    "points": 2300,
+    "wins": 0,
+    "losses": 0,
+    "apm": 200,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p3"
   }
 ]
