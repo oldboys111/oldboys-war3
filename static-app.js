@@ -306,12 +306,26 @@ function getMatches() {
     return cachedMatches;
 }
 
+// 获取赛事数据（优先使用缓存，兼容 localStorage）
 function getEvents() {
-    return cachedEvents;
+    // 优先使用 API/JSON 缓存
+    if (cachedEvents && Object.keys(cachedEvents).length > 0) {
+        return cachedEvents;
+    }
+    // 降级到 localStorage
+    const data = localStorage.getItem('wc3_events');
+    return data ? JSON.parse(data) : JSON.parse(JSON.stringify(DEFAULT_EVENTS));
 }
 
+// 获取冠军数据（优先使用缓存，兼容 localStorage）
 function getChampions() {
-    return cachedChampions;
+    // 优先使用 API/JSON 缓存
+    if (cachedChampions && Object.keys(cachedChampions).length > 0) {
+        return cachedChampions;
+    }
+    // 降级到 localStorage
+    const data = localStorage.getItem('wc3_champions');
+    return data ? JSON.parse(data) : {};
 }
 
 // 保存数据（通过 API）
@@ -1867,24 +1881,12 @@ const DEFAULT_EVENTS = {
     ]
 };
 
-// 获取赛事数据
-function getEvents() {
-    const data = localStorage.getItem('wc3_events');
-    return data ? JSON.parse(data) : JSON.parse(JSON.stringify(DEFAULT_EVENTS));
-}
-
-// 保存赛事数据
+// 保存赛事数据到 localStorage
 function saveEvents(events) {
     localStorage.setItem('wc3_events', JSON.stringify(events));
 }
 
-// 获取冠军数据
-function getChampions() {
-    const data = localStorage.getItem('wc3_champions');
-    return data ? JSON.parse(data) : {};
-}
-
-// 保存冠军数据
+// 保存冠军数据到 localStorage
 function saveChampions(champions) {
     localStorage.setItem('wc3_champions', JSON.stringify(champions));
 }
