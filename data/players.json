@@ -1,16 +1,16 @@
 [
   {
-    "name": "范德萨",
-    "race": "",
+    "name": "马虎发大水",
+    "race": "UD",
     "kkname": "",
-    "points": 0,
+    "points": 3500,
     "wins": 0,
     "losses": 0,
-    "apm": 0,
+    "apm": 200,
     "trait": "",
     "glory": "",
     "honors": "",
-    "kkRank": "",
-    "id": "p1"
+    "kkRank": "钻石一",
+    "id": "p2"
   }
 ]
