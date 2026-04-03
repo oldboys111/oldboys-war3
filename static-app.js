@@ -404,7 +404,7 @@ function renderOverview() {
         <div class="top-player-item">
             <span class="top-player-rank ${i < 3 ? 'rank-' + (i+1) : ''}">${i + 1}</span>
             <span class="top-player-name">${p.name}</span>
-            <span class="race-tag race-${p.race}">${RACES[p.race].name}</span>
+            <span class="race-tag race-${p.race || 'unknown'}">${p.race && RACES[p.race] ? RACES[p.race].name : '未知'}</span>
             <span class="top-player-points">${p.points}</span>
         </div>
     `).join('');
@@ -507,11 +507,11 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
                                     <td><span class="level-cell level-${level}">${level}</span></td>
                                     <td>
                                         <div class="name-cell">
-                                            <div class="member-avatar-small">${RACES[p.race].icon}</div>
+                                            <div class="member-avatar-small">${p.race && RACES[p.race] ? RACES[p.race].icon : ''}</div>
                                             <span>${p.name}</span>
                                         </div>
                                     </td>
-                                    <td><span class="race-tag race-${p.race}">${RACES[p.race].name}</span></td>
+                                    <td><span class="race-tag race-${p.race || 'unknown'}">${p.race && RACES[p.race] ? RACES[p.race].name : '未知'}</span></td>
                                     <td class="kkname-cell">${p.kkname || '-'}</td>
                                     <td class="points-cell">${p.points}</td>
                                 </tr>
