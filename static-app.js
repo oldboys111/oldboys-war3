@@ -1030,53 +1030,7 @@ function renderMatches(filterType = 'all', playerSearch = '') {
 let currentEventStatus = 'all';
 
 // 默认赛事展示数据
-const DEFAULT_SHOW_EVENTS = [
-    { 
-        id: 'event-2', 
-        emoji: '⚔️', 
-        name: '2v2搭档赛', 
-        subtitle: '双人合作赛',
-        status: 'ongoing',
-        date: '2025-01-20',
-        format: '双败淘汰',
-        players: 24,
-        maps: ['TR', 'TS', 'AI'],
-        prize: '',
-        champions: '',
-        progress: '八强赛阶段\nA组: Sky&Moon vs TH000&Infi\nB组: Lyn&Grubby vs Fly&Remind',
-        description: '双人搭档赛考验选手之间的配合默契。自由组队后通过双败淘汰赛制决出最强搭档组合。'
-    },
-    { 
-        id: 'event-3', 
-        emoji: '👑', 
-        name: '天王杯第七届', 
-        subtitle: '巅峰对决',
-        status: 'finished',
-        date: '2024-11-10',
-        format: '循环赛',
-        players: 8,
-        maps: ['TR', 'TS', 'AI', 'LR'],
-        prize: 'Moon',
-        champions: '第1届:Grubby\n第2届:Sky\n第3届:TH000\n第4届:Moon\n第5届:Lyn',
-        progress: '决赛: Moon 3:2 Sky (五局三胜)',
-        description: '天王杯邀请群内积分最高的8位选手进行循环赛，胜率最高的选手获得冠军。'
-    },
-    { 
-        id: 'event-4', 
-        emoji: '🔥', 
-        name: '春季争霸赛', 
-        subtitle: '春季赛',
-        status: 'ongoing',
-        date: '2025-03-01',
-        format: '淘汰赛',
-        players: 32,
-        maps: ['TR', 'TS', 'AI', 'LR', 'TM', 'EI'],
-        prize: '',
-        champions: '',
-        progress: '报名已截止\n正在进行32进16比赛',
-        description: '春季争霸赛是开年第一场大型赛事，32位选手角逐冠军宝座，赢取丰厚奖励。'
-    }
-];
+const DEFAULT_SHOW_EVENTS = [];
 
 // 获取赛事展示数据
 function getShowEvents() {
