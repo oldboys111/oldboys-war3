@@ -1,5 +1,12 @@
 {
-  "personal": [],
+  "personal": [
+    {
+      "id": "event-几把赛",
+      "emoji": "🏆",
+      "name": "几把赛",
+      "subtitle": "个人赛冠军"
+    }
+  ],
   "cup": [
     {
       "id": "spring-cup",
