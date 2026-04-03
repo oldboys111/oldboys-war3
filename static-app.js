@@ -1018,21 +1018,6 @@ let currentEventStatus = 'all';
 // 默认赛事展示数据
 const DEFAULT_SHOW_EVENTS = [
     { 
-        id: 'event-1', 
-        emoji: '🏆', 
-        name: '大鸟杯第五季', 
-        subtitle: '群内年度盛事',
-        status: 'finished',
-        date: '2024-12-15',
-        format: '淘汰赛',
-        players: 16,
-        maps: ['TR', 'TS', 'AI', 'LR', 'TM'],
-        prize: 'Sky',
-        champions: '第1届:TH000\n第2届:Sky\n第3届:Moon\n第4届:Lyn\n第5届:Infi',
-        progress: '决赛:Infi 2:1 TH000',
-        description: '大鸟杯是群内最高水平的个人对抗赛，每年举办一次。参赛选手通过小组赛、淘汰赛争夺冠军荣誉。'
-    },
-    { 
         id: 'event-2', 
         emoji: '⚔️', 
         name: '2v2搭档赛', 
