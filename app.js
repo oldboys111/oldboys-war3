@@ -1,6 +1,93 @@
 // ========================================
 // 大鸟群 WC3战绩系统 - JavaScript
+// API 版本（连接后端服务器）
 // ========================================
+
+// API 配置
+const API_BASE = 'http://localhost:5000/api';
+let authToken = localStorage.getItem('wc3_api_token') || null;
+let currentUsername = localStorage.getItem('wc3_username') || null;
+
+// 缓存数据
+let cachedPlayers = [];
+let cachedMatches = [];
+let cachedEvents = {};
+let cachedChampions = {};
+
+// API 请求辅助函数
+async function apiGet(endpoint) {
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+        });
+        return await res.json();
+    } catch (e) {
+        console.error('API GET error:', e);
+        return null;
+    }
+}
+
+async function apiPost(endpoint, data) {
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+            },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        console.error('API POST error:', e);
+        return { error: e.message };
+    }
+}
+
+async function apiPut(endpoint, data) {
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+            },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        console.error('API PUT error:', e);
+        return { error: e.message };
+    }
+}
+
+async function apiDelete(endpoint) {
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'DELETE',
+            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+        });
+        return await res.json();
+    } catch (e) {
+        console.error('API DELETE error:', e);
+        return { error: e.message };
+    }
+}
+
+// 检查是否已登录
+async function checkAuth() {
+    if (!authToken) return false;
+    try {
+        const res = await apiGet('/auth/check');
+        if (res.loggedIn) {
+            currentUsername = res.username;
+            return true;
+        }
+    } catch (e) {
+        console.error('Auth check error:', e);
+    }
+    return false;
+}
 
 // 种族配置
 const RACES = {
@@ -35,7 +122,7 @@ function getPlayerLevel(playerId) {
     // 找到玩家的排名位置（使用严格相等）
     let rank = -1;
     for (let i = 0; i < sortedPlayers.length; i++) {
-        if (sortedPlayers[i].id == playerId) {
+        if (sortedPlayers[i].id === playerId) {
             rank = i;
             break;
         }
@@ -72,55 +159,140 @@ function getLevelValue(level) {
     return values[level] || 0;
 }
 
-// 初始化数据
-function initData() {
-    if (!localStorage.getItem('wc3_players')) {
-        const defaultPlayers = [
-            { id: 1, name: 'Sky', race: 'HUM', kkname: 'SkyKK', points: 1850, wins: 45, losses: 12, apm: 180, trait: '人族皇帝，操作细腻，大赛经验丰富', glory: '2024年大鸟群杯冠军、WCG中国区四强', honors: '黄金联赛亚军、群内赛5连胜', kkRank: '宗师' },
-            { id: 2, name: 'Moon', race: 'NE', kkname: 'MoonKK', points: 1820, wins: 38, losses: 15, apm: 165, trait: '暗夜精灵王，战术多变，前期压制能力强', glory: '2023年群内赛冠军', honors: 'WC3L冠军成员', kkRank: '宗师' },
-            { id: 3, name: 'Grubby', race: 'ORC', kkname: 'GrubbyKK', points: 1780, wins: 42, losses: 18, apm: 175, trait: '兽族天王，基本功扎实，运营稳健', glory: 'ESWC世界冠军', honors: '三届WCG冠军', kkRank: '大师' },
-            { id: 4, name: 'Sweet', race: 'UD', kkname: 'SweetKK', points: 1750, wins: 35, losses: 20, apm: 160, trait: '亡灵高手，开矿意识强，中期转型犀利', glory: '', honors: '', kkRank: '钻石' },
-            { id: 5, name: 'Fly100%', race: 'ORC', kkname: 'FlyKK', points: 1720, wins: 40, losses: 22, apm: 170, trait: '飞龙小子，骚扰能力一流，地图理解深刻', glory: '群内飞龙挑战赛冠军', honors: '', kkRank: '大师' },
-            { id: 6, name: 'TH000', race: 'HUM', kkname: 'TH000KK', points: 1700, wins: 33, losses: 18, apm: 185, trait: '人族鬼王，意识超群，团战处理完美', glory: '黄金联赛冠军', honors: 'WCS八强', kkRank: '宗师' },
-            { id: 7, name: 'Infi', race: 'HUM', kkname: 'InfiKK', points: 1680, wins: 30, losses: 17, apm: 172, trait: '塔魔，防守反击炉火纯青，憋尿流代表', glory: '憋尿流创始人', honors: '', kkRank: '大师' },
-            { id: 8, name: 'Lyn', race: 'ORC', kkname: 'LynKK', points: 1650, wins: 28, losses: 16, apm: 168, trait: '韩国兽王，版本理解顶尖，细节处理到位', glory: 'OSL冠军', honors: 'IEF世界冠军', kkRank: '宗师' },
-            { id: 9, name: 'Lucifer', race: 'UD', kkname: 'LuciferKK', points: 1620, wins: 25, losses: 19, apm: 155, trait: '亡灵新星，学习能力强，心态稳定', glory: '', honors: '', kkRank: '钻石' },
-            { id: 10, name: 'Remind', race: 'NE', kkname: 'RemindKK', points: 1600, wins: 22, losses: 15, apm: 158, trait: '暗夜新秀，操作细腻，后期能力强', glory: '', honors: '', kkRank: '钻石' },
-            { id: 11, name: 'TeD', race: 'UD', kkname: 'TeDKK', points: 1580, wins: 20, losses: 14, apm: 150, trait: '蜘蛛王子，战术执行力强，耐心十足', glory: '', honors: '', kkRank: '钻石' },
-            { id: 12, name: 'FoV', race: 'UD', kkname: 'FoVKK', points: 1550, wins: 18, losses: 13, apm: 145, trait: '亡灵老将，经验丰富，节奏把控好', glory: '', honors: '', kkRank: '大师' },
-        ];
-        localStorage.setItem('wc3_players', JSON.stringify(defaultPlayers));
+// 清理已删除的分类数据
+function cleanUpOldData() {
+    // 清理荣誉赛事数据 - 删除大鸟杯和2v2赛分类
+    const events = getEvents();
+    if (events.bird) {
+        delete events.bird;
+        saveEvents(events);
     }
-
-    if (!localStorage.getItem('wc3_matches')) {
-        const now = new Date();
-        const defaultMatches = [
-            { id: 1, type: 'ladder', date: new Date(now - 2*60*60*1000).toISOString(), redPlayers: [1, 3, 5], bluePlayers: [2, 4, 6], redScore: 2, blueScore: 1 },
-            { id: 2, type: 'ladder', date: new Date(now - 5*60*60*1000).toISOString(), redPlayers: [7, 8], bluePlayers: [9, 10], redScore: 2, blueScore: 0 },
-            { id: 3, type: 'custom', date: new Date(now - 24*60*60*1000).toISOString(), redPlayers: [1, 2, 3], bluePlayers: [4, 5, 6], redScore: 1, blueScore: 2 },
-            { id: 4, type: 'ladder', date: new Date(now - 48*60*60*1000).toISOString(), redPlayers: [11, 12], bluePlayers: [7, 8], redScore: 2, blueScore: 1 },
-            { id: 5, type: 'ladder', date: new Date(now - 72*60*60*1000).toISOString(), redPlayers: [1, 4, 8], bluePlayers: [2, 3, 9], redScore: 0, blueScore: 2 },
-        ];
-        localStorage.setItem('wc3_matches', JSON.stringify(defaultMatches));
+    if (events['2v2']) {
+        delete events['2v2'];
+        saveEvents(events);
+    }
+    
+    // 清理对应的冠军数据
+    const champions = getChampions();
+    let changed = false;
+    ['bird-cup-1', '2v2-match'].forEach(id => {
+        if (champions[id]) {
+            delete champions[id];
+            changed = true;
+        }
+    });
+    if (changed) {
+        saveChampions(champions);
     }
 }
 
-// 获取数据
+// 检测运行模式
+let RUNTIME_MODE = 'api';
+
+async function detectRuntimeMode() {
+    try {
+        const res = await fetch(`${API_BASE}/players`, { method: 'GET' });
+        if (res.ok) {
+            RUNTIME_MODE = 'api';
+            console.log('✅ 运行模式: API (本地服务器)');
+            return;
+        }
+    } catch (e) {
+        // API 不可用
+    }
+    RUNTIME_MODE = 'static';
+    console.log('📁 运行模式: 静态文件 (GitHub Pages)');
+}
+
+// 从 JSON 文件加载数据（静态模式）
+async function loadJSON(filename) {
+    try {
+        const res = await fetch(`data/${filename}`);
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (e) {
+        console.error(`加载 data/${filename} 失败:`, e);
+    }
+    return null;
+}
+
+// 异步加载所有数据
+async function loadAllData() {
+    await detectRuntimeMode();
+
+    if (RUNTIME_MODE === 'api') {
+        // API 模式 - 从服务器加载
+        cachedPlayers = await apiGet('/players') || [];
+        cachedMatches = await apiGet('/matches') || [];
+        cachedEvents = await apiGet('/events') || {};
+        cachedChampions = await apiGet('/champions') || {};
+    } else {
+        // 静态模式 - 从 JSON 文件加载
+        const players = await loadJSON('players.json');
+        const matches = await loadJSON('matches.json');
+        const events = await loadJSON('events.json');
+        const champions = await loadJSON('champions.json');
+
+        if (players) cachedPlayers = players;
+        if (matches) cachedMatches = matches;
+        if (events) cachedEvents = events;
+        if (champions) cachedChampions = champions;
+    }
+
+    console.log('数据加载完成:', {
+        mode: RUNTIME_MODE,
+        players: cachedPlayers.length,
+        matches: cachedMatches.length
+    });
+}
+
+// 初始化数据
+async function initData() {
+    await loadAllData();
+}
+
+// 获取数据（使用缓存）
 function getPlayers() {
-    return JSON.parse(localStorage.getItem('wc3_players') || '[]');
+    return cachedPlayers;
 }
 
 function getMatches() {
-    return JSON.parse(localStorage.getItem('wc3_matches') || '[]');
+    return cachedMatches;
 }
 
-// 保存数据
-function savePlayers(players) {
-    localStorage.setItem('wc3_players', JSON.stringify(players));
+function getEvents() {
+    return cachedEvents;
 }
 
-function saveMatches(matches) {
-    localStorage.setItem('wc3_matches', JSON.stringify(matches));
+function getChampions() {
+    return cachedChampions;
+}
+
+// 保存数据（通过 API）
+async function savePlayers(players) {
+    cachedPlayers = players;
+    // 批量更新积分
+    const updates = players.map(p => ({ id: p.id, points: p.points }));
+    await apiPost('/players/updatePoints', updates);
+}
+
+async function saveMatches(matches) {
+    cachedMatches = matches;
+    // 同步到服务器（单条）
+}
+
+async function saveEvents(events) {
+    cachedEvents = events;
+}
+
+async function saveChampions(champions) {
+    cachedChampions = champions;
+}
+
+// 刷新数据
+async function refreshData() {
+    await loadAllData();
 }
 
 // 页面导航
@@ -279,7 +451,7 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
                         ${levelPlayers.map(p => {
                             const rank = globalRank++;
                             return `
-                                <tr onclick="showPlayerDetail(${p.id})">
+                                <tr onclick="showPlayerDetail('${p.id}')">
                                     <td class="rank-cell">${rank}</td>
                                     <td><span class="level-cell level-${level}">${level}</span></td>
                                     <td>
@@ -414,12 +586,12 @@ function renderPlayerDetail(playerId) {
     }
     
     // 显示/隐藏编辑按钮
-    const isAdmin = localStorage.getItem('wc3_admin');
-    document.getElementById('btn-edit-glory').style.display = isAdmin ? 'block' : 'none';
-    document.getElementById('btn-edit-honors').style.display = isAdmin ? 'block' : 'none';
-    document.getElementById('btn-edit-kk-rank').style.display = isAdmin ? 'block' : 'none';
-    document.getElementById('btn-edit-trait').style.display = isAdmin ? 'block' : 'none';
-    document.getElementById('honors-edit-btn').style.display = isAdmin ? 'block' : 'none';
+    const admin = isAdmin();
+    document.getElementById('btn-edit-glory').style.display = admin ? 'block' : 'none';
+    document.getElementById('btn-edit-honors').style.display = admin ? 'block' : 'none';
+    document.getElementById('btn-edit-kk-rank').style.display = admin ? 'block' : 'none';
+    document.getElementById('btn-edit-trait').style.display = admin ? 'block' : 'none';
+    document.getElementById('honors-edit-btn').style.display = admin ? 'block' : 'none';
     
     // 计算群内互殴数据
     renderPlayerBattles(playerId);
@@ -464,7 +636,7 @@ function renderPlayerBattles(playerId) {
     
     const battlesHtml = Object.entries(battleStats)
         .map(([opponentId, stats]) => {
-            const opponent = players.find(p => p.id === parseInt(opponentId));
+            const opponent = players.find(p => p.id === opponentId);
             if (!opponent) return '';
             
             const total = stats.wins + stats.losses;
@@ -644,7 +816,7 @@ function renderMatches(filterType = 'all', playerSearch = '') {
     }
 
     const players = getPlayers();
-    const isAdmin = localStorage.getItem('wc3_admin');
+    const admin = isAdmin();
 
     const html = matches.map(m => {
         // 计算全局排名
@@ -733,9 +905,9 @@ function renderMatches(filterType = 'all', playerSearch = '') {
                         <div class="match-players">${blueNames}</div>
                     </div>
                 </div>
-                ${isAdmin ? `
+                ${admin ? `
                     <div class="match-actions">
-                        <button class="btn-delete" onclick="deleteMatch(${m.id})">删除</button>
+                        <button class="btn-delete" onclick="deleteMatch('${m.id}')">删除</button>
                     </div>
                 ` : ''}
             </div>
@@ -830,7 +1002,7 @@ function saveShowEvents(events) {
 function renderEvents() {
     const events = getShowEvents();
     const content = document.getElementById('events-content');
-    const isAdmin = localStorage.getItem('wc3_admin');
+    const admin = isAdmin();
     
     // 根据状态筛选
     let filteredEvents = events;
@@ -861,7 +1033,7 @@ function renderEvents() {
                 <div class="event-card-body">
                     <p class="event-description">${event.description || '暂无描述'}</p>
                 </div>
-                ${isAdmin ? `
+                ${admin ? `
                     <div class="event-card-actions">
                         <button class="btn-edit-small" onclick="event.stopPropagation(); editEvent('${event.id}')">编辑</button>
                         <button class="btn-delete-small" onclick="event.stopPropagation(); deleteEvent('${event.id}')">删除</button>
@@ -1070,7 +1242,7 @@ function loadEventList() {
 function getPlayerNameById(playerId) {
     if (!playerId) return 'TBD';
     const players = getPlayers();
-    const player = players.find(p => p.id == playerId);
+    const player = players.find(p => p.id === playerId);
     return player ? player.name : 'ID:' + playerId;
 }
 
@@ -1078,7 +1250,7 @@ function getPlayerNameById(playerId) {
 function getPlayerLevelTag(playerId) {
     if (!playerId) return '';
     const players = getPlayers();
-    const player = players.find(p => p.id == playerId);
+    const player = players.find(p => p.id === playerId);
     if (!player) return '';
     const level = getPlayerLevel(player.id);
     return `<span class="level-cell level-${level}">${level}</span>`;
@@ -1569,8 +1741,7 @@ function showEventDetail(eventId) {
     }
     
     // 显示/隐藏编辑按钮
-    const isAdmin = localStorage.getItem('wc3_admin');
-    document.getElementById('btn-edit-event-progress').style.display = isAdmin ? 'block' : 'none';
+    document.getElementById('btn-edit-event-progress').style.display = isAdmin() ? 'block' : 'none';
 }
 
 // 返回赛事列表
@@ -1614,14 +1785,8 @@ const DEFAULT_EVENTS = {
     cup: [
         { id: 'spring-cup', emoji: '🌸', name: '春季杯', subtitle: '春季赛冠军' }
     ],
-    bird: [
-        { id: 'bird-cup-1', emoji: '🐦', name: '大鸟杯第一季', subtitle: '首届大鸟杯' }
-    ],
     team: [
         { id: 'team-match', emoji: '🛡️', name: '团队赛', subtitle: '部落对战' }
-    ],
-    '2v2': [
-        { id: '2v2-match', emoji: '🤝', name: '2v2赛', subtitle: '双人搭档赛' }
     ]
 };
 
@@ -1731,20 +1896,7 @@ function renderStoredChampions(storedChampions) {
 
 // 分类标签切换
 document.addEventListener('DOMContentLoaded', () => {
-    // 初始化编辑按钮显示状态
-    const editBtn = document.getElementById('honors-edit-btn');
-    if (editBtn) {
-        editBtn.style.display = localStorage.getItem('wc3_admin') ? 'block' : 'none';
-    }
-    
-    document.querySelectorAll('.honors-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.honors-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            currentHonorCategory = tab.dataset.category;
-            renderHonors();
-        });
-    });
+    // 初始化编辑按钮显示状态（此事件监听器已弃用，由主init处理）
 });
 
 // ========================================
@@ -2038,16 +2190,6 @@ function deleteChampionSimple(index) {
     renderHonors();
 }
 
-// 更新管理员UI - 显示编辑按钮
-const originalUpdateAdminUI = updateAdminUI;
-updateAdminUI = function() {
-    if (originalUpdateAdminUI) originalUpdateAdminUI();
-    const editBtn = document.getElementById('honors-edit-btn');
-    if (editBtn) {
-        editBtn.style.display = localStorage.getItem('wc3_admin') ? 'block' : 'none';
-    }
-};
-
 // 格式化时间
 function formatTimeAgo(dateStr) {
     const date = new Date(dateStr);
@@ -2064,11 +2206,11 @@ function formatTimeAgo(dateStr) {
 }
 
 // ========================================
-// 登录管理
+// 登录管理 (API 版本)
 // ========================================
 
 function showLoginModal() {
-    if (localStorage.getItem('wc3_admin')) {
+    if (authToken) {
         handleLogout();
         return;
     }
@@ -2081,36 +2223,59 @@ function closeLoginModal() {
     document.getElementById('login-password').value = '';
 }
 
-function handleLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
 
-    if (username === 'admin' && password === 'admin123') {
-        localStorage.setItem('wc3_admin', 'true');
+    const result = await apiPost('/login', { username, password });
+    if (result.success) {
+        authToken = result.token;
+        currentUsername = result.username;
+        localStorage.setItem('wc3_api_token', authToken);
+        localStorage.setItem('wc3_username', currentUsername);
         updateAdminUI();
         closeLoginModal();
         alert('登录成功！');
+        await refreshData();
         renderCurrentPage(getCurrentPage());
     } else {
         alert('账号或密码错误');
     }
 }
 
-function handleLogout() {
-    localStorage.removeItem('wc3_admin');
+async function handleLogout() {
+    await apiPost('/logout', {});
+    authToken = null;
+    currentUsername = null;
+    localStorage.removeItem('wc3_api_token');
+    localStorage.removeItem('wc3_username');
     updateAdminUI();
+    await refreshData();
     renderCurrentPage(getCurrentPage());
 }
 
+function isAdmin() {
+    return authToken !== null;
+}
+
 function updateAdminUI() {
-    const isAdmin = localStorage.getItem('wc3_admin');
-    document.getElementById('btn-add-player').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('btn-remove-player').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('btn-add-match').style.display = isAdmin ? 'block' : 'none';
-    document.getElementById('btn-edit-events').style.display = isAdmin ? 'block' : 'none';
-    document.querySelector('.btn-login').textContent = isAdmin ? '退出' : '登录';
-    renderMatches(document.getElementById('match-filter').value);
+    const admin = isAdmin();
+    const btnAddPlayer = document.getElementById('btn-add-player');
+    const btnRemovePlayer = document.getElementById('btn-remove-player');
+    const btnAddMatch = document.getElementById('btn-add-match');
+    const btnEditEvents = document.getElementById('btn-edit-events');
+    const honorsEditBtn = document.getElementById('honors-edit-btn');
+    const loginBtn = document.querySelector('.btn-login');
+    
+    if (btnAddPlayer) btnAddPlayer.style.display = admin ? 'flex' : 'none';
+    if (btnRemovePlayer) btnRemovePlayer.style.display = admin ? 'flex' : 'none';
+    if (btnAddMatch) btnAddMatch.style.display = admin ? 'block' : 'none';
+    if (btnEditEvents) btnEditEvents.style.display = admin ? 'block' : 'none';
+    if (honorsEditBtn) honorsEditBtn.style.display = admin ? 'block' : 'none';
+    if (loginBtn) loginBtn.textContent = admin ? '退出' : '登录';
+    
+    renderMatches(document.getElementById('match-filter')?.value || 'all');
     renderEvents();
 }
 
@@ -2119,10 +2284,15 @@ function getCurrentPage() {
 }
 
 // ========================================
-// 添加成员
+// 添加成员 (API 版本)
 // ========================================
 
 function showAddPlayerModal() {
+    if (!isAdmin()) {
+        alert('请先登录');
+        showLoginModal();
+        return;
+    }
     document.getElementById('add-player-modal').classList.add('active');
 }
 
@@ -2138,13 +2308,13 @@ function closeAddPlayerModal() {
     document.getElementById('player-kk-rank').value = '';
 }
 
-function handleAddPlayer(e) {
+async function handleAddPlayer(e) {
     e.preventDefault();
     const players = getPlayers();
-    const newId = Math.max(0, ...players.map(p => p.id)) + 1;
+    const newId = Math.max(0, ...players.map(p => p.id || 0)) + 1;
 
     const player = {
-        id: newId,
+        id: 'p' + Date.now(),
         name: document.getElementById('player-name').value,
         race: document.getElementById('player-race').value,
         kkname: document.getElementById('player-kkname').value || '',
@@ -2158,19 +2328,29 @@ function handleAddPlayer(e) {
         kkRank: document.getElementById('player-kk-rank').value || ''
     };
 
-    players.push(player);
-    savePlayers(players);
+    // 通过 API 添加
+    const result = await apiPost('/players', player);
+    if (result && !result.error) {
+        players.push(result);
+        cachedPlayers = players;
+    }
+    
     closeAddPlayerModal();
     const searchText = document.getElementById('member-search')?.value || '';
-    renderMembers('all', searchText);
+    renderMembers('all', 'all', searchText);
     alert('成员添加成功！');
 }
 
 // ========================================
-// 删减成员
+// 删减成员 (API 版本)
 // ========================================
 
 function showDeletePlayerModal() {
+    if (!isAdmin()) {
+        alert('请先登录');
+        showLoginModal();
+        return;
+    }
     const players = getPlayers();
     const listContainer = document.getElementById('delete-player-list');
     
@@ -2219,9 +2399,9 @@ function closeDeletePlayerModal() {
     document.getElementById('delete-player-modal').classList.remove('active');
 }
 
-function confirmDeletePlayers() {
+async function confirmDeletePlayers() {
     const checkboxes = document.querySelectorAll('#delete-player-list input[type="checkbox"]:checked');
-    const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
     
     if (selectedIds.length === 0) {
         alert('请选择要删除的成员');
@@ -2232,24 +2412,33 @@ function confirmDeletePlayers() {
         return;
     }
     
-    let players = getPlayers();
-    players = players.filter(p => !selectedIds.includes(p.id));
-    savePlayers(players);
+    // 通过 API 删除每个选中的成员
+    for (const id of selectedIds) {
+        await apiDelete(`/players/${id}`);
+    }
+    
+    // 更新本地缓存
+    cachedPlayers = cachedPlayers.filter(p => !selectedIds.includes(p.id));
     
     closeDeletePlayerModal();
     
     // 刷新成员列表
     const searchText = document.getElementById('member-search')?.value || '';
-    renderMembers('all', searchText);
+    renderMembers('all', 'all', searchText);
     
     alert('已删除 ' + selectedIds.length + ' 名成员');
 }
 
 // ========================================
-// 录入比赛
+// 录入比赛 (API 版本)
 // ========================================
 
 function showAddMatchModal() {
+    if (!isAdmin()) {
+        alert('请先登录');
+        showLoginModal();
+        return;
+    }
     const players = getPlayers();
     if (players.length < 2) {
         alert('请先添加至少2名成员');
@@ -2284,11 +2473,11 @@ function closeAddMatchModal() {
     document.getElementById('add-match-modal').classList.remove('active');
 }
 
-function handleAddMatch(e) {
+async function handleAddMatch(e) {
     e.preventDefault();
 
-    const redPlayers = [...document.querySelectorAll('#team-red-players input:checked')].map(i => parseInt(i.value));
-    const bluePlayers = [...document.querySelectorAll('#team-blue-players input:checked')].map(i => parseInt(i.value));
+    const redPlayers = [...document.querySelectorAll('#team-red-players input:checked')].map(i => i.value);
+    const bluePlayers = [...document.querySelectorAll('#team-blue-players input:checked')].map(i => i.value);
 
     if (redPlayers.length === 0 || bluePlayers.length === 0) {
         alert('请选择双方队伍成员');
@@ -2296,13 +2485,11 @@ function handleAddMatch(e) {
     }
 
     const matches = getMatches();
-    const newId = Math.max(0, ...matches.map(m => m.id)) + 1;
 
     const redScore = parseInt(document.getElementById('score-red').value);
     const blueScore = parseInt(document.getElementById('score-blue').value);
 
     const match = {
-        id: newId,
         type: document.getElementById('match-type').value,
         date: document.getElementById('match-time').value,
         redPlayers,
@@ -2311,12 +2498,18 @@ function handleAddMatch(e) {
         blueScore
     };
 
-    matches.push(match);
-    saveMatches(matches);
+    // 通过 API 添加
+    const result = await apiPost('/matches', match);
+    if (result && !result.error) {
+        matches.unshift(result);
+        cachedMatches = matches;
+    }
 
-    // 计算积分变化并获取结果
-    const players = getPlayers();
+    // 计算积分变化并更新
+    updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore);
+
     const scoreDiff = Math.abs(redScore - blueScore);
+    const players = getPlayers();
     
     // 计算双方平均积分和段位
     const redAvgPoints = redPlayers.reduce((sum, id) => {
@@ -2337,46 +2530,38 @@ function handleAddMatch(e) {
     // 基础分 = 比分差 × 10
     const basePoints = scoreDiff * 10;
     
-    let pointsChange, bonusInfo;
+    let pointsChange, winnerSide;
     
     if (redScore > blueScore) {
         let multiplier = 1;
         if (redLevelValue < blueLevelValue) {
             multiplier = 2;
-            bonusInfo = '（以低打高，双倍加成）';
         } else if (redLevelValue > blueLevelValue) {
             multiplier = 0.5;
-            bonusInfo = '（以高打低，减半计算）';
-        } else {
-            bonusInfo = '（同段位）';
         }
         pointsChange = Math.round(basePoints * multiplier);
-        updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore);
+        winnerSide = '部落';
         
-        alert(`比赛录入成功！\n\n部落（${redLevel}）${bonusInfo}\n部落每人：+${pointsChange}分\n联盟每人：-${pointsChange}分`);
+        alert(`比赛录入成功！\n\n${winnerSide}（${redLevel}）\n每人：+${pointsChange}分`);
     } else {
         let multiplier = 1;
         if (blueLevelValue < redLevelValue) {
             multiplier = 2;
-            bonusInfo = '（以低打高，双倍加成）';
         } else if (blueLevelValue > redLevelValue) {
             multiplier = 0.5;
-            bonusInfo = '（以高打低，减半计算）';
-        } else {
-            bonusInfo = '（同段位）';
         }
         pointsChange = Math.round(basePoints * multiplier);
-        updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore);
+        winnerSide = '联盟';
         
-        alert(`比赛录入成功！\n\n联盟（${blueLevel}）${bonusInfo}\n联盟每人：+${pointsChange}分\n部落每人：-${pointsChange}分`);
+        alert(`比赛录入成功！\n\n${winnerSide}（${blueLevel}）\n每人：+${pointsChange}分`);
     }
 
     closeAddMatchModal();
     renderMatches(document.getElementById('match-filter').value);
 }
 
-// 更新玩家统计 - 使用新积分规则
-function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
+// 更新玩家统计 - 使用新积分规则 (API 版本)
+async function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
     const players = getPlayers();
     const scoreDiff = Math.abs(redScore - blueScore);
     
@@ -2404,26 +2589,20 @@ function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
     
     // 部落获胜
     if (redScore > blueScore) {
-        // 判断部落是更高段位还是更低段位
-        let multiplier = 1; // 同段位
+        let multiplier = 1;
         if (redLevelValue < blueLevelValue) {
-            // 部落以低打高 - 双倍
             multiplier = 2;
         } else if (redLevelValue > blueLevelValue) {
-            // 部落以高打低 - 半倍
             multiplier = 0.5;
         }
         
         redPointChange = Math.round(basePoints * multiplier);
         bluePointChange = -Math.round(basePoints * multiplier);
     } else {
-        // 联盟获胜
-        let multiplier = 1; // 同段位
+        let multiplier = 1;
         if (blueLevelValue < redLevelValue) {
-            // 联盟以低打高 - 双倍
             multiplier = 2;
         } else if (blueLevelValue > redLevelValue) {
-            // 联盟以高打低 - 半倍
             multiplier = 0.5;
         }
         
@@ -2433,7 +2612,6 @@ function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
     
     // 应用积分和胜败变化
     if (redScore > blueScore) {
-        // 部落获胜
         redPlayers.forEach(id => {
             const p = players.find(pl => pl.id === id);
             if (p) {
@@ -2449,7 +2627,6 @@ function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
             }
         });
     } else {
-        // 联盟获胜
         bluePlayers.forEach(id => {
             const p = players.find(pl => pl.id === id);
             if (p) {
@@ -2466,11 +2643,20 @@ function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
         });
     }
 
-    savePlayers(players);
+    // 更新到服务器
+    const updates = players.filter(p => 
+        redPlayers.includes(p.id) || bluePlayers.includes(p.id)
+    ).map(p => ({ id: p.id, points: p.points }));
+    
+    if (updates.length > 0) {
+        await apiPost('/players/updatePoints', updates);
+    }
+    
+    cachedPlayers = players;
 }
 
-// 删除比赛
-function deleteMatch(id) {
+// 删除比赛 (API 版本)
+async function deleteMatch(id) {
     if (!confirm('确定删除这场比赛？')) return;
     
     // 获取要删除的比赛信息
@@ -2479,18 +2665,20 @@ function deleteMatch(id) {
     
     if (matchToDelete) {
         // 回滚玩家统计
-        rollbackMatchStats(matchToDelete);
+        await rollbackMatchStats(matchToDelete);
     }
     
-    // 删除比赛记录
-    let filteredMatches = matches.filter(m => m.id !== id);
-    saveMatches(filteredMatches);
+    // 通过 API 删除
+    await apiDelete(`/matches/${id}`);
+    
+    // 更新本地缓存
+    cachedMatches = matches.filter(m => m.id !== id);
     
     renderMatches(document.getElementById('match-filter').value);
 }
 
-// 回滚比赛对玩家统计的影响
-function rollbackMatchStats(match) {
+// 回滚比赛对玩家统计的影响 (API 版本)
+async function rollbackMatchStats(match) {
     const players = getPlayers();
     const { redPlayers, bluePlayers, redScore, blueScore } = match;
     
@@ -2517,7 +2705,6 @@ function rollbackMatchStats(match) {
     let redPointChange, bluePointChange;
     
     if (redScore > blueScore) {
-        // 部落获胜，回滚时部落要减去赢得的分数
         let multiplier = 1;
         if (redLevelValue < blueLevelValue) {
             multiplier = 2;
@@ -2527,7 +2714,6 @@ function rollbackMatchStats(match) {
         redPointChange = Math.round(basePoints * multiplier);
         bluePointChange = -Math.round(basePoints * multiplier);
     } else {
-        // 联盟获胜，回滚时联盟要减去赢得的分数
         let multiplier = 1;
         if (blueLevelValue < redLevelValue) {
             multiplier = 2;
@@ -2540,7 +2726,6 @@ function rollbackMatchStats(match) {
     
     // 回滚胜场/败场
     if (redScore > blueScore) {
-        // 部落胜，联盟败
         redPlayers.forEach(id => {
             const p = players.find(pl => pl.id === id);
             if (p) {
@@ -2556,7 +2741,6 @@ function rollbackMatchStats(match) {
             }
         });
     } else {
-        // 联盟胜，部落败
         bluePlayers.forEach(id => {
             const p = players.find(pl => pl.id === id);
             if (p) {
@@ -2573,15 +2757,28 @@ function rollbackMatchStats(match) {
         });
     }
     
-    savePlayers(players);
+    // 更新到服务器
+    const updates = players.filter(p => 
+        redPlayers.includes(p.id) || bluePlayers.includes(p.id)
+    ).map(p => ({ id: p.id, points: p.points }));
+    
+    if (updates.length > 0) {
+        await apiPost('/players/updatePoints', updates);
+    }
+    
+    cachedPlayers = players;
 }
 
 // ========================================
 // 事件监听
 // ========================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    initData();
+document.addEventListener('DOMContentLoaded', async () => {
+    // 加载数据
+    await initData();
+    
+    // 检查登录状态
+    const loggedIn = await checkAuth();
     updateAdminUI();
 
     // 导航点击
@@ -2635,16 +2832,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 对战筛选
-    document.getElementById('match-filter').addEventListener('change', (e) => {
-        const searchValue = document.getElementById('match-player-search').value;
-        renderMatches(e.target.value, searchValue);
-    });
+    const matchFilter = document.getElementById('match-filter');
+    if (matchFilter) {
+        matchFilter.addEventListener('change', (e) => {
+            const searchValue = document.getElementById('match-player-search').value;
+            renderMatches(e.target.value, searchValue);
+        });
+    }
 
     // 成员搜索
-    document.getElementById('match-player-search').addEventListener('input', (e) => {
-        const filterValue = document.getElementById('match-filter').value;
-        renderMatches(filterValue, e.target.value);
-    });
+    const matchSearch = document.getElementById('match-player-search');
+    if (matchSearch) {
+        matchSearch.addEventListener('input', (e) => {
+            const filterValue = document.getElementById('match-filter').value;
+            renderMatches(filterValue, e.target.value);
+        });
+    }
 
     // 点击弹窗背景关闭
     document.querySelectorAll('.modal').forEach(modal => {
