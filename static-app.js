@@ -2946,6 +2946,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // 荣誉页面分类切换
+    document.querySelectorAll('.honors-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.honors-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentHonorCategory = tab.dataset.category;
+            renderHonors();
+        });
+    });
+
     // 点击弹窗背景关闭
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
