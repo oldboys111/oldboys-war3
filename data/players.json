@@ -1,9 +1,9 @@
 [
   {
-    "name": "马虎发大水",
+    "name": "马虎",
     "race": "UD",
     "kkname": "",
-    "points": 3500,
+    "points": 3480,
     "wins": 0,
     "losses": 0,
     "apm": 200,
@@ -11,6 +11,20 @@
     "glory": "",
     "honors": "",
     "kkRank": "钻石一",
+    "id": "p1"
+  },
+  {
+    "name": "韵鸡",
+    "race": "HUM",
+    "kkname": "",
+    "points": 2580,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
     "id": "p2"
   }
 ]
