@@ -1918,7 +1918,6 @@ function renderHonors() {
                     <span class="event-emoji">${event.emoji}</span>
                     <div>
                         <div class="event-card-title">${event.name}</div>
-                        <div class="event-card-subtitle">${event.subtitle}</div>
                     </div>
                 </div>
                 <div class="event-champions">
@@ -1963,7 +1962,7 @@ function renderStoredChampions(storedChampions) {
 
         return `
             <div class="honor-list-item">
-                <span class="honor-period">${c.period || '第' + (i + 1) + '届'}</span>
+                <span class="honor-period">第${i + 1}届</span>
                 <div class="honor-players">
                     <span class="honor-champion">🏆 ${championLevelTag}${c.name}</span>
                     ${runnerUpHtml}
