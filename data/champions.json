@@ -18,5 +18,17 @@
     "type": "个人赛",
     "rank": "2",
     "date": "2026-04-03"
+  },
+  {
+    "eventId": "event-几把赛",
+    "name": "几把赛",
+    "runnerUp": "",
+    "period": "2026-04-03"
+  },
+  {
+    "eventId": "event-几把赛",
+    "name": "韵鸡",
+    "runnerUp": "电法",
+    "period": "2026-04-03"
   }
 ]
