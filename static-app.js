@@ -659,14 +659,37 @@ function renderPlayerBattles(playerId) {
     const battleStats = {};
     
     matches.forEach(match => {
-        const isRed = match.redPlayers.includes(playerId);
-        const isBlue = match.bluePlayers.includes(playerId);
+        // 兼容两种数据格式: player1/player2 或 redPlayers/bluePlayers
+        let isRed = false, isBlue = false;
+        let opponents = [];
+        let won = false;
         
-        if (!isRed && !isBlue) return;
-        
-        const teammates = isRed ? match.redPlayers : match.bluePlayers;
-        const opponents = isRed ? match.bluePlayers : match.redPlayers;
-        const won = (isRed && match.redScore > match.blueScore) || (isBlue && match.blueScore > match.redScore);
+        if (match.player1 && match.player2) {
+            // 旧格式: player1/player2
+            const p1 = match.player1;
+            const p2 = match.player2;
+            isRed = p1 === playerId;
+            isBlue = p2 === playerId;
+            
+            if (!isRed && !isBlue) return;
+            
+            opponents = isRed ? [p2] : [p1];
+            
+            // 从 result 字段判断胜负
+            const playerName = currentPlayer.name;
+            won = match.result && match.result.includes(playerName) && match.result.includes('胜');
+        } else if (match.redPlayers && match.bluePlayers) {
+            // 新格式: redPlayers/bluePlayers 数组
+            isRed = match.redPlayers.includes(playerId);
+            isBlue = match.bluePlayers.includes(playerId);
+            
+            if (!isRed && !isBlue) return;
+            
+            opponents = isRed ? match.bluePlayers : match.redPlayers;
+            won = (isRed && match.redScore > match.blueScore) || (isBlue && match.blueScore > match.redScore);
+        } else {
+            return; // 格式不对，跳过
+        }
         
         opponents.forEach(opponentId => {
             if (!battleStats[opponentId]) {
@@ -697,7 +720,7 @@ function renderPlayerBattles(playerId) {
             return `
                 <div class="battle-item">
                     <div class="battle-opponent">
-                        <span class="race-tag race-${opponent.race}">${RACES[opponent.race].icon}</span>
+                        <span class="race-tag race-${opponent.race || 'unknown'}">${opponent.race && RACES[opponent.race] ? RACES[opponent.race].icon : '🏰'}</span>
                         <span class="battle-opponent-name">${opponent.name}</span>
                     </div>
                     <div class="battle-progress">
