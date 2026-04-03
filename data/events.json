@@ -1,38 +1,6 @@
 {
-  "personal": [
-    {
-      "id": "event-几把赛",
-      "emoji": "🏆",
-      "name": "几把赛",
-      "subtitle": "个人赛冠军"
-    },
-    {
-      "id": "event-方法",
-      "emoji": "🏆",
-      "name": "方法",
-      "subtitle": "个人赛冠军"
-    }
-  ],
-  "cup": [
-    {
-      "id": "spring-cup",
-      "emoji": "🌸",
-      "name": "春季杯",
-      "subtitle": "春季赛冠军"
-    },
-    {
-      "id": "event-唧唧杯",
-      "emoji": "🏆",
-      "name": "唧唧杯",
-      "subtitle": "杯赛冠军"
-    }
-  ],
-  "team": [
-    {
-      "id": "team-match",
-      "emoji": "🛡️",
-      "name": "团队赛",
-      "subtitle": "部落对战"
-    }
-  ]
+  "personal": [],
+  "cup": [],
+  "team": [],
+  "2v2": []
 }
