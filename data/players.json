@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "name": "马虎",
+    "race": "UD",
+    "kkname": "",
+    "points": 3500,
+    "wins": 0,
+    "losses": 0,
+    "apm": 200,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p1"
+  }
+]
