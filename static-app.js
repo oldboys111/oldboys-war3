@@ -1,77 +1,159 @@
 // ========================================
 // 大鸟群 WC3战绩系统 - JavaScript
-// 静态版本（直接从 JSON 文件加载）
+// 静态版本（GitHub Pages 专用）
 // ========================================
+
+// API 配置
+const API_BASE = 'http://localhost:5000/api';
+let authToken = localStorage.getItem('wc3_api_token') || null;
+let currentUsername = localStorage.getItem('wc3_username') || null;
+
+// 静态模式管理员账号（可以在此修改）
+const STATIC_ADMIN = {
+    username: 'admin',
+    password: 'wc32024'
+};
 
 // 缓存数据
 let cachedPlayers = [];
 let cachedMatches = [];
 let cachedEvents = {};
 let cachedChampions = {};
-let cachedTokens = {};
 
-// 加载 JSON 文件
-async function loadJSON(filename) {
+// API 请求辅助函数
+async function apiGet(endpoint) {
     try {
-        const res = await fetch(filename);
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+        });
         return await res.json();
     } catch (e) {
-        console.error(`加载 ${filename} 失败:`, e);
+        console.error('API GET error:', e);
         return null;
     }
 }
 
-// 初始化数据
-async function initData() {
-    const players = await loadJSON('data/players.json');
-    const matches = await loadJSON('data/matches.json');
-    const events = await loadJSON('data/events.json');
-    const champions = await loadJSON('data/champions.json');
-    const tokens = await loadJSON('data/tokens.json');
-
-    if (players) cachedPlayers = players;
-    if (matches) cachedMatches = matches;
-    if (events) cachedEvents = events;
-    if (champions) cachedChampions = champions;
-    if (tokens) cachedTokens = tokens;
-
-    console.log('数据加载完成:', {
-        players: cachedPlayers.length,
-        matches: cachedMatches.length
-    });
+async function apiPost(endpoint, data) {
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+            },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        console.error('API POST error:', e);
+        return { error: e.message };
+    }
 }
 
-// 获取选手列表
-function getPlayers() {
-    return cachedPlayers;
+async function apiPut(endpoint, data) {
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+            },
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (e) {
+        console.error('API PUT error:', e);
+        return { error: e.message };
+    }
 }
 
-// 获取对战记录
-function getMatches() {
-    return cachedMatches;
+async function apiDelete(endpoint) {
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'DELETE',
+            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+        });
+        return await res.json();
+    } catch (e) {
+        console.error('API DELETE error:', e);
+        return { error: e.message };
+    }
 }
 
-// 获取等级颜色
-function getLevelColor(level) {
-    const colors = {
-        'SR': '#b8860b', 'S': '#e74c3c', 'A': '#e67e22',
-        'B': '#f1c40f', 'C': '#6495ed', 'D': '#3498db',
-        'E': '#27ae60', 'F': '#9b59b6', 'G': '#7f8c8d'
-    };
-    return colors[level] || '#888';
+// 检查是否已登录（静态模式版本）
+async function checkAuth() {
+    // 优先使用本地存储的 token
+    if (authToken) {
+        currentUsername = localStorage.getItem('wc3_username') || 'admin';
+        return true;
+    }
+    
+    // 尝试连接 API 服务器
+    try {
+        const res = await apiGet('/auth/check');
+        if (res && res.loggedIn) {
+            currentUsername = res.username;
+            return true;
+        }
+    } catch (e) {
+        // API 不可用，使用本地验证
+        console.log('使用本地登录验证（静态模式）');
+    }
+    return false;
 }
 
-// 获取等级名称
-function getLevelName(level) {
-    const names = {
-        'SR': '传说', 'S': '宗师', 'A': '大师',
-        'B': '钻石', 'C': '黄金', 'D': '白银',
-        'E': '青铜', 'F': '新星', 'G': '新秀'
-    };
-    return names[level] || level;
+// 种族配置
+const RACES = {
+    HUM: { name: '人族', color: '#4a90d9', icon: '🛡️' },
+    ORC: { name: '兽族', color: '#e67e22', icon: '💪' },
+    UD: { name: '亡灵', color: '#8e44ad', icon: '💀' },
+    NE: { name: '暗夜', color: '#27ae60', icon: '🌲' }
+};
+
+// 等级人数配置：SR=5人, A到F=10人, G不限
+const LEVEL_LIMITS = {
+    'SR': 5,
+    'S': 10,
+    'A': 10,
+    'B': 10,
+    'C': 10,
+    'D': 10,
+    'E': 10,
+    'F': 10,
+    'G': 9999
+};
+const LEVEL_ORDER = ['SR', 'S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+
+// 根据排名动态计算等级（用于玩家等级显示）
+function getPlayerLevel(playerId) {
+    const players = getPlayers();
+    if (!players || players.length === 0) return 'G';
+    
+    // 按积分降序排列
+    const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
+    
+    // 找到玩家的排名位置（使用严格相等）
+    let rank = -1;
+    for (let i = 0; i < sortedPlayers.length; i++) {
+        if (sortedPlayers[i].id === playerId) {
+            rank = i;
+            break;
+        }
+    }
+    if (rank === -1) return 'G';
+    
+    // 根据排名确定等级
+    let count = 0;
+    for (const level of LEVEL_ORDER) {
+        if (rank < count + LEVEL_LIMITS[level]) {
+            return level;
+        }
+        count += LEVEL_LIMITS[level];
+    }
+    return 'G';
 }
 
-// 根据积分获取等级
+// 根据积分判断等级（用于团队赛等场景）
 function getLevelByPoints(points) {
     if (points >= 2000) return 'SR';
     if (points >= 1800) return 'S';
@@ -84,564 +166,2734 @@ function getLevelByPoints(points) {
     return 'G';
 }
 
-// 根据排名获取等级（按比例分配）
-function getPlayerLevel(playerId) {
-    const players = getPlayers();
-    if (!players.length) return 'G';
+// 获取等级数值（用于计算平均段位）
+function getLevelValue(level) {
+    const values = { 'SR': 8, 'S': 7, 'A': 6, 'B': 5, 'C': 4, 'D': 3, 'E': 2, 'F': 1, 'G': 0 };
+    return values[level] || 0;
+}
 
-    const sorted = [...players].sort((a, b) => b.points - a.points);
-
-    // 等级人数限制
-    const limits = { 'SR': 5, 'S': 10, 'A': 10, 'B': 10, 'C': 10, 'D': 10, 'E': 10, 'F': 10 };
-    let remaining = { 'SR': 0, 'S': 0, 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0 };
-
-    // 计算每个等级的当前人数
-    const counts = { 'SR': 0, 'S': 0, 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0 };
-    sorted.forEach(p => {
-        const lvl = getLevelByPoints(p.points);
-        counts[lvl]++;
-    });
-
-    // 分配等级
-    for (let i = 0; i < sorted.length; i++) {
-        if (sorted[i].id === playerId) {
-            // 优先按积分分配
-            const pointLevel = getLevelByPoints(sorted[i].points);
-            // 检查该等级是否还有名额
-            if (counts[pointLevel] <= (limits[pointLevel] || 999)) {
-                return pointLevel;
-            }
-            // 否则分配下一个有名额的等级
-            const levels = ['SR', 'S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
-            for (const lvl of levels) {
-                if (counts[lvl] <= (limits[lvl] || 999)) {
-                    counts[lvl]--;
-                    return lvl;
-                }
-            }
-            return 'G';
-        }
+// 清理已删除的分类数据
+function cleanUpOldData() {
+    // 清理荣誉赛事数据 - 删除大鸟杯和2v2赛分类
+    const events = getEvents();
+    if (events.bird) {
+        delete events.bird;
+        saveEvents(events);
     }
-    return 'G';
+    if (events['2v2']) {
+        delete events['2v2'];
+        saveEvents(events);
+    }
+    
+    // 清理对应的冠军数据
+    const champions = getChampions();
+    let changed = false;
+    ['bird-cup-1', '2v2-match'].forEach(id => {
+        if (champions[id]) {
+            delete champions[id];
+            changed = true;
+        }
+    });
+    if (changed) {
+        saveChampions(champions);
+    }
 }
 
-// 种族名称映射
-function getRaceName(race) {
-    const names = { 'HUM': '人族', 'ORC': '兽族', 'UD': '亡灵', 'NE': '暗夜', '随机': '随机' };
-    return names[race] || race;
+// 检测运行模式
+let RUNTIME_MODE = 'api';
+
+async function detectRuntimeMode() {
+    try {
+        const res = await fetch(`${API_BASE}/players`, { method: 'GET' });
+        if (res.ok) {
+            RUNTIME_MODE = 'api';
+            console.log('✅ 运行模式: API (本地服务器)');
+            return;
+        }
+    } catch (e) {
+        // API 不可用
+    }
+    RUNTIME_MODE = 'static';
+    console.log('📁 运行模式: 静态文件 (GitHub Pages)');
 }
 
-// 种族图标
-function getRaceIcon(race) {
-    const icons = {
-        'HUM': '⚔️', 'ORC': '🪓', 'UD': '💀', 'NE': '🌙', '随机': '🎲'
-    };
-    return icons[race] || '❓';
+// 从 JSON 文件加载数据（静态模式）
+async function loadJSON(filename) {
+    try {
+        const res = await fetch(`data/${filename}`);
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (e) {
+        console.error(`加载 data/${filename} 失败:`, e);
+    }
+    return null;
+}
+
+// 异步加载所有数据
+async function loadAllData() {
+    await detectRuntimeMode();
+
+    if (RUNTIME_MODE === 'api') {
+        // API 模式 - 从服务器加载
+        cachedPlayers = await apiGet('/players') || [];
+        cachedMatches = await apiGet('/matches') || [];
+        cachedEvents = await apiGet('/events') || {};
+        cachedChampions = await apiGet('/champions') || {};
+    } else {
+        // 静态模式 - 从 JSON 文件加载
+        const players = await loadJSON('players.json');
+        const matches = await loadJSON('matches.json');
+        const events = await loadJSON('events.json');
+        const champions = await loadJSON('champions.json');
+
+        if (players) cachedPlayers = players;
+        if (matches) cachedMatches = matches;
+        if (events) cachedEvents = events;
+        if (champions) cachedChampions = champions;
+    }
+
+    console.log('数据加载完成:', {
+        mode: RUNTIME_MODE,
+        players: cachedPlayers.length,
+        matches: cachedMatches.length
+    });
+}
+
+// 初始化数据
+async function initData() {
+    await loadAllData();
+}
+
+// 获取数据（使用缓存）
+function getPlayers() {
+    return cachedPlayers;
+}
+
+function getMatches() {
+    return cachedMatches;
+}
+
+function getEvents() {
+    return cachedEvents;
+}
+
+function getChampions() {
+    return cachedChampions;
+}
+
+// 保存数据（通过 API）
+async function savePlayers(players) {
+    cachedPlayers = players;
+    // 批量更新积分
+    const updates = players.map(p => ({ id: p.id, points: p.points }));
+    await apiPost('/players/updatePoints', updates);
+}
+
+async function saveMatches(matches) {
+    cachedMatches = matches;
+    // 同步到服务器（单条）
+}
+
+async function saveEvents(events) {
+    cachedEvents = events;
+}
+
+async function saveChampions(champions) {
+    cachedChampions = champions;
+}
+
+// 刷新数据
+async function refreshData() {
+    await loadAllData();
 }
 
 // 页面导航
-let currentPage = 'overview';
-
-function showPage(page) {
-    currentPage = page;
-
-    // 更新导航按钮
-    document.querySelectorAll('.nav-tab').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.page === page) btn.classList.add('active');
-    });
-
-    // 隐藏所有页面
+function navigateTo(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    document.getElementById(`page-${page}`)?.classList.add('active');
+    document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
 
-    // 显示当前页面
-    const pageEl = document.getElementById('page-' + page);
-    if (pageEl) pageEl.classList.add('active');
+    renderCurrentPage(page);
+}
 
-    // 渲染页面内容
-    if (page === 'overview') renderOverview();
-    else if (page === 'members') renderMembers();
-    else if (page === 'battles') renderBattles();
-    else if (page === 'honor') renderHonor();
+// 渲染当前页面
+function renderCurrentPage(page) {
+    switch(page) {
+        case 'overview': renderOverview(); break;
+        case 'members': 
+            const searchText = document.getElementById('member-search')?.value || '';
+            const filterLevel = document.querySelector('.level-tab.active')?.dataset.level || 'all';
+            renderMembers('all', filterLevel, searchText); 
+            break;
+        case 'matches': renderMatches(); break;
+        case 'honors': renderHonors(); break;
+        case 'events': renderEvents(); break;
+    }
 }
 
 // 渲染总览页面
 function renderOverview() {
-    const players = getPlayers();
-    const matches = getMatches();
-    const champions = cachedChampions || [];
+    const matches = getMatches().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+    const players = getPlayers().sort((a, b) => b.points - a.points).slice(0, 10);
 
-    // 更新统计
-    document.getElementById('stat-total-players').textContent = players.length;
-    document.getElementById('stat-total-matches').textContent = matches.length;
-    document.getElementById('stat-total-champions').textContent = champions.length;
-
-    // 计算平均胜率
-    if (players.length > 0) {
-        let totalWinRate = 0;
-        players.forEach(p => {
-            const wins = p.wins || 0;
-            const losses = p.losses || 0;
-            const total = wins + losses;
-            if (total > 0) {
-                totalWinRate += (wins / total) * 100;
-            }
-        });
-        const avgWinRate = (totalWinRate / players.length).toFixed(1);
-        document.getElementById('stat-avg-winrate').textContent = avgWinRate + '%';
-    }
-
-    // TOP 10 选手
-    const topPlayers = [...players].sort((a, b) => b.points - a.points).slice(0, 10);
-    const topList = document.getElementById('top-players-list');
-    topList.innerHTML = topPlayers.map((p, i) => {
-        const level = getPlayerLevel(p.id);
-        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
+    // 最近对战
+    const recentHtml = matches.map(m => {
+        const players = getPlayers();
+        const redNames = m.redPlayers.map(id => players.find(p => p.id === id)?.name || '未知').join(' / ');
+        const blueNames = m.bluePlayers.map(id => players.find(p => p.id === id)?.name || '未知').join(' / ');
+        const time = formatTimeAgo(m.date);
+        const result = m.redScore > m.blueScore ? 'red' : 'blue';
+        
         return `
-            <div class="top-player-item">
-                <span class="top-rank ${rankClass}">${i + 1}</span>
-                <span style="flex:1">${p.name}</span>
-                <span style="color:${getLevelColor(level)}">${p.points}分</span>
+            <div class="recent-match-item">
+                <div class="recent-match-teams">
+                    <span class="recent-match-team team-red-bg">${redNames}</span>
+                    <span class="recent-match-vs">VS</span>
+                    <span class="recent-match-team team-blue-bg">${blueNames}</span>
+                </div>
+                <span class="recent-match-result ${result === 'red' ? 'team-red-bg' : 'team-blue-bg'}">${m.redScore}:${m.blueScore}</span>
+                <span class="recent-match-time">${time}</span>
             </div>
         `;
     }).join('');
+    document.getElementById('recent-matches-list').innerHTML = recentHtml || '<p style="color:var(--text-muted)">暂无对战记录</p>';
 
-    // 近期冠军
-    const recentChampions = champions.slice(-5).reverse();
-    const championList = document.getElementById('recent-champions-list');
-    if (recentChampions.length === 0) {
-        championList.innerHTML = '<p style="color:#888;text-align:center;padding:20px">暂无冠军记录</p>';
-    } else {
-        championList.innerHTML = recentChampions.map(c => {
-            const player = players.find(p => p.id === c.playerId);
-            return `
-                <div class="top-player-item">
-                    <span>🏆</span>
-                    <span style="flex:1">${c.event || '未知赛事'}</span>
-                    <span style="color:#ffd700">${player ? player.name : '未知'}</span>
-                </div>
-            `;
-        }).join('');
-    }
+    // TOP10玩家
+    const topHtml = players.map((p, i) => `
+        <div class="top-player-item">
+            <span class="top-player-rank ${i < 3 ? 'rank-' + (i+1) : ''}">${i + 1}</span>
+            <span class="top-player-name">${p.name}</span>
+            <span class="race-tag race-${p.race}">${RACES[p.race].name}</span>
+            <span class="top-player-points">${p.points}</span>
+        </div>
+    `).join('');
+    document.getElementById('top-players-list').innerHTML = topHtml || '<p style="color:var(--text-muted)">暂无成员</p>';
 }
 
-// ========================================
-// 成员页面
-// ========================================
+// 等级段位值配置（用于积分计算）
+const LEVEL_VALUE = { 'SR': 8, 'S': 7, 'A': 6, 'B': 5, 'C': 4, 'D': 3, 'E': 2, 'F': 1, 'G': 0 };
 
-function renderMembers() {
-    const container = document.getElementById('members-list');
-    if (!container) return;
-
-    const players = getPlayers();
-    if (!players.length) {
-        container.innerHTML = '<div class="empty-state">暂无成员数据</div>';
-        return;
+// 计算两个玩家之间的积分变化
+// 返回 { winnerPoints, loserPoints } - 正数表示获得，负数表示扣除
+function calculatePointsChange(winnerId, loserId, scoreDiff, players) {
+    const winner = players.find(p => p.id === winnerId);
+    const loser = players.find(p => p.id === loserId);
+    
+    if (!winner || !loser) return { winnerPoints: 0, loserPoints: 0 };
+    
+    const winnerLevel = getLevelByPoints(winner.points);
+    const loserLevel = getLevelByPoints(loser.points);
+    
+    const winnerLevelValue = LEVEL_VALUE[winnerLevel] || 0;
+    const loserLevelValue = LEVEL_VALUE[loserLevel] || 0;
+    
+    // 基础分 = 比分差 × 10
+    const basePoints = scoreDiff * 10;
+    
+    // 根据段位关系计算倍数
+    let multiplier = 1; // 默认同段位
+    
+    if (winnerLevelValue < loserLevelValue) {
+        // 击败比自己高段位的选手（以低打高）- 双倍
+        multiplier = 2;
+    } else if (winnerLevelValue > loserLevelValue) {
+        // 击败比自己低段位的选手（以高打低）- 半倍
+        multiplier = 0.5;
     }
+    
+    const pointsChange = Math.round(basePoints * multiplier);
+    
+    return { winnerPoints: pointsChange, loserPoints: -pointsChange };
+}
 
-    // 按积分排序
-    const sorted = [...players].sort((a, b) => b.points - a.points);
+// 渲染成员页面 - 按等级分组布局
+function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '') {
+    let players = getPlayers();
+    
+    // 种族筛选
+    if (filterRace !== 'all') {
+        players = players.filter(p => p.race === filterRace);
+    }
+    
+    // 段位筛选
+    if (filterLevel !== 'all') {
+        players = players.filter(p => getPlayerLevel(p.id) === filterLevel);
+    }
+    
+    // 名称搜索筛选
+    if (searchText) {
+        const searchLower = searchText.toLowerCase();
+        players = players.filter(p =>
+            p.name.toLowerCase().includes(searchLower) ||
+            (p.kkname && p.kkname.toLowerCase().includes(searchLower))
+        );
+    }
+    
+    players.sort((a, b) => b.points - a.points);
 
     // 按等级分组
-    const groups = { 'SR': [], 'S': [], 'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [] };
-
-    sorted.forEach((p, i) => {
+    const grouped = {};
+    LEVEL_ORDER.forEach(level => grouped[level] = []);
+    
+    players.forEach(p => {
         const level = getPlayerLevel(p.id);
-        groups[level].push({ ...p, rank: i + 1 });
+        grouped[level].push(p);
     });
 
+    let globalRank = 1;
     let html = '';
-
-    // 渲染每个等级组
-    ['SR', 'S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'].forEach(level => {
-        const members = groups[level];
-        if (!members.length) return;
-
-        const color = getLevelColor(level);
+    
+    LEVEL_ORDER.forEach(level => {
+        // 如果有段位筛选，只显示该段位
+        if (filterLevel !== 'all' && level !== filterLevel) return;
+        
+        const levelPlayers = grouped[level];
+        if (levelPlayers.length === 0) return;
+        
         html += `
             <div class="level-group">
-                <div class="level-header" style="background: ${color}">
-                    <span class="level-badge">${level}</span>
-                    <span class="level-name">${getLevelName(level)}</span>
-                    <span class="level-count">${members.length}人</span>
+                <div class="level-group-header">
+                    <span class="level-cell level-${level}">${level}</span>
+                    <span class="level-group-count">${levelPlayers.length} 人</span>
                 </div>
-                <div class="members-table">
-                    <div class="table-header">
-                        <span class="col-rank">排名</span>
-                        <span class="col-name">ID</span>
-                        <span class="col-race">种族</span>
-                        <span class="col-kkname">KK昵称</span>
-                        <span class="col-points">积分</span>
-                        <span class="col-stats">胜/负</span>
-                        <span class="col-apm">APM</span>
-                    </div>
+                <table class="members-table">
+                    <tbody>
+                        ${levelPlayers.map(p => {
+                            const rank = globalRank++;
+                            return `
+                                <tr onclick="showPlayerDetail('${p.id}')">
+                                    <td class="rank-cell">${rank}</td>
+                                    <td><span class="level-cell level-${level}">${level}</span></td>
+                                    <td>
+                                        <div class="name-cell">
+                                            <div class="member-avatar-small">${RACES[p.race].icon}</div>
+                                            <span>${p.name}</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="race-tag race-${p.race}">${RACES[p.race].name}</span></td>
+                                    <td class="kkname-cell">${p.kkname || '-'}</td>
+                                    <td class="points-cell">${p.points}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
         `;
-
-        members.forEach(p => {
-            html += `
-                <div class="member-row" onclick="showPlayerDetail('${p.id}')">
-                    <span class="col-rank">#${p.rank}</span>
-                    <span class="col-name">${p.name}</span>
-                    <span class="col-race">${getRaceIcon(p.race)} ${getRaceName(p.race)}</span>
-                    <span class="col-kkname">${p.kkname || '-'}</span>
-                    <span class="col-points">${p.points}</span>
-                    <span class="col-stats ${p.wins > p.losses ? 'win' : 'loss'}">${p.wins}/${p.losses}</span>
-                    <span class="col-apm">${p.apm || 0}</span>
-                </div>
-            `;
-        });
-
-        html += '</div></div>';
     });
 
-    container.innerHTML = html;
+    const container = document.querySelector('.members-list-wrapper');
+    if (html) {
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:40px;background:var(--bg-card);border-radius:8px">暂无成员</p>';
+    }
 }
 
-// 显示成员详情
+// ========================================
+// 成员详情页面
+// ========================================
+
+let currentPlayerId = null;
+let previousPage = 'members';
+
 function showPlayerDetail(playerId) {
+    currentPlayerId = playerId;
+    previousPage = getCurrentPage();
+    
+    // 隐藏其他页面，显示详情页
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-player-detail').classList.add('active');
+    
+    renderPlayerDetail(playerId);
+}
+
+function goBack() {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    if (previousPage === 'player-detail') {
+        navigateTo('members');
+    } else {
+        document.getElementById(`page-${previousPage}`)?.classList.add('active');
+        document.querySelector(`.nav-item[data-page="${previousPage}"]`)?.classList.add('active');
+    }
+}
+
+function renderPlayerDetail(playerId) {
     const players = getPlayers();
     const player = players.find(p => p.id === playerId);
+    
     if (!player) return;
-
-    const modal = document.getElementById('player-modal');
-    const content = document.getElementById('player-detail-content');
-
+    
+    // 基本信息
+    document.getElementById('detail-player-name').textContent = player.name;
+    document.getElementById('detail-avatar').textContent = RACES[player.race].icon;
+    document.getElementById('detail-name').textContent = player.name;
+    document.getElementById('detail-race-tag').className = `race-tag race-${player.race}`;
+    document.getElementById('detail-race-tag').textContent = RACES[player.race].name;
+    document.getElementById('detail-kkname').textContent = player.kkname ? `KK: ${player.kkname}` : '';
+    
+    // 计算等级 (新等级系统)
     const level = getPlayerLevel(player.id);
-    const wins = player.wins || 0;
-    const losses = player.losses || 0;
-    const total = wins + losses;
-    const winRate = total > 0 ? ((wins / total) * 100).toFixed(1) : 0;
-
-    // 获取对战历史
-    const matches = getMatches().filter(m => m.player1 === playerId || m.player2 === playerId);
-    const recentMatches = matches.slice(-10).reverse();
-
-    content.innerHTML = `
-        <div class="detail-header" style="border-left: 4px solid ${getLevelColor(level)}">
-            <div class="detail-title">
-                <h2>${player.name}</h2>
-                <span class="level-badge" style="background: ${getLevelColor(level)}">${level}</span>
-            </div>
-            <div class="detail-race">${getRaceIcon(player.race)} ${getRaceName(player.race)}</div>
-        </div>
-
-        <div class="detail-stats">
-            <div class="stat-card">
-                <div class="stat-value">${player.points}</div>
-                <div class="stat-label">积分</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">${wins}</div>
-                <div class="stat-label">胜场</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">${losses}</div>
-                <div class="stat-label">负场</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">${winRate}%</div>
-                <div class="stat-label">胜率</div>
-            </div>
-        </div>
-
-        ${player.kkname ? `<div class="detail-info"><strong>KK昵称:</strong> ${player.kkname}</div>` : ''}
-        ${player.kkRank ? `<div class="detail-info"><strong>KK段位:</strong> ${player.kkRank}</div>` : ''}
-        ${player.apm ? `<div class="detail-info"><strong>APM:</strong> ${player.apm}</div>` : ''}
-        ${player.trait ? `<div class="detail-info"><strong>特点:</strong> ${player.trait}</div>` : ''}
-        ${player.glory ? `<div class="detail-info"><strong>荣誉:</strong> ${player.glory}</div>` : ''}
-        ${player.honors ? `<div class="detail-info"><strong>其他荣誉:</strong> ${player.honors}</div>` : ''}
-
-        <div class="recent-matches">
-            <h3>近期对战</h3>
-            ${recentMatches.length ? recentMatches.map(m => {
-                const opponentId = m.player1 === playerId ? m.player2 : m.player1;
-                const opponent = players.find(p => p.id === opponentId);
-                const isWinner = m.result === 'player1_win' && m.player1 === playerId ||
-                                 m.result === 'player2_win' && m.player2 === playerId;
-                return `
-                    <div class="match-item ${isWinner ? 'win' : 'loss'}">
-                        <span class="match-date">${m.date || '-'}</span>
-                        <span class="match-vs">vs ${opponent ? opponent.name : '未知'}</span>
-                        <span class="match-score">${m.score || '-'}</span>
-                        <span class="match-result">${isWinner ? '胜' : '负'}</span>
-                    </div>
-                `;
-            }).join('') : '<p>暂无对战记录</p>'}
-        </div>
-    `;
-
-    modal.style.display = 'flex';
+    document.getElementById('detail-level').textContent = level;
+    document.getElementById('detail-level').className = `level-cell level-${level}`;
+    
+    // 基础分和加分
+    const basePoints = 1000;
+    const pointsChange = player.points - basePoints;
+    document.getElementById('detail-base-points').textContent = basePoints;
+    document.getElementById('detail-points-change').textContent = pointsChange >= 0 ? `+${pointsChange}` : pointsChange;
+    document.getElementById('detail-points-change').style.color = pointsChange >= 0 ? '#27ae60' : '#e74c3c';
+    
+    // APM (随机模拟一个值，后期可扩展)
+    const apm = player.apm || Math.floor(Math.random() * 150 + 80);
+    document.getElementById('detail-apm').textContent = apm;
+    
+    // 总战绩
+    document.getElementById('detail-total-wins').textContent = player.wins;
+    document.getElementById('detail-total-losses').textContent = player.losses;
+    const total = player.wins + player.losses;
+    const winrate = total > 0 ? ((player.wins / total) * 100).toFixed(1) : '0.0';
+    document.getElementById('detail-winrate').textContent = `${winrate}%`;
+    document.getElementById('detail-total-points').textContent = player.points;
+    
+    // 个人辉煌战绩
+    const glory = player.glory || '';
+    const gloryContent = document.getElementById('detail-glory');
+    if (glory) {
+        gloryContent.innerHTML = `<span class="glory-text">${glory}</span>`;
+    } else {
+        gloryContent.innerHTML = '<span class="glory-text">暂无辉煌战绩</span>';
+    }
+    
+    // 比赛荣誉
+    const honors = player.honors || '';
+    const honorsContent = document.getElementById('detail-honors');
+    if (honors) {
+        honorsContent.innerHTML = `<span class="honors-text">${honors}</span>`;
+    } else {
+        honorsContent.innerHTML = '<span class="honors-text">暂无比赛荣誉</span>';
+    }
+    
+    // KK平台历史最高段位
+    const kkRank = player.kkRank || '';
+    const kkRankContent = document.getElementById('detail-kk-rank');
+    if (kkRank) {
+        kkRankContent.innerHTML = `<span class="kk-rank-text">${kkRank}</span>`;
+    } else {
+        kkRankContent.innerHTML = '<span class="kk-rank-text">暂无记录</span>';
+    }
+    
+    // 性格特点
+    const trait = player.trait || '';
+    const traitContent = document.getElementById('detail-trait');
+    if (trait) {
+        traitContent.innerHTML = `<span class="trait-text">${trait}</span>`;
+    } else {
+        traitContent.innerHTML = '<span class="trait-text">暂无性格特点</span>';
+    }
+    
+    // 显示/隐藏编辑按钮
+    const admin = isAdmin();
+    document.getElementById('btn-edit-glory').style.display = admin ? 'block' : 'none';
+    document.getElementById('btn-edit-honors').style.display = admin ? 'block' : 'none';
+    document.getElementById('btn-edit-kk-rank').style.display = admin ? 'block' : 'none';
+    document.getElementById('btn-edit-trait').style.display = admin ? 'block' : 'none';
+    document.getElementById('honors-edit-btn').style.display = admin ? 'block' : 'none';
+    
+    // 计算群内互殴数据
+    renderPlayerBattles(playerId);
 }
 
-// ========================================
-// 对战页面
-// ========================================
-
-let currentMatchFilter = 'all';
-let currentMatchPlayer = '';
-
-function filterMatches() {
-    currentMatchFilter = document.getElementById('match-type-filter')?.value || 'all';
-    currentMatchPlayer = document.getElementById('match-player-search')?.value?.toLowerCase() || '';
-    renderBattles();
-}
-
-function renderBattles() {
-    const container = document.getElementById('battles-list');
-    if (!container) return;
-
-    let matches = getMatches();
-
-    // 过滤
-    if (currentMatchFilter !== 'all') {
-        matches = matches.filter(m => m.type === currentMatchFilter);
-    }
-
-    if (currentMatchPlayer) {
-        const players = getPlayers();
-        const playerIds = players
-            .filter(p => p.name.toLowerCase().includes(currentMatchPlayer) ||
-                        (p.kkname && p.kkname.toLowerCase().includes(currentMatchPlayer)))
-            .map(p => p.id);
-        matches = matches.filter(m => playerIds.includes(m.player1) || playerIds.includes(m.player2));
-    }
-
-    // 排序
-    matches = [...matches].sort((a, b) => {
-        const dateA = new Date(a.date || 0);
-        const dateB = new Date(b.date || 0);
-        return dateB - dateA;
+function renderPlayerBattles(playerId) {
+    const players = getPlayers();
+    const matches = getMatches();
+    const currentPlayer = players.find(p => p.id === playerId);
+    
+    if (!currentPlayer) return;
+    
+    // 计算与每个对手的胜负
+    const battleStats = {};
+    
+    matches.forEach(match => {
+        const isRed = match.redPlayers.includes(playerId);
+        const isBlue = match.bluePlayers.includes(playerId);
+        
+        if (!isRed && !isBlue) return;
+        
+        const teammates = isRed ? match.redPlayers : match.bluePlayers;
+        const opponents = isRed ? match.bluePlayers : match.redPlayers;
+        const won = (isRed && match.redScore > match.blueScore) || (isBlue && match.blueScore > match.redScore);
+        
+        opponents.forEach(opponentId => {
+            if (!battleStats[opponentId]) {
+                battleStats[opponentId] = { wins: 0, losses: 0 };
+            }
+            if (won) {
+                battleStats[opponentId].wins++;
+            } else {
+                battleStats[opponentId].losses++;
+            }
+        });
     });
+    
+    // 生成对战列表
+    const battlesList = document.getElementById('detail-battles-list');
+    const battlesCount = Object.values(battleStats).reduce((sum, s) => sum + s.wins + s.losses, 0);
+    document.getElementById('detail-battles-count').textContent = battlesCount;
+    
+    const battlesHtml = Object.entries(battleStats)
+        .map(([opponentId, stats]) => {
+            const opponent = players.find(p => p.id === opponentId);
+            if (!opponent) return '';
+            
+            const total = stats.wins + stats.losses;
+            const winRate = total > 0 ? (stats.wins / total) * 100 : 50;
+            const isWin = stats.wins > stats.losses || (stats.wins === stats.losses && Math.random() > 0.5);
+            
+            return `
+                <div class="battle-item">
+                    <div class="battle-opponent">
+                        <span class="race-tag race-${opponent.race}">${RACES[opponent.race].icon}</span>
+                        <span class="battle-opponent-name">${opponent.name}</span>
+                    </div>
+                    <div class="battle-progress">
+                        <div class="battle-progress-bar ${isWin ? 'win' : 'loss'}" style="width: ${winRate}%">
+                            ${winRate.toFixed(0)}%
+                        </div>
+                    </div>
+                    <div class="battle-stats">
+                        <span class="wins">${stats.wins}胜</span> / <span class="losses">${stats.losses}败</span>
+                    </div>
+                </div>
+            `;
+        })
+        .join('');
+    
+    battlesList.innerHTML = battlesHtml || '<p style="color:var(--text-muted);text-align:center;padding:20px">暂无对战记录</p>';
+}
 
-    if (!matches.length) {
-        container.innerHTML = '<div class="empty-state">暂无对战记录</div>';
-        return;
+// 性格特点编辑
+function editTrait() {
+    const players = getPlayers();
+    const player = players.find(p => p.id === currentPlayerId);
+    if (!player) return;
+    
+    document.getElementById('detail-trait').style.display = 'none';
+    document.getElementById('trait-edit-form').style.display = 'flex';
+    document.getElementById('trait-input').value = player.trait || '';
+    document.getElementById('trait-input').focus();
+}
+
+function cancelEditTrait() {
+    document.getElementById('detail-trait').style.display = 'block';
+    document.getElementById('trait-edit-form').style.display = 'none';
+}
+
+function saveTrait() {
+    const players = getPlayers();
+    const player = players.find(p => p.id === currentPlayerId);
+    if (!player) return;
+    
+    player.trait = document.getElementById('trait-input').value;
+    savePlayers(players);
+    
+    document.getElementById('detail-trait').innerHTML = player.trait 
+        ? `<span class="trait-text">${player.trait}</span>` 
+        : '<span class="trait-text">暂无性格特点</span>';
+    
+    cancelEditTrait();
+}
+
+// 个人辉煌战绩编辑
+function editGlory() {
+    const players = getPlayers();
+    const player = players.find(p => p.id === currentPlayerId);
+    if (!player) return;
+    
+    document.getElementById('detail-glory').style.display = 'none';
+    document.getElementById('glory-edit-form').style.display = 'flex';
+    document.getElementById('glory-input').value = player.glory || '';
+    document.getElementById('glory-input').focus();
+}
+
+function cancelEditGlory() {
+    document.getElementById('detail-glory').style.display = 'block';
+    document.getElementById('glory-edit-form').style.display = 'none';
+}
+
+function saveGlory() {
+    const players = getPlayers();
+    const player = players.find(p => p.id === currentPlayerId);
+    if (!player) return;
+    
+    player.glory = document.getElementById('glory-input').value;
+    savePlayers(players);
+    
+    document.getElementById('detail-glory').innerHTML = player.glory 
+        ? `<span class="glory-text">${player.glory}</span>` 
+        : '<span class="glory-text">暂无辉煌战绩</span>';
+    
+    cancelEditGlory();
+}
+
+// 比赛荣誉编辑
+function editHonors() {
+    const players = getPlayers();
+    const player = players.find(p => p.id === currentPlayerId);
+    if (!player) return;
+    
+    document.getElementById('detail-honors').style.display = 'none';
+    document.getElementById('honors-edit-form').style.display = 'flex';
+    document.getElementById('honors-input').value = player.honors || '';
+    document.getElementById('honors-input').focus();
+}
+
+function cancelEditHonors() {
+    document.getElementById('detail-honors').style.display = 'block';
+    document.getElementById('honors-edit-form').style.display = 'none';
+}
+
+function saveHonors() {
+    const players = getPlayers();
+    const player = players.find(p => p.id === currentPlayerId);
+    if (!player) return;
+    
+    player.honors = document.getElementById('honors-input').value;
+    savePlayers(players);
+    
+    document.getElementById('detail-honors').innerHTML = player.honors 
+        ? `<span class="honors-text">${player.honors}</span>` 
+        : '<span class="honors-text">暂无比赛荣誉</span>';
+    
+    cancelEditHonors();
+}
+
+// KK平台历史最高段位编辑
+function editKkRank() {
+    const players = getPlayers();
+    const player = players.find(p => p.id === currentPlayerId);
+    if (!player) return;
+    
+    document.getElementById('detail-kk-rank').style.display = 'none';
+    document.getElementById('kk-rank-edit-form').style.display = 'flex';
+    document.getElementById('kk-rank-input').value = player.kkRank || '';
+    document.getElementById('kk-rank-input').focus();
+}
+
+function cancelEditKkRank() {
+    document.getElementById('detail-kk-rank').style.display = 'block';
+    document.getElementById('kk-rank-edit-form').style.display = 'none';
+}
+
+function saveKkRank() {
+    const players = getPlayers();
+    const player = players.find(p => p.id === currentPlayerId);
+    if (!player) return;
+    
+    player.kkRank = document.getElementById('kk-rank-input').value;
+    savePlayers(players);
+    
+    document.getElementById('detail-kk-rank').innerHTML = player.kkRank 
+        ? `<span class="kk-rank-text">${player.kkRank}</span>` 
+        : '<span class="kk-rank-text">暂无记录</span>';
+    
+    cancelEditKkRank();
+}
+
+// 渲染对战记录
+function renderMatches(filterType = 'all', playerSearch = '') {
+    let matches = getMatches().sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    if (filterType !== 'all') {
+        matches = matches.filter(m => m.type === filterType);
+    }
+
+    // 按成员搜索过滤
+    if (playerSearch) {
+        const searchLower = playerSearch.toLowerCase();
+        matches = matches.filter(m => {
+            const players = getPlayers();
+            const allPlayerIds = [...m.redPlayers, ...m.bluePlayers];
+            return allPlayerIds.some(id => {
+                const p = players.find(pl => pl.id === id);
+                return p && (p.name.toLowerCase().includes(searchLower) || 
+                              (p.kkname && p.kkname.toLowerCase().includes(searchLower)));
+            });
+        });
     }
 
     const players = getPlayers();
+    const admin = isAdmin();
 
-    container.innerHTML = matches.slice(0, 50).map(m => {
-        const p1 = players.find(p => p.id === m.player1);
-        const p2 = players.find(p => p.id === m.player2);
-        const p1Level = p1 ? getPlayerLevel(p1.id) : '';
-        const p2Level = p2 ? getPlayerLevel(p2.id) : '';
+    const html = matches.map(m => {
+        // 计算全局排名
+        const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
+        const getRank = (playerId) => {
+            const idx = sortedPlayers.findIndex(p => p.id === playerId);
+            return idx >= 0 ? idx + 1 : '-';
+        };
+        
+        // 计算队伍总积分和平均段位
+        const calcTeamStats = (playerIds) => {
+            let totalPoints = 0;
+            let avgLevel = 0;
+            let count = 0;
+            playerIds.forEach(id => {
+                const p = players.find(pl => pl.id === id);
+                if (p) {
+                    totalPoints += p.points;
+                    avgLevel += getLevelValue(getPlayerLevel(p.id));
+                    count++;
+                }
+            });
+            return { 
+                totalPoints, 
+                avgPoints: count > 0 ? Math.round(totalPoints / count) : 0,
+                avgLevel: count > 0 ? (avgLevel / count).toFixed(1) : '-'
+            };
+        };
+        
+        const redStats = calcTeamStats(m.redPlayers);
+        const blueStats = calcTeamStats(m.bluePlayers);
+        const redWinner = m.redScore > m.blueScore;
+        const blueWinner = m.blueScore > m.redScore;
+        
+        const redNames = m.redPlayers.map(id => {
+            const p = players.find(pl => pl.id === id);
+            if (!p) return '';
+            const rank = getRank(p.id);
+            const level = getPlayerLevel(p.id);
+            return `<div class="match-player-badge ${redWinner ? 'winner' : ''}">
+                <span class="player-race-icon">${RACES[p.race].icon}</span>
+                <span class="player-level-mini level-${level}">${level}</span>
+                <span class="player-rank-mini">#${rank}</span>
+                <span class="player-points-mini">${p.points}</span>
+                <span class="player-name-large">${p.name}</span>
+            </div>`;
+        }).join('');
+        
+        const blueNames = m.bluePlayers.map(id => {
+            const p = players.find(pl => pl.id === id);
+            if (!p) return '';
+            const rank = getRank(p.id);
+            const level = getPlayerLevel(p.id);
+            return `<div class="match-player-badge ${blueWinner ? 'winner' : ''}">
+                <span class="player-race-icon">${RACES[p.race].icon}</span>
+                <span class="player-level-mini level-${level}">${level}</span>
+                <span class="player-rank-mini">#${rank}</span>
+                <span class="player-points-mini">${p.points}</span>
+                <span class="player-name-large">${p.name}</span>
+            </div>`;
+        }).join('');
 
-        const typeClass = { '天梯': 'ladder', '自定义': 'custom', '杯赛': 'cup' }[m.type] || '';
+        const date = new Date(m.date).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 
         return `
-            <div class="battle-item">
-                <div class="battle-date">${m.date || '-'}</div>
-                <div class="battle-player">
-                    <span class="player-name" style="color: ${getLevelColor(p1Level)}">${p1 ? p1.name : m.player1}</span>
-                    <span class="player-level">${p1Level}</span>
+            <div class="match-card">
+                <div class="match-header">
+                    <span class="match-type">${m.type === 'ladder' ? '🏆 天梯' : '⚙️ 自定义'}</span>
                 </div>
-                <div class="battle-score">${m.score || '?'}</div>
-                <div class="battle-player">
-                    <span class="player-name" style="color: ${getLevelColor(p2Level)}">${p2 ? p2.name : m.player2}</span>
-                    <span class="player-level">${p2Level}</span>
+                <div class="match-body match-body-compact">
+                    <div class="match-team">
+                        <div class="match-team-stats">
+                            <span class="team-points">均分 ${redStats.avgPoints}</span>
+                        </div>
+                        <div class="match-players">${redNames}</div>
+                    </div>
+                    <div class="match-score">
+                        <span class="score-side ${redWinner ? 'winner-text' : ''}">${m.redScore}</span>
+                        <span class="score-divider">—</span>
+                        <span class="score-side ${blueWinner ? 'winner-text' : ''}">${m.blueScore}</span>
+                    </div>
+                    <div class="match-team">
+                        <div class="match-team-stats">
+                            <span class="team-points">均分 ${blueStats.avgPoints}</span>
+                        </div>
+                        <div class="match-players">${blueNames}</div>
+                    </div>
                 </div>
-                <div class="battle-type ${typeClass}">${m.type || '天梯'}</div>
+                ${admin ? `
+                    <div class="match-actions">
+                        <button class="btn-delete" onclick="deleteMatch('${m.id}')">删除</button>
+                    </div>
+                ` : ''}
             </div>
         `;
     }).join('');
-}
-
-// ========================================
-// 荣誉页面
-// ========================================
-
-function renderHonor() {
-    const container = document.getElementById('honor-list');
-    if (!container) return;
-
-    const champions = cachedChampions || [];
-    const players = getPlayers();
-
-    if (!champions.length) {
-        container.innerHTML = '<div class="empty-state">暂无冠军记录</div>';
-        return;
-    }
-
-    // 按类型分组
-    const groups = { '个人赛': [], '杯赛': [], '团队赛': [], '2v2赛': [] };
-
-    champions.forEach(c => {
-        const type = c.type || '个人赛';
-        if (groups[type]) groups[type].push(c);
-    });
-
-    let html = '';
-
-    Object.entries(groups).forEach(([type, items]) => {
-        if (!items.length) return;
-
-        html += `
-            <div class="honor-group">
-                <h3 class="honor-type-title">${type}</h3>
-        `;
-
-        items.forEach(c => {
-            const player = players.find(p => p.id === c.playerId);
-            const level = player ? getPlayerLevel(player.id) : '';
-
-            html += `
-                <div class="honor-item">
-                    <div class="honor-event">${c.event || '未知赛事'}</div>
-                    <div class="honor-player" style="color: ${getLevelColor(level)}">
-                        👑 ${player ? player.name : '未知'}
-                    </div>
-                    <div class="honor-date">${c.date || '-'}</div>
-                </div>
-            `;
-        });
-
-        html += '</div>';
-    });
-
-    container.innerHTML = html;
+    document.getElementById('matches-list').innerHTML = html || '<p style="color:var(--text-muted);text-align:center;padding:40px">暂无对战记录</p>';
 }
 
 // ========================================
 // 赛事页面
 // ========================================
 
+// 赛事状态筛选
+let currentEventStatus = 'all';
+
+// 默认赛事展示数据
+const DEFAULT_SHOW_EVENTS = [
+    { 
+        id: 'event-1', 
+        emoji: '🏆', 
+        name: '大鸟杯第五季', 
+        subtitle: '群内年度盛事',
+        status: 'finished',
+        date: '2024-12-15',
+        format: '淘汰赛',
+        players: 16,
+        maps: ['TR', 'TS', 'AI', 'LR', 'TM'],
+        prize: 'Sky',
+        champions: '第1届:TH000\n第2届:Sky\n第3届:Moon\n第4届:Lyn\n第5届:Infi',
+        progress: '决赛:Infi 2:1 TH000',
+        description: '大鸟杯是群内最高水平的个人对抗赛，每年举办一次。参赛选手通过小组赛、淘汰赛争夺冠军荣誉。'
+    },
+    { 
+        id: 'event-2', 
+        emoji: '⚔️', 
+        name: '2v2搭档赛', 
+        subtitle: '双人合作赛',
+        status: 'ongoing',
+        date: '2025-01-20',
+        format: '双败淘汰',
+        players: 24,
+        maps: ['TR', 'TS', 'AI'],
+        prize: '',
+        champions: '',
+        progress: '八强赛阶段\nA组: Sky&Moon vs TH000&Infi\nB组: Lyn&Grubby vs Fly&Remind',
+        description: '双人搭档赛考验选手之间的配合默契。自由组队后通过双败淘汰赛制决出最强搭档组合。'
+    },
+    { 
+        id: 'event-3', 
+        emoji: '👑', 
+        name: '天王杯第七届', 
+        subtitle: '巅峰对决',
+        status: 'finished',
+        date: '2024-11-10',
+        format: '循环赛',
+        players: 8,
+        maps: ['TR', 'TS', 'AI', 'LR'],
+        prize: 'Moon',
+        champions: '第1届:Grubby\n第2届:Sky\n第3届:TH000\n第4届:Moon\n第5届:Lyn',
+        progress: '决赛: Moon 3:2 Sky (五局三胜)',
+        description: '天王杯邀请群内积分最高的8位选手进行循环赛，胜率最高的选手获得冠军。'
+    },
+    { 
+        id: 'event-4', 
+        emoji: '🔥', 
+        name: '春季争霸赛', 
+        subtitle: '春季赛',
+        status: 'ongoing',
+        date: '2025-03-01',
+        format: '淘汰赛',
+        players: 32,
+        maps: ['TR', 'TS', 'AI', 'LR', 'TM', 'EI'],
+        prize: '',
+        champions: '',
+        progress: '报名已截止\n正在进行32进16比赛',
+        description: '春季争霸赛是开年第一场大型赛事，32位选手角逐冠军宝座，赢取丰厚奖励。'
+    }
+];
+
+// 获取赛事展示数据
+function getShowEvents() {
+    const data = localStorage.getItem('wc3_show_events');
+    return data ? JSON.parse(data) : JSON.parse(JSON.stringify(DEFAULT_SHOW_EVENTS));
+}
+
+// 保存赛事展示数据
+function saveShowEvents(events) {
+    localStorage.setItem('wc3_show_events', JSON.stringify(events));
+}
+
+// 渲染赛事页面
 function renderEvents() {
-    const container = document.getElementById('event-list');
-    if (!container) return;
-
-    const events = cachedEvents || {};
-
-    if (Object.keys(events).length === 0) {
-        container.innerHTML = '<div class="empty-state">暂无赛事数据</div>';
+    const events = getShowEvents();
+    const content = document.getElementById('events-content');
+    const admin = isAdmin();
+    
+    // 根据状态筛选
+    let filteredEvents = events;
+    if (currentEventStatus !== 'all') {
+        filteredEvents = events.filter(e => e.status === currentEventStatus);
+    }
+    
+    if (filteredEvents.length === 0) {
+        content.innerHTML = '<div class="no-data">暂无赛事信息</div>';
         return;
     }
-
-    let html = '';
-
-    Object.entries(events).forEach(([id, event]) => {
+    
+    let html = '<div class="events-grid">';
+    filteredEvents.forEach(event => {
+        const statusLabel = event.status === 'ongoing' ? '进行中' : '已结束';
+        const statusClass = event.status === 'ongoing' ? 'ongoing' : 'finished';
+        
         html += `
-            <div class="event-item">
-                <div class="event-icon">${event.icon || '🏆'}</div>
-                <div class="event-info">
-                    <div class="event-name">${event.name || '未知赛事'}</div>
-                    <div class="event-type">${event.type || '淘汰赛'} · ${event.date || '-'}</div>
+            <div class="event-card clickable" data-id="${event.id}" onclick="showEventDetail('${event.id}')">
+                <span class="event-card-status ${statusClass}">${statusLabel}</span>
+                <div class="event-card-header">
+                    <span class="event-emoji-large">${event.emoji}</span>
+                    <div class="event-card-info">
+                        <h3 class="event-name">${event.name}</h3>
+                        <span class="event-subtitle">${event.subtitle || ''}</span>
+                    </div>
                 </div>
+                <div class="event-card-body">
+                    <p class="event-description">${event.description || '暂无描述'}</p>
+                </div>
+                ${admin ? `
+                    <div class="event-card-actions">
+                        <button class="btn-edit-small" onclick="event.stopPropagation(); editEvent('${event.id}')">编辑</button>
+                        <button class="btn-delete-small" onclick="event.stopPropagation(); deleteEvent('${event.id}')">删除</button>
+                    </div>
+                ` : ''}
             </div>
         `;
     });
+    html += '</div>';
+    
+    content.innerHTML = html;
+}
 
-    container.innerHTML = html;
+// 打开赛事编辑弹窗
+function openEventsEditor() {
+    document.getElementById('events-editor-modal').classList.add('active');
+    loadEventList();
+    initEventEmojiPicker();
+}
+
+// 关闭赛事编辑弹窗
+function closeEventsEditor() {
+    document.getElementById('events-editor-modal').classList.remove('active');
+    // 清空表单
+    document.getElementById('event-edit-name').value = '';
+    document.getElementById('event-edit-subtitle').value = '';
+    document.getElementById('event-edit-status').value = 'ongoing';
+    document.getElementById('event-edit-date').value = '';
+    document.getElementById('event-edit-format').value = '淘汰赛';
+    document.getElementById('event-edit-players').value = '8';
+    document.getElementById('event-edit-maps').value = '';
+    document.getElementById('event-edit-prize').value = '';
+    document.getElementById('event-edit-champions').value = '';
+    document.getElementById('event-edit-progress').value = '';
+    document.getElementById('event-edit-description').value = '';
+    document.getElementById('event-edit-emoji').value = '🏆';
+    document.getElementById('event-edit-name').dataset.editId = '';
+}
+
+// 初始化赛事图标选择器
+function initEventEmojiPicker() {
+    const picker = document.getElementById('event-emoji-picker');
+    if (!picker) return;
+    
+    picker.querySelectorAll('.emoji-btn').forEach(btn => {
+        btn.onclick = function() {
+            picker.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('event-edit-emoji').value = this.dataset.emoji;
+        };
+    });
+    
+    // 默认选中第一个
+    if (picker.querySelector('.emoji-btn')) {
+        picker.querySelector('.emoji-btn').classList.add('selected');
+    }
+}
+
+// 保存赛事
+function saveEvent() {
+    const name = document.getElementById('event-edit-name').value.trim();
+    const emoji = document.getElementById('event-edit-emoji').value || '🏆';
+    const subtitle = document.getElementById('event-edit-subtitle').value.trim();
+    const status = document.getElementById('event-edit-status').value;
+    const date = document.getElementById('event-edit-date').value;
+    const format = document.getElementById('event-edit-format').value;
+    const players = parseInt(document.getElementById('event-edit-players').value) || 8;
+    const playersListStr = document.getElementById('event-edit-players-list').value.trim();
+    const playersList = playersListStr ? playersListStr.split(/[,，]/).map(p => parseInt(p.trim())).filter(p => !isNaN(p)) : [];
+    
+    const mapsStr = document.getElementById('event-edit-maps').value.trim();
+    const maps = mapsStr ? mapsStr.split(/[,，]/).map(m => m.trim()).filter(m => m) : [];
+    const prize = document.getElementById('event-edit-prize').value.trim();
+    const champions = document.getElementById('event-edit-champions').value.trim();
+    const progress = document.getElementById('event-edit-progress').value.trim();
+    const description = document.getElementById('event-edit-description').value.trim();
+    const editId = document.getElementById('event-edit-name').dataset.editId;
+    
+    if (!name) {
+        alert('请输入赛事名称');
+        return;
+    }
+    
+    const events = getShowEvents();
+    
+    if (editId) {
+        // 编辑模式
+        const index = events.findIndex(e => e.id === editId);
+        if (index >= 0) {
+            events[index] = { 
+                id: editId, 
+                emoji, 
+                name, 
+                subtitle, 
+                status,
+                date,
+                format,
+                players,
+                playersList,
+                maps,
+                prize,
+                champions,
+                progress,
+                description
+            };
+        }
+    } else {
+        // 新增模式
+        const id = 'event-' + Date.now();
+        events.push({ 
+            id, 
+            emoji, 
+            name, 
+            subtitle, 
+            status,
+            date,
+            format,
+            players,
+            playersList,
+            maps,
+            prize,
+            champions,
+            progress,
+            description
+        });
+    }
+    
+    saveShowEvents(events);
+    renderEvents();
+    loadEventList();
+    closeEventsEditor();
+}
+
+// 编辑赛事
+function editEvent(id) {
+    const events = getShowEvents();
+    const event = events.find(e => e.id === id);
+    if (!event) return;
+    
+    document.getElementById('event-edit-name').value = event.name;
+    document.getElementById('event-edit-name').dataset.editId = id;
+    document.getElementById('event-edit-emoji').value = event.emoji;
+    document.getElementById('event-edit-subtitle').value = event.subtitle || '';
+    document.getElementById('event-edit-status').value = event.status || 'ongoing';
+    document.getElementById('event-edit-date').value = event.date || '';
+    document.getElementById('event-edit-format').value = event.format || '淘汰赛';
+    document.getElementById('event-edit-players').value = event.players || 8;
+    document.getElementById('event-edit-players-list').value = (event.playersList || []).join(',');
+    document.getElementById('event-edit-maps').value = (event.maps || []).join(',');
+    document.getElementById('event-edit-prize').value = event.prize || '';
+    document.getElementById('event-edit-champions').value = event.champions || '';
+    document.getElementById('event-edit-progress').value = event.progress || '';
+    document.getElementById('event-edit-description').value = event.description || '';
+    
+    // 更新图标选择器选中状态
+    const picker = document.getElementById('event-emoji-picker');
+    if (picker) {
+        picker.querySelectorAll('.emoji-btn').forEach(btn => {
+            btn.classList.toggle('selected', btn.dataset.emoji === event.emoji);
+        });
+    }
+    
+    openEventsEditor();
+}
+
+// 删除赛事
+function deleteEvent(id) {
+    if (!confirm('确定要删除这个赛事吗？')) return;
+    
+    const events = getShowEvents();
+    const filtered = events.filter(e => e.id !== id);
+    saveShowEvents(filtered);
+    renderEvents();
+    loadEventList();
+}
+
+// 加载赛事列表到编辑弹窗
+function loadEventList() {
+    const events = getShowEvents();
+    const listEl = document.getElementById('event-list');
+    
+    if (events.length === 0) {
+        listEl.innerHTML = '<div class="no-data">暂无赛事，点击上方表单添加</div>';
+        return;
+    }
+    
+    let html = '';
+    events.forEach(event => {
+        html += `
+            <div class="event-list-item">
+                <span class="event-list-emoji">${event.emoji}</span>
+                <span class="event-list-name">${event.name}</span>
+                <button class="btn-edit-small" onclick="editEvent('${event.id}')">编辑</button>
+                <button class="btn-delete-small" onclick="deleteEvent('${event.id}')">删除</button>
+            </div>
+        `;
+    });
+    listEl.innerHTML = html;
 }
 
 // ========================================
-// 工具函数
+// 赛事详情页面
 // ========================================
 
-// 关闭弹窗
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'none';
+// 获取选手名称（通过ID）
+function getPlayerNameById(playerId) {
+    if (!playerId) return 'TBD';
+    const players = getPlayers();
+    const player = players.find(p => p.id === playerId);
+    return player ? player.name : 'ID:' + playerId;
 }
 
-// 搜索成员
-function searchMembers() {
-    renderMembers();
+// 获取选手等级标签
+function getPlayerLevelTag(playerId) {
+    if (!playerId) return '';
+    const players = getPlayers();
+    const player = players.find(p => p.id === playerId);
+    if (!player) return '';
+    const level = getPlayerLevel(player.id);
+    return `<span class="level-cell level-${level}">${level}</span>`;
 }
 
-// 过滤成员
-function filterMembers() {
-    const searchText = document.getElementById('member-search')?.value?.toLowerCase() || '';
-    const raceFilter = document.getElementById('race-filter')?.value || '';
+// 渲染双败淘汰赛程图
+function renderBracketChart(event) {
+    const playersList = event.playersList || [];
+    const totalPlayers = playersList.length;
+    
+    // 检查是否为有效的参赛人数
+    if (totalPlayers < 2) {
+        return '<div class="no-data">选手数量不足，请至少输入2名选手</div>';
+    }
+    
+    // 确定赛制（双败或单败）
+    const format = event.format || '淘汰赛';
+    const isDoubleElimination = format === '双败淘汰';
+    
+    // 计算轮次
+    const rounds = Math.ceil(Math.log2(totalPlayers));
+    const bracketData = generateBracketStructure(totalPlayers, isDoubleElimination);
+    
+    let html = '<div class="event-bracket-container">';
+    html += '<div class="event-bracket">';
+    
+    // 胜者组
+    html += '<div class="bracket-section winner-bracket">';
+    html += '<div class="bracket-section-title">🏆 胜者组</div>';
+    html += renderWinnerBracket(bracketData, playersList);
+    html += '</div>';
+    
+    // 败者组（如果是双败赛制）
+    if (isDoubleElimination && totalPlayers >= 4) {
+        html += '<div class="bracket-section loser-bracket">';
+        html += '<div class="bracket-section-title">💀 败者组</div>';
+        html += renderLoserBracket(bracketData, playersList);
+        html += '</div>';
+    }
+    
+    // 决赛
+    html += '<div class="bracket-section grand-final">';
+    html += '<div class="bracket-section-title">👑 决赛</div>';
+    html += renderGrandFinal(bracketData, playersList);
+    html += '</div>';
+    
+    html += '</div>'; // end bracket
+    
+    // 冠军展示
+    if (event.prize) {
+        html += `
+            <div class="champion-display">
+                <div class="champion-label">冠军</div>
+                <div class="champion-name">
+                    <span class="trophy">🏆</span>
+                    ${event.prize}
+                </div>
+            </div>
+        `;
+    }
+    
+    html += '</div>'; // end bracket-container
+    
+    return html;
+}
 
-    const container = document.getElementById('members-list');
-    if (!container) return;
+// 生成赛程结构
+function generateBracketStructure(totalPlayers, isDoubleElimination) {
+    const rounds = Math.ceil(Math.log2(totalPlayers));
+    return {
+        totalPlayers,
+        rounds,
+        isDoubleElimination,
+        // 胜者组每轮比赛数量
+        winnerMatches: Array.from({length: rounds}, (_, i) => Math.pow(2, rounds - i - 1)),
+        // 败者组轮次
+        loserRounds: isDoubleElimination ? (rounds - 1) * 2 : 0
+    };
+}
 
-    let players = getPlayers();
+// 渲染胜者组
+function renderWinnerBracket(bracketData, playersList) {
+    const { rounds, winnerMatches } = bracketData;
+    let html = '';
+    
+    // 第一轮对阵
+    const round1Matches = winnerMatches[0];
+    const players = [...playersList];
+    
+    // 填充到2的幂
+    const size = Math.pow(2, rounds);
+    while (players.length < size) {
+        players.push(null); // Bye
+    }
+    
+    // 渲染每轮
+    for (let round = 0; round < rounds; round++) {
+        const matchCount = winnerMatches[round];
+        const roundName = getRoundName(round, rounds, '胜者');
+        
+        html += '<div class="bracket-round">';
+        html += '<div class="round-header">' + roundName + '</div>';
+        
+        for (let m = 0; m < matchCount; m++) {
+            const player1Index = round === 0 ? m * 2 : null;
+            const player2Index = round === 0 ? m * 2 + 1 : null;
+            
+            let player1 = null, player2 = null;
+            if (round === 0) {
+                player1 = players[player1Index];
+                player2 = players[player2Index];
+            }
+            
+            const matchClass = round === rounds - 1 ? 'winner' : '';
+            html += renderMatchCard(player1, player2, matchClass, round);
+        }
+        
+        html += '</div>';
+    }
+    
+    return html;
+}
 
-    // 搜索过滤
-    if (searchText) {
-        players = players.filter(p =>
-            p.name.toLowerCase().includes(searchText) ||
-            (p.kkname && p.kkname.toLowerCase().includes(searchText))
-        );
+// 渲染败者组
+function renderLoserBracket(bracketData, playersList) {
+    if (!bracketData.isDoubleElimination) return '';
+    
+    const { rounds } = bracketData;
+    let html = '';
+    
+    // 败者组轮次（交替进行）
+    for (let i = 0; i < (rounds - 1) * 2; i++) {
+        const roundName = i % 2 === 0 ? `败者组第${Math.floor(i/2) + 1}轮` : '败者组淘汰';
+        const matchCount = Math.pow(2, rounds - 2 - Math.floor(i / 2));
+        
+        html += '<div class="bracket-round">';
+        html += `<div class="round-header">${roundName}</div>`;
+        
+        for (let m = 0; m < Math.max(1, matchCount); m++) {
+            html += renderMatchCard(null, null, '', 'loser-' + i);
+        }
+        
+        html += '</div>';
+    }
+    
+    return html;
+}
+
+// 渲染决赛
+function renderGrandFinal(bracketData, playersList) {
+    const html = '<div class="bracket-round">';
+    html += '<div class="round-header">总决赛</div>';
+    html += renderMatchCard(null, null, 'current', 'final');
+    html += '</div>';
+    return html;
+}
+
+// 渲染单场比赛卡片
+function renderMatchCard(player1, player2, matchClass = '', roundId) {
+    const p1Name = player1 ? getPlayerNameById(player1) : 'TBD';
+    const p1Level = player1 ? getPlayerLevelTag(player1) : '';
+    const p1Class = !player1 ? 'tbd' : '';
+    
+    const p2Name = player2 ? getPlayerNameById(player2) : 'TBD';
+    const p2Level = player2 ? getPlayerLevelTag(player2) : '';
+    const p2Class = !player2 ? 'tbd' : '';
+    
+    const roundAttr = 'data-round="' + roundId + '"';
+    
+    return '<div class="bracket-match ' + matchClass + '" ' + roundAttr + '>' +
+        '<div class="bracket-player ' + p1Class + '">' +
+            '<span class="player-seed">1</span>' +
+            '<span class="player-name">' + p1Level + p1Name + '</span>' +
+        '</div>' +
+        '<div class="bracket-player ' + p2Class + '">' +
+            '<span class="player-seed">2</span>' +
+            '<span class="player-name">' + p2Level + p2Name + '</span>' +
+        '</div>' +
+    '</div>';
+}
+
+// 获取轮次名称
+function getRoundName(round, totalRounds, prefix = '') {
+    const remaining = totalRounds - round;
+    if (remaining === 1) return `${prefix}决赛`;
+    if (remaining === 2) return `${prefix}半决赛`;
+    if (remaining === 3) return `${prefix}八强`;
+    if (remaining === 4) return `${prefix}16强`;
+    if (remaining === 5) return `${prefix}32强`;
+    if (remaining === 6) return `${prefix}64强`;
+    return `${prefix}第${round + 1}轮`;
+}
+
+// 解析赛程进度数据
+// 支持格式1: "决赛:Infi 2:1 TH000\n半决赛:Sky 2:0 Moon\n八强:A组 16人"
+function parseProgressData(progressStr) {
+    if (!progressStr) return [];
+    
+    // 尝试识别轮次关键词
+    const roundPatterns = [
+        { regex: /决赛|总决赛|Final/i, name: '决赛' },
+        { regex: /半决赛|四强|Semi/i, name: '半决赛' },
+        { regex: /八强|四分之一决赛|Quarter/i, name: '八强' },
+        { regex: /十六强|1\/16/i, name: '16强' },
+        { regex: /三十二强|1\/32/i, name: '32强' },
+        { regex: /小组赛|Group/i, name: '小组赛' },
+        { regex: /八分之一决赛|1\/8/i, name: '8强' }
+    ];
+    
+    const rounds = [];
+    const lines = progressStr.split('\n');
+    
+    let currentRound = null;
+    
+    lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        
+        // 检查是否是轮次标题行
+        let foundRound = false;
+        for (const pattern of roundPatterns) {
+            if (pattern.regex.test(line)) {
+                // 如果有比分信息，解析比赛
+                const matchInfo = parseMatchLine(line, pattern.name);
+                if (matchInfo) {
+                    rounds.push(matchInfo);
+                } else {
+                    // 纯标题行，创建新轮次
+                    currentRound = { name: pattern.name, matches: [] };
+                    rounds.push(currentRound);
+                }
+                foundRound = true;
+                break;
+            }
+        }
+        
+        // 如果没有匹配到轮次标题，尝试作为比赛行解析
+        if (!foundRound && currentRound) {
+            const matchInfo = parseMatchLine(line, currentRound.name);
+            if (matchInfo) {
+                if (!currentRound.matches) currentRound.matches = [];
+                currentRound.matches.push(matchInfo);
+            }
+        }
+    });
+    
+    // 如果没有解析出结构，尝试简单分行处理
+    if (rounds.length === 0) {
+        lines.forEach(line => {
+            if (line.trim()) {
+                rounds.push({ name: '', matches: [{ text: line.trim(), status: 'current' }] });
+            }
+        });
+    }
+    
+    return rounds;
+}
+
+// 解析单行比赛信息
+function parseMatchLine(line, roundName) {
+    // 匹配格式: "选手A 2:1 选手B" 或 "Sky 2:1 TH000"
+    const scoreMatch = line.match(/([^:\s]+)\s*(\d+)\s*[:\-–]\s*(\d+)\s*([^:\s]*)/);
+    if (scoreMatch) {
+        const [, p1, score1, score2, p2] = scoreMatch;
+        return {
+            name: roundName,
+            player1: p1.trim(),
+            player2: p2.trim() || 'TBD',
+            score1: parseInt(score1),
+            score2: parseInt(score2),
+            status: 'completed'
+        };
+    }
+    
+    // 匹配格式: "比赛名: 选手A vs 选手B"
+    const vsMatch = line.match(/([^:：]+)[:：]?\s*(.+?)\s+(vs|VS|对)\s+(.+)/i);
+    if (vsMatch) {
+        return {
+            name: roundName,
+            player1: vsMatch[2].trim(),
+            player2: vsMatch[4].trim(),
+            status: 'current'
+        };
+    }
+    
+    // 匹配格式: "A组: Sky vs Moon"
+    const groupMatch = line.match(/(.+?):\s*(.+)/);
+    if (groupMatch && !line.includes('：') && !line.includes(':')) {
+        return {
+            name: groupMatch[1].trim(),
+            player1: groupMatch[2].trim(),
+            player2: 'TBD',
+            status: 'current'
+        };
+    }
+    
+    // 无法解析，返回通用信息
+    return null;
+}
+
+// 渲染赛程进度树形结构
+function renderProgressTree(progressData) {
+    let html = '<div class="event-progress-tree">';
+    
+    progressData.forEach(round => {
+        if (typeof round === 'string') {
+            // 纯文本行
+            html += `
+                <div class="progress-round">
+                    <span class="round-label"></span>
+                    <div class="round-matches">
+                        <div class="progress-match current">
+                            <span>${round}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (round.name && !round.matches && round.player1) {
+            // 单场比赛
+            const isCompleted = round.status === 'completed';
+            const isCurrent = round.status === 'current';
+            
+            html += `
+                <div class="progress-round">
+                    <span class="round-label">${round.name || ''}</span>
+                    <div class="round-matches">
+                        <div class="progress-match ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                            <span class="match-player ${round.player1 && round.player2 ? '' : ''}">${round.player1 || 'TBD'}</span>
+                            ${round.score1 !== undefined ? `
+                                <span class="match-vs">vs</span>
+                                <span class="match-player">${round.player2 || 'TBD'}</span>
+                                <span class="match-score-mini">${round.score1}:${round.score2}</span>
+                            ` : `
+                                <span class="match-vs">vs</span>
+                                <span class="match-player">${round.player2 || 'TBD'}</span>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (round.matches) {
+            // 多场比赛的轮次
+            const roundMatches = Array.isArray(round) ? round : [round];
+            html += `
+                <div class="progress-round">
+                    <span class="round-label">${round.name || ''}</span>
+                    <div class="round-matches">
+                        ${round.matches.map(match => {
+                            const isCompleted = match.status === 'completed';
+                            const isCurrent = match.status === 'current';
+                            
+                            return `
+                                <div class="progress-match ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                                    <span class="match-player">${match.player1 || 'TBD'}</span>
+                                    ${match.score1 !== undefined ? `
+                                        <span class="match-vs">vs</span>
+                                        <span class="match-player">${match.player2 || 'TBD'}</span>
+                                        <span class="match-score-mini">${match.score1}:${match.score2}</span>
+                                    ` : `
+                                        <span class="match-vs">vs</span>
+                                        <span class="match-player">${match.player2 || 'TBD'}</span>
+                                    `}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        } else {
+            // 纯文本或无法解析
+            html += `
+                <div class="progress-round">
+                    <span class="round-label">${round.name || ''}</span>
+                    <div class="round-matches">
+                        <div class="progress-match current">
+                            <span>${round.text || round}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+    
+    html += '</div>';
+    return html;
+}
+
+function showEventDetail(eventId) {
+    const events = getShowEvents();
+    const event = events.find(e => e.id === eventId);
+    
+    if (!event) return;
+    
+    // 保存当前页面状态
+    previousPage = getCurrentPage();
+    
+    // 隐藏其他页面，显示赛事详情页
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-event-detail').classList.add('active');
+    
+    // 填充赛事信息
+    document.getElementById('detail-event-name').textContent = event.name;
+    document.getElementById('detail-event-avatar').textContent = event.emoji;
+    document.getElementById('detail-event-display-name').textContent = event.name;
+    document.getElementById('detail-event-subtitle').textContent = event.subtitle || '';
+    
+    // 设置赛事状态
+    const statusEl = document.getElementById('detail-event-status');
+    if (event.status === 'ongoing') {
+        statusEl.textContent = '进行中';
+        statusEl.className = 'event-status-badge ongoing';
+    } else {
+        statusEl.textContent = '已结束';
+        statusEl.className = 'event-status-badge finished';
+    }
+    
+    // 设置基本信息
+    document.getElementById('detail-event-date').textContent = event.date || '未知';
+    document.getElementById('detail-event-format').textContent = event.format || '未知';
+    document.getElementById('detail-event-players').textContent = event.players || '未知';
+    document.getElementById('detail-event-prize').textContent = event.prize || '待定';
+    
+    // 设置地图池
+    const mapsContent = document.getElementById('detail-event-maps');
+    if (event.maps && event.maps.length > 0) {
+        mapsContent.innerHTML = `
+            <div class="event-maps-list">
+                ${event.maps.map(map => `
+                    <span class="event-map-item">
+                        <span class="map-icon">🗺️</span>
+                        ${map}
+                    </span>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        mapsContent.innerHTML = '<span class="glory-text">暂无地图信息</span>';
+    }
+    
+    // 设置赛程进度 - 优先使用赛程图模式
+    const progressContent = document.getElementById('detail-event-progress');
+    if (event.playersList && event.playersList.length > 0) {
+        // 使用赛程图模式
+        progressContent.innerHTML = renderBracketChart(event);
+    } else if (event.progress) {
+        // 尝试解析结构化进度数据
+        const progressData = parseProgressData(event.progress);
+        if (progressData && progressData.length > 0) {
+            progressContent.innerHTML = renderProgressTree(progressData);
+        } else {
+            // 回退到纯文本模式
+            progressContent.innerHTML = `<span class="progress-text-fallback">${event.progress}</span>`;
+        }
+    } else {
+        progressContent.innerHTML = '<span class="honors-text">暂无赛程信息</span>';
+    }
+    
+    // 设置历届冠军
+    const championsContent = document.getElementById('detail-event-champions');
+    if (event.champions) {
+        const championLines = event.champions.split('\n').filter(c => c.trim());
+        if (championLines.length > 0) {
+            championsContent.innerHTML = championLines.map(line => {
+                const parts = line.split(':');
+                const period = parts[0] || '';
+                const name = parts[1] || line;
+                return `
+                    <div class="event-champion-item">
+                        <span class="event-champion-period">${period}</span>
+                        <span class="event-champion-icon">🏆</span>
+                        <span class="event-champion-name">${name}</span>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            championsContent.innerHTML = '<span class="kk-rank-text">暂无冠军记录</span>';
+        }
+    } else {
+        championsContent.innerHTML = '<span class="kk-rank-text">暂无冠军记录</span>';
+    }
+    
+    // 设置赛事说明
+    const descContent = document.getElementById('detail-event-description');
+    if (event.description) {
+        descContent.innerHTML = `<span class="trait-text">${event.description}</span>`;
+    } else {
+        descContent.innerHTML = '<span class="trait-text">暂无赛事说明</span>';
+    }
+    
+    // 显示/隐藏编辑按钮
+    document.getElementById('btn-edit-event-progress').style.display = isAdmin() ? 'block' : 'none';
+}
+
+// 返回赛事列表
+function goBackToEvents() {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    // 返回赛事页面
+    document.getElementById('page-events').classList.add('active');
+    document.querySelector('.nav-item[data-page="events"]')?.classList.add('active');
+    
+    renderEvents();
+}
+
+// 编辑赛事进度
+function editEventProgress() {
+    const eventId = document.querySelector('#page-event-detail .player-detail-header h2')?.textContent;
+    if (!eventId) return;
+    
+    const events = getShowEvents();
+    const event = events.find(e => e.name === eventId);
+    if (event) {
+        editEvent(event.id);
+    }
+}
+
+// ========================================
+// 英雄页面 (已移除)
+// ========================================
+
+// 渲染荣誉页面
+// ========================================
+// 荣誉系统 - 赛事荣誉数据管理
+// ========================================
+
+// 默认赛事数据
+const DEFAULT_EVENTS = {
+    personal: [
+        // 个人赛为空，用户可自行添加
+    ],
+    cup: [
+        { id: 'spring-cup', emoji: '🌸', name: '春季杯', subtitle: '春季赛冠军' }
+    ],
+    team: [
+        { id: 'team-match', emoji: '🛡️', name: '团队赛', subtitle: '部落对战' }
+    ]
+};
+
+// 获取赛事数据
+function getEvents() {
+    const data = localStorage.getItem('wc3_events');
+    return data ? JSON.parse(data) : JSON.parse(JSON.stringify(DEFAULT_EVENTS));
+}
+
+// 保存赛事数据
+function saveEvents(events) {
+    localStorage.setItem('wc3_events', JSON.stringify(events));
+}
+
+// 获取冠军数据
+function getChampions() {
+    const data = localStorage.getItem('wc3_champions');
+    return data ? JSON.parse(data) : {};
+}
+
+// 保存冠军数据
+function saveChampions(champions) {
+    localStorage.setItem('wc3_champions', JSON.stringify(champions));
+}
+
+// 渲染荣誉页面
+let currentHonorCategory = 'personal';
+
+function renderHonors() {
+    const events = getEvents();
+    const champions = getChampions();
+    const players = getPlayers();
+    const categoryEvents = events[currentHonorCategory] || [];
+    
+    const content = document.getElementById('honors-content');
+    
+    if (categoryEvents.length === 0) {
+        content.innerHTML = '<div class="no-data">该分类暂无赛事</div>';
+        return;
+    }
+    
+    let html = '';
+    for (const event of categoryEvents) {
+        const eventChampions = champions[event.id] || [];
+        const championHtml = renderStoredChampions(eventChampions);
+        
+        html += `
+            <div class="event-card">
+                <div class="event-card-header">
+                    <span class="event-emoji">${event.emoji}</span>
+                    <div>
+                        <div class="event-card-title">${event.name}</div>
+                        <div class="event-card-subtitle">${event.subtitle}</div>
+                    </div>
+                </div>
+                <div class="event-champions">
+                    ${championHtml}
+                </div>
+            </div>
+        `;
+    }
+    
+    content.innerHTML = html;
+}
+
+// 渲染个人赛冠军（动态计算）
+// 渲染已存储的冠军
+function renderStoredChampions(storedChampions) {
+    if (storedChampions.length === 0) {
+        return '<div class="honor-list-empty">暂无冠军记录</div>';
     }
 
-    // 种族过滤
-    if (raceFilter) {
-        players = players.filter(p => p.race === raceFilter);
-    }
+    return storedChampions.map((c, i) => {
+        // 尝试查找同名成员获取等级
+        const players = getPlayers();
+        let championLevelTag = '';
+        let runnerUpLevelTag = '';
+        
+        const championPlayer = players.find(p => p.name === c.name);
+        if (championPlayer) {
+            const level = getPlayerLevel(championPlayer.id);
+            championLevelTag = `<span class="level-cell level-${level}">${level}</span>`;
+        }
+        
+        // 如果有亚军
+        let runnerUpHtml = '';
+        if (c.runnerUp) {
+            const runnerUpPlayer = players.find(p => p.name === c.runnerUp);
+            if (runnerUpPlayer) {
+                const level = getPlayerLevel(runnerUpPlayer.id);
+                runnerUpLevelTag = `<span class="level-cell level-${level}">${level}</span>`;
+            }
+            runnerUpHtml = `<span class="honor-runnerup">🥈 ${runnerUpLevelTag}${c.runnerUp}</span>`;
+        }
 
-    if (!players.length) {
-        container.innerHTML = '<div class="empty-state">没有找到匹配的成员</div>';
+        return `
+            <div class="honor-list-item">
+                <span class="honor-period">${c.period || '第' + (i + 1) + '届'}</span>
+                <div class="honor-players">
+                    <span class="honor-champion">🏆 ${championLevelTag}${c.name}</span>
+                    ${runnerUpHtml}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 分类标签切换
+document.addEventListener('DOMContentLoaded', () => {
+    // 初始化编辑按钮显示状态（此事件监听器已弃用，由主init处理）
+});
+
+// ========================================
+// 荣誉编辑功能
+// ========================================
+
+function openHonorsEditor() {
+    document.getElementById('honors-editor-modal').classList.add('active');
+    // 加载分类下的赛事，并默认选择第一个
+    onCategoryChange(true);
+    // 清空表单
+    document.getElementById('edit-champion-name').value = '';
+    document.getElementById('edit-champion-period').value = '';
+    document.getElementById('edit-runnerup-name').value = '';
+    // 重置冠军列表为空提示
+    document.getElementById('champion-list').innerHTML = '<div class="empty-hint">请选择赛事后添加记录</div>';
+}
+
+function closeHonorsEditor() {
+    document.getElementById('honors-editor-modal').classList.remove('active');
+}
+
+function onCategoryChange(autoSelectFirst = false) {
+    const category = document.getElementById('honors-category-select').value;
+    const events = getEvents();
+    const categoryEvents = events[category] || [];
+    
+    const select = document.getElementById('honors-event-select');
+    select.innerHTML = '<option value="">请选择赛事</option>';
+    
+    document.getElementById('delete-event-btn').style.display = 'none';
+    
+    categoryEvents.forEach(e => {
+        const option = document.createElement('option');
+        option.value = e.id;
+        option.textContent = `${e.emoji} ${e.name}`;
+        option.dataset.emoji = e.emoji;
+        option.dataset.name = e.name;
+        select.appendChild(option);
+    });
+    
+    // 如果有赛事且需要自动选择，则选择第一个
+    if (autoSelectFirst && categoryEvents.length > 0) {
+        select.value = categoryEvents[0].id;
+        // 触发change事件来加载冠军列表
+        select.dispatchEvent(new Event('change'));
+    }
+    
+    // 监听赛事选择变化，加载对应赛事的冠军列表
+    select.onchange = function() {
+        const eventId = this.value;
+        document.getElementById('edit-event-id').value = eventId || '';
+        
+        // 显示/隐藏删除按钮
+        document.getElementById('delete-event-btn').style.display = 
+            eventId ? 'inline-block' : 'none';
+        
+        if (eventId) {
+            loadChampionsSimple();
+        } else {
+            document.getElementById('champion-list').innerHTML = '<div class="empty-hint">请选择赛事后添加记录</div>';
+        }
+    };
+}
+
+// 删除当前赛事及其所有冠军数据
+function deleteCurrentEvent() {
+    const category = document.getElementById('honors-category-select').value;
+    const eventId = document.getElementById('edit-event-id').value;
+    const eventSelect = document.getElementById('honors-event-select');
+    const selectedOption = eventSelect.options[eventSelect.selectedIndex];
+    const eventName = selectedOption ? selectedOption.textContent : '';
+    
+    if (!eventId) {
+        alert('请先选择要删除的赛事');
+        return;
+    }
+    
+    if (!confirm(`确定要删除赛事"${eventName}"吗？\n这将同时删除该赛事的所有冠军记录！`)) {
+        return;
+    }
+    
+    // 从赛事列表中移除
+    const events = getEvents();
+    events[category] = events[category].filter(e => e.id !== eventId);
+    saveEvents(events);
+    
+    // 从冠军数据中移除
+    const champions = getChampions();
+    delete champions[eventId];
+    saveChampions(champions);
+    
+    // 刷新UI
+    onCategoryChange();
+    document.getElementById('edit-event-id').value = '';
+    document.getElementById('champion-list').innerHTML = '<div class="empty-hint">请选择赛事后添加记录</div>';
+    
+    // 刷新荣誉页面
+    renderHonors();
+    
+    alert('赛事已删除');
+}
+
+// 切换添加赛事表单的显示/隐藏
+function toggleAddEventForm() {
+    const form = document.getElementById('add-event-form');
+    const btn = document.getElementById('toggle-add-event-btn');
+    
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+        btn.textContent = '➖ 收起';
+        document.getElementById('new-event-name').focus();
+        
+        // 初始化图标选择器
+        initEmojiPicker();
+    } else {
+        form.style.display = 'none';
+        btn.textContent = '➕ 添加赛事';
+        // 清空输入
+        document.getElementById('new-event-name').value = '';
+        document.getElementById('new-event-emoji').value = '🏆';
+        document.getElementById('new-event-subtitle').value = '';
+    }
+}
+
+// 初始化图标选择器
+function initEmojiPicker() {
+    const picker = document.getElementById('emoji-picker');
+    const emojiInput = document.getElementById('new-event-emoji');
+    const buttons = picker.querySelectorAll('.emoji-btn');
+    
+    // 默认选中第一个
+    if (!emojiInput.value) {
+        emojiInput.value = '🏆';
+    }
+    buttons.forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.emoji === emojiInput.value);
+    });
+    
+    // 点击事件
+    buttons.forEach(btn => {
+        btn.onclick = function() {
+            buttons.forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            emojiInput.value = this.dataset.emoji;
+        };
+    });
+}
+
+function addNewEvent() {
+    const category = document.getElementById('honors-category-select').value;
+    const name = document.getElementById('new-event-name').value.trim();
+    const emoji = document.getElementById('new-event-emoji').value.trim() || '🏆';
+    const subtitle = document.getElementById('new-event-subtitle').value.trim();
+    
+    if (!name) {
+        alert('请输入赛事名称');
+        return;
+    }
+    
+    const events = getEvents();
+    const eventId = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+    
+    if (!events[category]) {
+        events[category] = [];
+    }
+    
+    events[category].push({ id: eventId, emoji, name, subtitle });
+    saveEvents(events);
+    
+    document.getElementById('new-event-name').value = '';
+    document.getElementById('new-event-emoji').value = '';
+    document.getElementById('new-event-subtitle').value = '';
+    
+    // 隐藏表单
+    toggleAddEventForm();
+    
+    // 重新加载赛事列表并选中新添加的
+    onCategoryChange();
+    const select = document.getElementById('honors-event-select');
+    select.value = eventId;
+    updateEventDisplay(emoji, name, eventId);
+    
+    renderHonors();
+}
+
+// 渲染冠军列表（提取公共逻辑供多处使用）
+function renderChampionList(eventChampions) {
+    const listEl = document.getElementById('champion-list');
+    if (!listEl) return;
+
+    if (eventChampions.length === 0) {
+        listEl.innerHTML = '<div class="empty-hint">暂无记录，请添加</div>';
         return;
     }
 
-    // 按积分排序
-    const sorted = [...players].sort((a, b) => b.points - a.points);
+    listEl.innerHTML = eventChampions.map((c, i) => {
+        const players = getPlayers();
+        let championLevelTag = '';
+        let runnerUpLevelTag = '';
+        
+        const championPlayer = players.find(p => p.name === c.name);
+        if (championPlayer) {
+            const level = getPlayerLevel(championPlayer.id);
+            championLevelTag = `<span class="level-cell level-${level}">${level}</span>`;
+        }
+        
+        let runnerUpHtml = '';
+        if (c.runnerUp) {
+            const runnerUpPlayer = players.find(p => p.name === c.runnerUp);
+            if (runnerUpPlayer) {
+                const level = getPlayerLevel(runnerUpPlayer.id);
+                runnerUpLevelTag = `<span class="level-cell level-${level}">${level}</span>`;
+            }
+            runnerUpHtml = `<span class="item-player runnerup">🥈 ${runnerUpLevelTag}${c.runnerUp}</span>`;
+        }
 
-    // 按等级分组
-    const groups = { 'SR': [], 'S': [], 'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [] };
-
-    sorted.forEach((p, i) => {
-        const level = getPlayerLevel(p.id);
-        groups[level].push({ ...p, rank: i + 1 });
-    });
-
-    let html = '';
-
-    ['SR', 'S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'].forEach(level => {
-        const members = groups[level];
-        if (!members.length) return;
-
-        const color = getLevelColor(level);
-        html += `
-            <div class="level-group">
-                <div class="level-header" style="background: ${color}">
-                    <span class="level-badge">${level}</span>
-                    <span class="level-name">${getLevelName(level)}</span>
-                    <span class="level-count">${members.length}人</span>
+        return `
+            <div class="editor-list-item">
+                <span class="item-period">${c.period || '第' + (i + 1) + '届'}</span>
+                <div class="item-players">
+                    <span class="item-player champion">🏆 ${championLevelTag}${c.name}</span>
+                    ${runnerUpHtml}
                 </div>
-                <div class="members-table">
-                    <div class="table-header">
-                        <span class="col-rank">排名</span>
-                        <span class="col-name">ID</span>
-                        <span class="col-race">种族</span>
-                        <span class="col-kkname">KK昵称</span>
-                        <span class="col-points">积分</span>
-                        <span class="col-stats">胜/负</span>
-                        <span class="col-apm">APM</span>
-                    </div>
+                <button class="btn-delete" onclick="deleteChampionSimple(${i})">删除</button>
+            </div>
         `;
+    }).join('');
+}
 
-        members.forEach(p => {
-            html += `
-                <div class="member-row" onclick="showPlayerDetail('${p.id}')">
-                    <span class="col-rank">#${p.rank}</span>
-                    <span class="col-name">${p.name}</span>
-                    <span class="col-race">${getRaceIcon(p.race)} ${getRaceName(p.race)}</span>
-                    <span class="col-kkname">${p.kkname || '-'}</span>
-                    <span class="col-points">${p.points}</span>
-                    <span class="col-stats ${p.wins > p.losses ? 'win' : 'loss'}">${p.wins || 0}/${p.losses || 0}</span>
-                    <span class="col-apm">${p.apm || 0}</span>
-                </div>
+function loadChampionsSimple() {
+    const eventId = document.getElementById('edit-event-id').value;
+    if (!eventId) return;
+
+    const champions = getChampions();
+    const eventChampions = champions[eventId] || [];
+    renderChampionList(eventChampions);
+}
+
+function addChampion() {
+    const eventId = document.getElementById('edit-event-id').value;
+    const name = document.getElementById('edit-champion-name').value.trim();
+    const period = document.getElementById('edit-champion-period').value.trim();
+    const runnerUp = document.getElementById('edit-runnerup-name').value.trim();
+    
+    if (!eventId) {
+        alert('请先选择赛事');
+        return;
+    }
+    
+    if (!name) {
+        alert('请输入冠军名称');
+        return;
+    }
+    
+    // 保存数据
+    const champions = getChampions();
+    if (!champions[eventId]) {
+        champions[eventId] = [];
+    }
+    
+    champions[eventId].push({ name, period, runnerUp });
+    saveChampions(champions);
+    
+    // 清空输入框
+    document.getElementById('edit-champion-name').value = '';
+    document.getElementById('edit-champion-period').value = '';
+    document.getElementById('edit-runnerup-name').value = '';
+    
+    // 重新渲染冠军列表
+    loadChampionsSimple();
+    
+    // 刷新荣誉页面
+    renderHonors();
+}
+
+function deleteChampionSimple(index) {
+    const eventId = document.getElementById('edit-event-id').value;
+    if (!eventId) return;
+    
+    const champions = getChampions();
+    if (champions[eventId]) {
+        champions[eventId].splice(index, 1);
+        saveChampions(champions);
+    }
+    
+    // 重新渲染冠军列表
+    loadChampionsSimple();
+    
+    // 刷新荣誉页面
+    renderHonors();
+}
+
+// 格式化时间
+function formatTimeAgo(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+    
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 60) return `${minutes}分钟前`;
+    if (hours < 24) return `${hours}小时前`;
+    return `${days}天前`;
+}
+
+// ========================================
+// 登录管理 (API 版本)
+// ========================================
+
+function showLoginModal() {
+    if (authToken) {
+        handleLogout();
+        return;
+    }
+    document.getElementById('login-modal').classList.add('active');
+}
+
+function closeLoginModal() {
+    document.getElementById('login-modal').classList.remove('active');
+    document.getElementById('login-username').value = '';
+    document.getElementById('login-password').value = '';
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+
+    // 优先尝试 API 登录
+    try {
+        const result = await apiPost('/login', { username, password });
+        if (result && result.success) {
+            authToken = result.token;
+            currentUsername = result.username;
+            localStorage.setItem('wc3_api_token', authToken);
+            localStorage.setItem('wc3_username', currentUsername);
+            updateAdminUI();
+            closeLoginModal();
+            alert('登录成功！');
+            await refreshData();
+            renderCurrentPage(getCurrentPage());
+            return;
+        }
+    } catch (e) {
+        console.log('API 不可用，使用本地登录验证');
+    }
+
+    // 本地登录验证（静态模式）
+    if (username === STATIC_ADMIN.username && password === STATIC_ADMIN.password) {
+        authToken = 'local-token-' + Date.now();
+        currentUsername = username;
+        localStorage.setItem('wc3_api_token', authToken);
+        localStorage.setItem('wc3_username', currentUsername);
+        updateAdminUI();
+        closeLoginModal();
+        alert('登录成功！');
+        await refreshData();
+        renderCurrentPage(getCurrentPage());
+    } else {
+        alert('账号或密码错误');
+    }
+}
+
+async function handleLogout() {
+    try {
+        await apiPost('/logout', {});
+    } catch (e) {
+        // 忽略 API 错误
+    }
+    authToken = null;
+    currentUsername = null;
+    localStorage.removeItem('wc3_api_token');
+    localStorage.removeItem('wc3_username');
+    updateAdminUI();
+    await refreshData();
+    renderCurrentPage(getCurrentPage());
+}
+
+function isAdmin() {
+    return authToken !== null;
+}
+
+function updateAdminUI() {
+    const admin = isAdmin();
+    const btnAddPlayer = document.getElementById('btn-add-player');
+    const btnRemovePlayer = document.getElementById('btn-remove-player');
+    const btnAddMatch = document.getElementById('btn-add-match');
+    const btnEditEvents = document.getElementById('btn-edit-events');
+    const honorsEditBtn = document.getElementById('honors-edit-btn');
+    const loginBtn = document.querySelector('.btn-login');
+    
+    if (btnAddPlayer) btnAddPlayer.style.display = admin ? 'flex' : 'none';
+    if (btnRemovePlayer) btnRemovePlayer.style.display = admin ? 'flex' : 'none';
+    if (btnAddMatch) btnAddMatch.style.display = admin ? 'block' : 'none';
+    if (btnEditEvents) btnEditEvents.style.display = admin ? 'block' : 'none';
+    if (honorsEditBtn) honorsEditBtn.style.display = admin ? 'block' : 'none';
+    if (loginBtn) loginBtn.textContent = admin ? '退出' : '登录';
+    
+    renderMatches(document.getElementById('match-filter')?.value || 'all');
+    renderEvents();
+}
+
+function getCurrentPage() {
+    return document.querySelector('.nav-item.active')?.dataset.page || 'overview';
+}
+
+// ========================================
+// 添加成员 (API 版本)
+// ========================================
+
+function showAddPlayerModal() {
+    if (!isAdmin()) {
+        alert('请先登录');
+        showLoginModal();
+        return;
+    }
+    document.getElementById('add-player-modal').classList.add('active');
+}
+
+function closeAddPlayerModal() {
+    document.getElementById('add-player-modal').classList.remove('active');
+    document.getElementById('player-name').value = '';
+    document.getElementById('player-kkname').value = '';
+    document.getElementById('player-points').value = '1000';
+    document.getElementById('player-apm').value = '120';
+    document.getElementById('player-trait').value = '';
+    document.getElementById('player-glory').value = '';
+    document.getElementById('player-honors').value = '';
+    document.getElementById('player-kk-rank').value = '';
+}
+
+async function handleAddPlayer(e) {
+    e.preventDefault();
+    const players = getPlayers();
+    const newId = Math.max(0, ...players.map(p => p.id || 0)) + 1;
+
+    const player = {
+        id: 'p' + Date.now(),
+        name: document.getElementById('player-name').value,
+        race: document.getElementById('player-race').value,
+        kkname: document.getElementById('player-kkname').value || '',
+        points: parseInt(document.getElementById('player-points').value) || 1000,
+        wins: 0,
+        losses: 0,
+        apm: parseInt(document.getElementById('player-apm').value) || 120,
+        trait: document.getElementById('player-trait').value || '',
+        glory: document.getElementById('player-glory').value || '',
+        honors: document.getElementById('player-honors').value || '',
+        kkRank: document.getElementById('player-kk-rank').value || ''
+    };
+
+    // 通过 API 添加
+    const result = await apiPost('/players', player);
+    if (result && !result.error) {
+        players.push(result);
+        cachedPlayers = players;
+    }
+    
+    closeAddPlayerModal();
+    const searchText = document.getElementById('member-search')?.value || '';
+    renderMembers('all', 'all', searchText);
+    alert('成员添加成功！');
+}
+
+// ========================================
+// 删减成员 (API 版本)
+// ========================================
+
+function showDeletePlayerModal() {
+    if (!isAdmin()) {
+        alert('请先登录');
+        showLoginModal();
+        return;
+    }
+    const players = getPlayers();
+    const listContainer = document.getElementById('delete-player-list');
+    
+    if (players.length === 0) {
+        listContainer.innerHTML = '<div class="no-data">暂无成员可删除</div>';
+    } else {
+        // 按积分降序排列
+        const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
+        
+        listContainer.innerHTML = sortedPlayers.map(player => {
+            const level = getPlayerLevel(player.id);
+            const levelColors = {
+                'SR': '#b8860b', 'S': '#e74c3c', 'A': '#e67e22', 'B': '#f1c40f',
+                'C': '#6495ed', 'D': '#3498db', 'E': '#27ae60', 'F': '#9b59b6', 'G': '#7f8c8d'
+            };
+            const levelColor = levelColors[level] || '#7f8c8d';
+            
+            return `
+                <label class="delete-player-item" data-id="${player.id}">
+                    <input type="checkbox" value="${player.id}">
+                    <div class="delete-player-info">
+                        <span class="delete-player-name">${player.name}</span>
+                        <span class="delete-player-level" style="background: ${levelColor}20; color: ${levelColor}; border: 1px solid ${levelColor}40;">${level}</span>
+                        <span class="delete-player-points">${player.points}分</span>
+                    </div>
+                </label>
             `;
+        }).join('');
+        
+        // 添加点击事件
+        listContainer.querySelectorAll('.delete-player-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.type !== 'checkbox') {
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                }
+                item.classList.toggle('selected', item.querySelector('input').checked);
+            });
         });
+    }
+    
+    document.getElementById('delete-player-modal').classList.add('active');
+}
 
-        html += '</div></div>';
+function closeDeletePlayerModal() {
+    document.getElementById('delete-player-modal').classList.remove('active');
+}
+
+async function confirmDeletePlayers() {
+    const checkboxes = document.querySelectorAll('#delete-player-list input[type="checkbox"]:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (selectedIds.length === 0) {
+        alert('请选择要删除的成员');
+        return;
+    }
+    
+    if (!confirm('确定要删除选中的 ' + selectedIds.length + ' 名成员吗？此操作不可恢复！')) {
+        return;
+    }
+    
+    // 通过 API 删除每个选中的成员
+    for (const id of selectedIds) {
+        await apiDelete(`/players/${id}`);
+    }
+    
+    // 更新本地缓存
+    cachedPlayers = cachedPlayers.filter(p => !selectedIds.includes(p.id));
+    
+    closeDeletePlayerModal();
+    
+    // 刷新成员列表
+    const searchText = document.getElementById('member-search')?.value || '';
+    renderMembers('all', 'all', searchText);
+    
+    alert('已删除 ' + selectedIds.length + ' 名成员');
+}
+
+// ========================================
+// 录入比赛 (API 版本)
+// ========================================
+
+function showAddMatchModal() {
+    if (!isAdmin()) {
+        alert('请先登录');
+        showLoginModal();
+        return;
+    }
+    const players = getPlayers();
+    if (players.length < 2) {
+        alert('请先添加至少2名成员');
+        return;
+    }
+
+    // 生成成员选择列表
+    const redHtml = players.map(p => `
+        <div class="team-player-select">
+            <input type="checkbox" id="red-${p.id}" value="${p.id}">
+            <label for="red-${p.id}"><span class="race-tag race-${p.race}">${p.name}</span></label>
+        </div>
+    `).join('');
+    
+    const blueHtml = players.map(p => `
+        <div class="team-player-select">
+            <input type="checkbox" id="blue-${p.id}" value="${p.id}">
+            <label for="blue-${p.id}"><span class="race-tag race-${p.race}">${p.name}</span></label>
+        </div>
+    `).join('');
+
+    document.getElementById('team-red-players').innerHTML = redHtml;
+    document.getElementById('team-blue-players').innerHTML = blueHtml;
+
+    // 设置默认时间
+    document.getElementById('match-time').value = new Date().toISOString().slice(0, 16);
+
+    document.getElementById('add-match-modal').classList.add('active');
+}
+
+function closeAddMatchModal() {
+    document.getElementById('add-match-modal').classList.remove('active');
+}
+
+async function handleAddMatch(e) {
+    e.preventDefault();
+
+    const redPlayers = [...document.querySelectorAll('#team-red-players input:checked')].map(i => i.value);
+    const bluePlayers = [...document.querySelectorAll('#team-blue-players input:checked')].map(i => i.value);
+
+    if (redPlayers.length === 0 || bluePlayers.length === 0) {
+        alert('请选择双方队伍成员');
+        return;
+    }
+
+    const matches = getMatches();
+
+    const redScore = parseInt(document.getElementById('score-red').value);
+    const blueScore = parseInt(document.getElementById('score-blue').value);
+
+    const match = {
+        type: document.getElementById('match-type').value,
+        date: document.getElementById('match-time').value,
+        redPlayers,
+        bluePlayers,
+        redScore,
+        blueScore
+    };
+
+    // 通过 API 添加
+    const result = await apiPost('/matches', match);
+    if (result && !result.error) {
+        matches.unshift(result);
+        cachedMatches = matches;
+    }
+
+    // 计算积分变化并更新
+    updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore);
+
+    const scoreDiff = Math.abs(redScore - blueScore);
+    const players = getPlayers();
+    
+    // 计算双方平均积分和段位
+    const redAvgPoints = redPlayers.reduce((sum, id) => {
+        const p = players.find(pl => pl.id === id);
+        return sum + (p ? p.points : 1000);
+    }, 0) / redPlayers.length;
+    
+    const blueAvgPoints = bluePlayers.reduce((sum, id) => {
+        const p = players.find(pl => pl.id === id);
+        return sum + (p ? p.points : 1000);
+    }, 0) / bluePlayers.length;
+    
+    const redLevel = getLevelByPoints(redAvgPoints);
+    const blueLevel = getLevelByPoints(blueAvgPoints);
+    const redLevelValue = LEVEL_VALUE[redLevel] || 0;
+    const blueLevelValue = LEVEL_VALUE[blueLevel] || 0;
+    
+    // 基础分 = 比分差 × 10
+    const basePoints = scoreDiff * 10;
+    
+    let pointsChange, winnerSide;
+    
+    if (redScore > blueScore) {
+        let multiplier = 1;
+        if (redLevelValue < blueLevelValue) {
+            multiplier = 2;
+        } else if (redLevelValue > blueLevelValue) {
+            multiplier = 0.5;
+        }
+        pointsChange = Math.round(basePoints * multiplier);
+        winnerSide = '部落';
+        
+        alert(`比赛录入成功！\n\n${winnerSide}（${redLevel}）\n每人：+${pointsChange}分`);
+    } else {
+        let multiplier = 1;
+        if (blueLevelValue < redLevelValue) {
+            multiplier = 2;
+        } else if (blueLevelValue > redLevelValue) {
+            multiplier = 0.5;
+        }
+        pointsChange = Math.round(basePoints * multiplier);
+        winnerSide = '联盟';
+        
+        alert(`比赛录入成功！\n\n${winnerSide}（${blueLevel}）\n每人：+${pointsChange}分`);
+    }
+
+    closeAddMatchModal();
+    renderMatches(document.getElementById('match-filter').value);
+}
+
+// 更新玩家统计 - 使用新积分规则 (API 版本)
+async function updatePlayerStats(redPlayers, bluePlayers, redScore, blueScore) {
+    const players = getPlayers();
+    const scoreDiff = Math.abs(redScore - blueScore);
+    
+    // 计算双方平均积分和平均段位
+    const redAvgPoints = redPlayers.reduce((sum, id) => {
+        const p = players.find(pl => pl.id === id);
+        return sum + (p ? p.points : 1000);
+    }, 0) / redPlayers.length;
+    
+    const blueAvgPoints = bluePlayers.reduce((sum, id) => {
+        const p = players.find(pl => pl.id === id);
+        return sum + (p ? p.points : 1000);
+    }, 0) / bluePlayers.length;
+    
+    const redLevel = getLevelByPoints(redAvgPoints);
+    const blueLevel = getLevelByPoints(blueAvgPoints);
+    const redLevelValue = LEVEL_VALUE[redLevel] || 0;
+    const blueLevelValue = LEVEL_VALUE[blueLevel] || 0;
+    
+    // 基础分 = 比分差 × 10
+    const basePoints = scoreDiff * 10;
+    
+    // 计算部落获胜时的积分
+    let redPointChange, bluePointChange;
+    
+    // 部落获胜
+    if (redScore > blueScore) {
+        let multiplier = 1;
+        if (redLevelValue < blueLevelValue) {
+            multiplier = 2;
+        } else if (redLevelValue > blueLevelValue) {
+            multiplier = 0.5;
+        }
+        
+        redPointChange = Math.round(basePoints * multiplier);
+        bluePointChange = -Math.round(basePoints * multiplier);
+    } else {
+        let multiplier = 1;
+        if (blueLevelValue < redLevelValue) {
+            multiplier = 2;
+        } else if (blueLevelValue > redLevelValue) {
+            multiplier = 0.5;
+        }
+        
+        bluePointChange = Math.round(basePoints * multiplier);
+        redPointChange = -Math.round(basePoints * multiplier);
+    }
+    
+    // 应用积分和胜败变化
+    if (redScore > blueScore) {
+        redPlayers.forEach(id => {
+            const p = players.find(pl => pl.id === id);
+            if (p) {
+                p.wins++;
+                p.points = Math.max(0, p.points + redPointChange);
+            }
+        });
+        bluePlayers.forEach(id => {
+            const p = players.find(pl => pl.id === id);
+            if (p) {
+                p.losses++;
+                p.points = Math.max(0, p.points + bluePointChange);
+            }
+        });
+    } else {
+        bluePlayers.forEach(id => {
+            const p = players.find(pl => pl.id === id);
+            if (p) {
+                p.wins++;
+                p.points = Math.max(0, p.points + bluePointChange);
+            }
+        });
+        redPlayers.forEach(id => {
+            const p = players.find(pl => pl.id === id);
+            if (p) {
+                p.losses++;
+                p.points = Math.max(0, p.points + redPointChange);
+            }
+        });
+    }
+
+    // 更新到服务器
+    const updates = players.filter(p => 
+        redPlayers.includes(p.id) || bluePlayers.includes(p.id)
+    ).map(p => ({ id: p.id, points: p.points }));
+    
+    if (updates.length > 0) {
+        await apiPost('/players/updatePoints', updates);
+    }
+    
+    cachedPlayers = players;
+}
+
+// 删除比赛 (API 版本)
+async function deleteMatch(id) {
+    if (!confirm('确定删除这场比赛？')) return;
+    
+    // 获取要删除的比赛信息
+    const matches = getMatches();
+    const matchToDelete = matches.find(m => m.id === id);
+    
+    if (matchToDelete) {
+        // 回滚玩家统计
+        await rollbackMatchStats(matchToDelete);
+    }
+    
+    // 通过 API 删除
+    await apiDelete(`/matches/${id}`);
+    
+    // 更新本地缓存
+    cachedMatches = matches.filter(m => m.id !== id);
+    
+    renderMatches(document.getElementById('match-filter').value);
+}
+
+// 回滚比赛对玩家统计的影响 (API 版本)
+async function rollbackMatchStats(match) {
+    const players = getPlayers();
+    const { redPlayers, bluePlayers, redScore, blueScore } = match;
+    
+    // 计算当时的积分变化（使用当时的比分和队伍配置）
+    const scoreDiff = Math.abs(redScore - blueScore);
+    const basePoints = scoreDiff * 10;
+    
+    // 计算双方平均积分（用于判断段位）
+    const redAvgPoints = redPlayers.reduce((sum, id) => {
+        const p = players.find(pl => pl.id === id);
+        return sum + (p ? p.points : 1000);
+    }, 0) / redPlayers.length;
+    
+    const blueAvgPoints = bluePlayers.reduce((sum, id) => {
+        const p = players.find(pl => pl.id === id);
+        return sum + (p ? p.points : 1000);
+    }, 0) / bluePlayers.length;
+    
+    const redLevel = getLevelByPoints(redAvgPoints);
+    const blueLevel = getLevelByPoints(blueAvgPoints);
+    const redLevelValue = LEVEL_VALUE[redLevel] || 0;
+    const blueLevelValue = LEVEL_VALUE[blueLevel] || 0;
+    
+    let redPointChange, bluePointChange;
+    
+    if (redScore > blueScore) {
+        let multiplier = 1;
+        if (redLevelValue < blueLevelValue) {
+            multiplier = 2;
+        } else if (redLevelValue > blueLevelValue) {
+            multiplier = 0.5;
+        }
+        redPointChange = Math.round(basePoints * multiplier);
+        bluePointChange = -Math.round(basePoints * multiplier);
+    } else {
+        let multiplier = 1;
+        if (blueLevelValue < redLevelValue) {
+            multiplier = 2;
+        } else if (blueLevelValue > redLevelValue) {
+            multiplier = 0.5;
+        }
+        bluePointChange = Math.round(basePoints * multiplier);
+        redPointChange = -Math.round(basePoints * multiplier);
+    }
+    
+    // 回滚胜场/败场
+    if (redScore > blueScore) {
+        redPlayers.forEach(id => {
+            const p = players.find(pl => pl.id === id);
+            if (p) {
+                p.wins = Math.max(0, p.wins - 1);
+                p.points = Math.max(0, p.points - redPointChange);
+            }
+        });
+        bluePlayers.forEach(id => {
+            const p = players.find(pl => pl.id === id);
+            if (p) {
+                p.losses = Math.max(0, p.losses - 1);
+                p.points = Math.max(0, p.points - bluePointChange);
+            }
+        });
+    } else {
+        bluePlayers.forEach(id => {
+            const p = players.find(pl => pl.id === id);
+            if (p) {
+                p.wins = Math.max(0, p.wins - 1);
+                p.points = Math.max(0, p.points - bluePointChange);
+            }
+        });
+        redPlayers.forEach(id => {
+            const p = players.find(pl => pl.id === id);
+            if (p) {
+                p.losses = Math.max(0, p.losses - 1);
+                p.points = Math.max(0, p.points - redPointChange);
+            }
+        });
+    }
+    
+    // 更新到服务器
+    const updates = players.filter(p => 
+        redPlayers.includes(p.id) || bluePlayers.includes(p.id)
+    ).map(p => ({ id: p.id, points: p.points }));
+    
+    if (updates.length > 0) {
+        await apiPost('/players/updatePoints', updates);
+    }
+    
+    cachedPlayers = players;
+}
+
+// ========================================
+// 事件监听
+// ========================================
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // 加载数据
+    await initData();
+    
+    // 检查登录状态
+    const loggedIn = await checkAuth();
+    updateAdminUI();
+
+    // 导航点击
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(item.dataset.page);
+        });
     });
 
-    container.innerHTML = html;
-}
+    // 种族筛选
+    document.querySelectorAll('.race-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.race-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const searchText = document.getElementById('member-search').value;
+            const filterLevel = document.querySelector('.level-tab.active')?.dataset.level || 'all';
+            renderMembers(tab.dataset.race, filterLevel, searchText);
+        });
+    });
 
-// 过滤对战
-function filterBattles() {
-    currentMatchFilter = document.getElementById('match-type-filter')?.value || 'all';
-    currentMatchPlayer = document.getElementById('match-player-search')?.value?.toLowerCase() || '';
-    renderBattles();
-}
+    // 段位筛选
+    document.querySelectorAll('.level-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.level-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const searchText = document.getElementById('member-search').value;
+            const filterRace = document.querySelector('.race-tab.active')?.dataset.race || 'all';
+            renderMembers(filterRace, tab.dataset.level, searchText);
+        });
+    });
 
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', async () => {
-    await initData();
-    showPage('overview');
+    // 成员搜索
+    document.getElementById('member-search').addEventListener('input', (e) => {
+        const filterRace = document.querySelector('.race-tab.active')?.dataset.race || 'all';
+        const filterLevel = document.querySelector('.level-tab.active')?.dataset.level || 'all';
+        renderMembers(filterRace, filterLevel, e.target.value);
+    });
+
+    // 赛事状态筛选
+    document.querySelectorAll('.status-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentEventStatus = tab.dataset.status;
+            renderEvents();
+        });
+    });
+
+    // 对战筛选
+    const matchFilter = document.getElementById('match-filter');
+    if (matchFilter) {
+        matchFilter.addEventListener('change', (e) => {
+            const searchValue = document.getElementById('match-player-search').value;
+            renderMatches(e.target.value, searchValue);
+        });
+    }
+
+    // 成员搜索
+    const matchSearch = document.getElementById('match-player-search');
+    if (matchSearch) {
+        matchSearch.addEventListener('input', (e) => {
+            const filterValue = document.getElementById('match-filter').value;
+            renderMatches(filterValue, e.target.value);
+        });
+    }
+
+    // 点击弹窗背景关闭
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
+
+    // 初始渲染
+    renderOverview();
 });
