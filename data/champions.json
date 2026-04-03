@@ -1,34 +1,14 @@
-[
-  {
-    "playerId": null,
-    "event": "吧唧赛",
-    "type": "个人赛",
-    "date": "2026-04-03"
-  },
-  {
-    "playerId": "p1",
-    "event": "几把赛",
-    "type": "个人赛",
-    "rank": "1",
-    "date": "2026-04-03"
-  },
-  {
-    "playerId": "p2",
-    "event": "几把赛",
-    "type": "个人赛",
-    "rank": "2",
-    "date": "2026-04-03"
-  },
-  {
-    "eventId": "event-几把赛",
-    "name": "几把赛",
-    "runnerUp": "",
-    "period": "2026-04-03"
-  },
-  {
-    "eventId": "event-几把赛",
-    "name": "韵鸡",
-    "runnerUp": "电法",
-    "period": "2026-04-03"
-  }
-]
+{
+  "event-几把赛": [
+    {
+      "name": "几把赛",
+      "runnerUp": "",
+      "period": "2026-04-03"
+    },
+    {
+      "name": "韵鸡",
+      "runnerUp": "电法",
+      "period": "2026-04-03"
+    }
+  ]
+}
