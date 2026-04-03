@@ -2842,6 +2842,8 @@ async function rollbackMatchStats(match) {
 // ========================================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('页面加载完成，开始初始化...');
+    
     // 加载数据
     await initData();
     
@@ -2850,12 +2852,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateAdminUI();
 
     // 导航点击
-    document.querySelectorAll('.nav-item').forEach(item => {
+    const navItems = document.querySelectorAll('.nav-item');
+    console.log(`找到 ${navItems.length} 个导航项`);
+    
+    navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
+            console.log('点击了导航:', item.dataset.page);
             navigateTo(item.dataset.page);
         });
     });
+    
+    console.log('初始化完成!');
 
     // 种族筛选
     document.querySelectorAll('.race-tab').forEach(tab => {
