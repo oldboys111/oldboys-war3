@@ -371,13 +371,19 @@ function renderOverview() {
     const matches = getMatches().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
     const players = getPlayers().sort((a, b) => b.points - a.points).slice(0, 10);
 
-    // 最近对战
+    // 最近对战 - 添加安全检查处理旧格式数据
     const recentHtml = matches.map(m => {
         const players = getPlayers();
-        const redNames = m.redPlayers.map(id => players.find(p => p.id === id)?.name || '未知').join(' / ');
-        const blueNames = m.bluePlayers.map(id => players.find(p => p.id === id)?.name || '未知').join(' / ');
+        // 安全检查：确保是数组
+        const redIds = Array.isArray(m.redPlayers) ? m.redPlayers : (m.player1 ? [m.player1] : []);
+        const blueIds = Array.isArray(m.bluePlayers) ? m.bluePlayers : (m.player2 ? [m.player2] : []);
+        const redNames = redIds.map(id => players.find(p => p.id === id)?.name || '未知').join(' / ');
+        const blueNames = blueIds.map(id => players.find(p => p.id === id)?.name || '未知').join(' / ');
         const time = formatTimeAgo(m.date);
-        const result = m.redScore > m.blueScore ? 'red' : 'blue';
+        // 安全检查：处理新旧格式的分数
+        const redScore = typeof m.redScore === 'number' ? m.redScore : (m.score ? parseInt(m.score.split('-')[0]) : 0);
+        const blueScore = typeof m.blueScore === 'number' ? m.blueScore : (m.score ? parseInt(m.score.split('-')[1]) : 0);
+        const result = redScore > blueScore ? 'red' : 'blue';
         
         return `
             <div class="recent-match-item">
@@ -386,7 +392,7 @@ function renderOverview() {
                     <span class="recent-match-vs">VS</span>
                     <span class="recent-match-team team-blue-bg">${blueNames}</span>
                 </div>
-                <span class="recent-match-result ${result === 'red' ? 'team-red-bg' : 'team-blue-bg'}">${m.redScore}:${m.blueScore}</span>
+                <span class="recent-match-result ${result === 'red' ? 'team-red-bg' : 'team-blue-bg'}">${redScore}:${blueScore}</span>
                 <span class="recent-match-time">${time}</span>
             </div>
         `;
@@ -846,12 +852,14 @@ function renderMatches(filterType = 'all', playerSearch = '') {
         matches = matches.filter(m => m.type === filterType);
     }
 
-    // 按成员搜索过滤
+    // 按成员搜索过滤 - 添加安全检查
     if (playerSearch) {
         const searchLower = playerSearch.toLowerCase();
         matches = matches.filter(m => {
             const players = getPlayers();
-            const allPlayerIds = [...m.redPlayers, ...m.bluePlayers];
+            const redIds = Array.isArray(m.redPlayers) ? m.redPlayers : (m.player1 ? [m.player1] : []);
+            const blueIds = Array.isArray(m.bluePlayers) ? m.bluePlayers : (m.player2 ? [m.player2] : []);
+            const allPlayerIds = [...redIds, ...blueIds];
             return allPlayerIds.some(id => {
                 const p = players.find(pl => pl.id === id);
                 return p && (p.name.toLowerCase().includes(searchLower) || 
@@ -871,8 +879,17 @@ function renderMatches(filterType = 'all', playerSearch = '') {
             return idx >= 0 ? idx + 1 : '-';
         };
         
+        // 安全检查：获取选手ID数组
+        const redIds = Array.isArray(m.redPlayers) ? m.redPlayers : (m.player1 ? [m.player1] : []);
+        const blueIds = Array.isArray(m.bluePlayers) ? m.bluePlayers : (m.player2 ? [m.player2] : []);
+        
+        // 安全检查：获取分数
+        const redScore = typeof m.redScore === 'number' ? m.redScore : (m.score ? parseInt(m.score.split('-')[0]) : 0);
+        const blueScore = typeof m.blueScore === 'number' ? m.blueScore : (m.score ? parseInt(m.score.split('-')[1]) : 0);
+        
         // 计算队伍总积分和平均段位
         const calcTeamStats = (playerIds) => {
+            if (!Array.isArray(playerIds)) return { totalPoints: 0, avgPoints: 0, avgLevel: '-' };
             let totalPoints = 0;
             let avgLevel = 0;
             let count = 0;
@@ -891,12 +908,12 @@ function renderMatches(filterType = 'all', playerSearch = '') {
             };
         };
         
-        const redStats = calcTeamStats(m.redPlayers);
-        const blueStats = calcTeamStats(m.bluePlayers);
-        const redWinner = m.redScore > m.blueScore;
-        const blueWinner = m.blueScore > m.redScore;
+        const redStats = calcTeamStats(redIds);
+        const blueStats = calcTeamStats(blueIds);
+        const redWinner = redScore > blueScore;
+        const blueWinner = blueScore > redScore;
         
-        const redNames = m.redPlayers.map(id => {
+        const redNames = redIds.map(id => {
             const p = players.find(pl => pl.id === id);
             if (!p) return '';
             const rank = getRank(p.id);
@@ -910,7 +927,7 @@ function renderMatches(filterType = 'all', playerSearch = '') {
             </div>`;
         }).join('');
         
-        const blueNames = m.bluePlayers.map(id => {
+        const blueNames = blueIds.map(id => {
             const p = players.find(pl => pl.id === id);
             if (!p) return '';
             const rank = getRank(p.id);
@@ -939,9 +956,9 @@ function renderMatches(filterType = 'all', playerSearch = '') {
                         <div class="match-players">${redNames}</div>
                     </div>
                     <div class="match-score">
-                        <span class="score-side ${redWinner ? 'winner-text' : ''}">${m.redScore}</span>
+                        <span class="score-side ${redWinner ? 'winner-text' : ''}">${redScore}</span>
                         <span class="score-divider">—</span>
-                        <span class="score-side ${blueWinner ? 'winner-text' : ''}">${m.blueScore}</span>
+                        <span class="score-side ${blueWinner ? 'winner-text' : ''}">${blueScore}</span>
                     </div>
                     <div class="match-team">
                         <div class="match-team-stats">
