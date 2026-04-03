@@ -2253,6 +2253,31 @@ body {
     background: var(--accent-gold-dark);
 }
 
+.btn-edit-points {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    margin: 16px auto 0;
+    padding: 10px 20px;
+    background: var(--accent-gold);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-edit-points:hover {
+    background: var(--accent-gold-dark);
+    transform: translateY(-1px);
+}
+
+.points-edit-section {
+    margin-top: 10px;
+}
+
 .player-glory-content .glory-text {
     font-size: 14px;
     color: var(--text-secondary);
