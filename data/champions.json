@@ -1,20 +1,23 @@
-[
-  {
-    "eventId": "event-几把赛",
-    "name": "韵鸡",
-    "runnerUp": "电法",
-    "period": "第1届"
-  },
-  {
-    "eventId": "event-唧唧杯",
-    "name": "马虎",
-    "runnerUp": "韵鸡",
-    "period": "第1届"
-  },
-  {
-    "eventId": "event-方法",
-    "name": "马虎",
-    "runnerUp": "电法",
-    "period": "第1届"
-  }
-]
+{
+  "event-几把赛": [
+    {
+      "name": "韵鸡",
+      "runnerUp": "电法",
+      "period": "第1届"
+    }
+  ],
+  "event-唧唧杯": [
+    {
+      "name": "马虎",
+      "runnerUp": "韵鸡",
+      "period": "第1届"
+    }
+  ],
+  "event-方法": [
+    {
+      "name": "马虎",
+      "runnerUp": "电法",
+      "period": "第1届"
+    }
+  ]
+}
