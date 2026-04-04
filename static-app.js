@@ -105,8 +105,8 @@ async function checkAuth() {
 // 种族配置
 const RACES = {
     HUM: { name: '人族', color: '#4a90d9', icon: '🛡️' },
-    ORC: { name: '兽族', color: '#e67e22', icon: '🪓' },
-    UD: { name: '亡灵', color: '#8e44ad', icon: '⚔️' },
+    ORC: { name: '兽族', color: '#e67e22', icon: '🔥' },
+    UD: { name: '亡灵', color: '#8e44ad', icon: '😈' },
     NE: { name: '暗夜', color: '#27ae60', icon: '🌲' }
 };
 
