@@ -823,6 +823,10 @@ body {
     font-size: 16px;
 }
 
+.race-ud {
+    filter: sepia(1) saturate(3) hue-rotate(220deg) brightness(0.7);
+}
+
 .player-level-mini {
     font-weight: 700;
     font-size: 13px;
