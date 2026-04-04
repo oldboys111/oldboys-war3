@@ -530,13 +530,13 @@ body {
 
 /* 种族标签 - 在种族列上方 */
 .label-race {
-    margin-left: 335px;
+    margin-left: 345px;
 }
 
 /* 天梯分标签 - 在积分列上方 */
 .label-points {
     margin-left: auto;
-    margin-right: 10px;
+    margin-right: 110px;
 }
 
 .level-group .members-table {
