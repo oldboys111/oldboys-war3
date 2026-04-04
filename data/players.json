@@ -3,7 +3,7 @@
     "name": "LNR.Lyn",
     "race": "UD",
     "kkname": "",
-    "points": 3460,
+    "points": 3500,
     "wins": 0,
     "losses": 0,
     "apm": 300,
@@ -17,7 +17,7 @@
     "name": "蛾眉月",
     "race": "NE",
     "kkname": "",
-    "points": 3460,
+    "points": 3440,
     "wins": 0,
     "losses": 0,
     "apm": 250,
@@ -25,13 +25,13 @@
     "glory": "",
     "honors": "",
     "kkRank": "钻石二",
-    "id": "p2"
+    "id": "p2_auto"
   },
   {
     "name": "橙子",
     "race": "NE",
     "kkname": "",
-    "points": 3470,
+    "points": 3480,
     "wins": 0,
     "losses": 0,
     "apm": 300,
@@ -39,13 +39,13 @@
     "glory": "",
     "honors": "",
     "kkRank": "钻石一",
-    "id": "p3"
+    "id": "p3_auto"
   },
   {
     "name": "马虎",
     "race": "UD",
     "kkname": "",
-    "points": 3530,
+    "points": 3560,
     "wins": 0,
     "losses": 0,
     "apm": 200,
@@ -59,7 +59,7 @@
     "name": "野狼",
     "race": "HUM",
     "kkname": "",
-    "points": 3450,
+    "points": 3420,
     "wins": 0,
     "losses": 0,
     "apm": 0,
