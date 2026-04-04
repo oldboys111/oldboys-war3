@@ -544,6 +544,16 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
                     <span class="level-group-count">${levelPlayers.length} 人</span>
                 </div>
                 <table class="members-table">
+                    <thead>
+                        <tr>
+                            <th class="th-rank">排名</th>
+                            <th class="th-level">等级</th>
+                            <th class="th-name">ID</th>
+                            <th class="th-race">种族</th>
+                            <th class="th-kkname">KK昵称</th>
+                            <th class="th-points">积分</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         ${levelPlayers.map(p => {
                             const rank = globalRank++;
