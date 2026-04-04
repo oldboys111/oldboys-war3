@@ -538,7 +538,7 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
         if (levelPlayers.length === 0) return;
         
         html += `
-            <div class="level-group">
+            <div class="level-group level-group-${level}">
                 <div class="level-group-header">
                     <span class="level-cell level-${level}">${level}</span>
                     <span class="level-group-count">${levelPlayers.length} 人</span>
