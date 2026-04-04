@@ -68,5 +68,19 @@
     "honors": "",
     "kkRank": "钻石二",
     "id": "p5"
+  },
+  {
+    "name": "韵鸡",
+    "race": "UD",
+    "kkname": "",
+    "points": 2000,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p6"
   }
 ]
