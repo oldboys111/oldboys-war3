@@ -516,14 +516,24 @@ body {
     padding: 4px 0;
 }
 
+/* 等级标签 - 在排名数字右下方 */
+.label-level {
+    margin-left: 0;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* ID标签 - 在图标和名称上方 */
 .label-id {
-    margin-left: 130px;  /* 排名(50px) + 等级(80px) - 微调 */
+    margin-left: 46px;  /* 排名(约50px) + 等级(约80px) - 微调 */
 }
 
+/* 种族标签 - 在种族列上方 */
 .label-race {
-    margin-left: 60px;  /* ID列宽度 - 微调 */
+    margin-left: 120px;  /* ID列宽度 - 微调 */
 }
 
+/* 天梯分标签 - 在积分列上方 */
 .label-points {
     margin-left: auto;  /* 靠右对齐 */
     margin-right: 10px;
