@@ -525,18 +525,18 @@ body {
 
 /* ID标签 - 在ID/名称列上方 */
 .label-id {
-    margin-left: 180px;
+    margin-left: 200px;
 }
 
 /* 种族标签 - 在种族列上方 */
 .label-race {
-    margin-left: 595px;
+    margin-left: 495px;
 }
 
 /* 天梯分标签 - 在积分列上方 */
 .label-points {
     margin-left: auto;
-    margin-right: -90px;
+    margin-right: 10px;
 }
 
 .level-group .members-table {
