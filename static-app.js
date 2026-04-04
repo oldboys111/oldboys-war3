@@ -106,7 +106,7 @@ async function checkAuth() {
 const RACES = {
     HUM: { name: '人族', color: '#4a90d9', icon: '🛡️' },
     ORC: { name: '兽族', color: '#e67e22', icon: '🔥' },
-    UD: { name: '亡灵', color: '#4a148c', icon: '😈' },
+    UD: { name: '亡灵', color: '#4a148c', icon: '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1C5.5 1 3 3 3 6c0 2 1 3.5 2.5 4.5L4 14l4-1 1 3h2l1-3 4 1-1.5-3.5C12 9.5 13 8 13 6c0-3-2.5-5-5-5zm-2 5a1 1 0 110 2 1 1 0 010-2zm4 0a1 1 0 110 2 1 1 0 010-2z" fill="#9b59b6"/></svg>' },
     NE: { name: '暗夜', color: '#27ae60', icon: '🌲' }
 };
 
