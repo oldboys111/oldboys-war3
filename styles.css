@@ -523,20 +523,20 @@ body {
     color: var(--text-muted);
 }
 
-/* ID标签 - 在ID/名称列上方（跳过排名+等级列约130px） */
+/* ID标签 - 在ID/名称列上方 */
 .label-id {
-    margin-left: 80px;
+    margin-left: 180px;
 }
 
-/* 种族标签 - 在种族列上方（跳过前面所有列约310px） */
+/* 种族标签 - 在种族列上方 */
 .label-race {
-    margin-left: 95px;
+    margin-left: 595px;
 }
 
-/* 天梯分标签 - 在积分列上方（靠右对齐） */
+/* 天梯分标签 - 在积分列上方 */
 .label-points {
     margin-left: auto;
-    margin-right: 10px;
+    margin-right: -90px;
 }
 
 .level-group .members-table {
