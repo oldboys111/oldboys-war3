@@ -548,6 +548,7 @@ body {
 .members-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .members-table th {
@@ -567,6 +568,9 @@ body {
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: background 0.2s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .members-table tr:last-child td {
@@ -577,29 +581,39 @@ body {
     background: var(--bg-card-hover);
 }
 
-/* 排名列 */
-.th-rank { width: 60px; min-width: 60px; }
+/* 排名列 - 固定宽度 */
+.th-rank, .members-table td.rank-cell { 
+    width: 50px; 
+    min-width: 50px; 
+    max-width: 50px;
+    text-align: center;
+}
+.members-table th.th-rank {
+    text-align: center;
+}
 .members-table .rank-cell {
     font-weight: 700;
     font-size: 16px;
     color: var(--accent-gold);
-    width: 60px;
-    min-width: 60px;
 }
 
-/* 等级列 */
-.th-level { width: 80px; min-width: 80px; }
-.members-table td:nth-child(2) {
-    width: 80px;
-    min-width: 80px;
+/* 等级列 - 固定宽度 */
+.th-level, .members-table td:nth-child(2) { 
+    width: 60px; 
+    min-width: 60px; 
+    max-width: 60px;
+    text-align: center;
+}
+.members-table th.th-level {
+    text-align: center;
 }
 .members-table .level-cell {
     font-weight: 600;
-    font-size: 16px;
-    padding: 4px 12px;
+    font-size: 14px;
+    padding: 4px 8px;
     border-radius: 4px;
     display: inline-block;
-    min-width: 48px;
+    min-width: 40px;
     text-align: center;
 }
 
@@ -687,26 +701,52 @@ body {
     font-size: 16px;
 }
 
-/* 种族列 */
-.th-race { width: 80px; min-width: 80px; }
-
-/* KK昵称列 */
-.th-kkname { width: 120px; min-width: 120px; }
-.members-table .kkname-cell {
-    color: var(--text-muted);
-    width: 120px;
-    min-width: 120px;
+/* 种族列 - 固定宽度 */
+.th-race { 
+    width: 70px; 
+    min-width: 70px; 
+    max-width: 70px;
+    text-align: center;
+}
+.members-table td:nth-child(4) {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    text-align: center;
 }
 
-/* 积分列 */
-.th-points { width: 100px; min-width: 100px; text-align: right !important; }
+/* KK昵称列 - 固定宽度 */
+.th-kkname { 
+    width: 100px; 
+    min-width: 100px; 
+    max-width: 100px;
+}
+.members-table td:nth-child(5) {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+}
+.members-table .kkname-cell {
+    color: var(--text-muted);
+}
+
+/* 积分列 - 固定宽度 */
+.th-points { 
+    width: 80px; 
+    min-width: 80px; 
+    max-width: 80px;
+    text-align: right !important;
+}
+.members-table td:nth-child(6) {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+}
 .members-table .points-cell {
     text-align: right;
     font-weight: 600;
     color: var(--accent-gold);
     font-size: 16px;
-    width: 100px;
-    min-width: 100px;
 }
 
 /* ========================================
