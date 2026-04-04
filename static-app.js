@@ -977,7 +977,7 @@ function renderMatches(filterType = 'all', playerSearch = '') {
             const rank = getRank(p.id);
             const level = getPlayerLevel(p.id);
             return `<div class="match-player-badge ${redWinner ? 'winner' : ''}">
-                <span class="player-race-icon">${p.race && RACES[p.race] ? RACES[p.race].icon : ''}</span>
+                <span class="player-race-icon ${p.race ? 'race-' + p.race.toLowerCase() : ''}">${p.race && RACES[p.race] ? RACES[p.race].icon : ''}</span>
                 <span class="player-level-mini level-${level}">${level}</span>
                 <span class="player-rank-mini">#${rank}</span>
                 <span class="player-points-mini">${p.points}</span>
@@ -991,7 +991,7 @@ function renderMatches(filterType = 'all', playerSearch = '') {
             const rank = getRank(p.id);
             const level = getPlayerLevel(p.id);
             return `<div class="match-player-badge ${blueWinner ? 'winner' : ''}">
-                <span class="player-race-icon">${p.race && RACES[p.race] ? RACES[p.race].icon : ''}</span>
+                <span class="player-race-icon ${p.race ? 'race-' + p.race.toLowerCase() : ''}">${p.race && RACES[p.race] ? RACES[p.race].icon : ''}</span>
                 <span class="player-level-mini level-${level}">${level}</span>
                 <span class="player-rank-mini">#${rank}</span>
                 <span class="player-points-mini">${p.points}</span>
