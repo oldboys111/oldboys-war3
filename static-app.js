@@ -296,12 +296,16 @@ async function loadAllData() {
         
         if (events) cachedEvents = events;
         if (champions) cachedChampions = champions;
+        
+        console.log('冠军数据加载结果:', champions);
+        console.log('cachedChampions 状态:', cachedChampions);
     }
 
     console.log('数据加载完成:', {
         mode: RUNTIME_MODE,
         players: cachedPlayers.length,
-        matches: cachedMatches.length
+        matches: cachedMatches.length,
+        champions: Object.keys(cachedChampions).length
     });
     console.log('cachedMatches 示例:', cachedMatches.slice(0, 2));
 }
@@ -340,6 +344,19 @@ function getChampions() {
     // 降级到 localStorage
     const data = localStorage.getItem('wc3_champions');
     return data ? JSON.parse(data) : {};
+}
+
+// 从 JSON 文件直接加载冠军数据（静态模式专用后备）
+async function loadChampionsFromJSON() {
+    try {
+        const res = await fetch('data/champions.json');
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (e) {
+        console.error('加载 champions.json 失败:', e);
+    }
+    return null;
 }
 
 // 保存数据（通过 API）
@@ -1863,11 +1880,73 @@ function saveChampions(champions) {
 // 渲染荣誉页面
 let currentHonorCategory = 'personal';
 
-function renderHonors() {
+// 同步版本（使用缓存）
+function renderHonorsSync() {
     const events = getEvents();
     const champions = getChampions();
     const players = getPlayers();
     const categoryEvents = events[currentHonorCategory] || [];
+    
+    const content = document.getElementById('honors-content');
+    
+    if (categoryEvents.length === 0) {
+        content.innerHTML = '<div class="no-data">该分类暂无赛事</div>';
+        return;
+    }
+    
+    let html = '';
+    for (const event of categoryEvents) {
+        const eventChampions = champions[event.id] || [];
+        const championHtml = renderStoredChampions(eventChampions);
+        
+        html += `
+            <div class="event-card">
+                <div class="event-card-header">
+                    <span class="event-emoji">${event.emoji}</span>
+                    <div>
+                        <div class="event-card-title">${event.name}</div>
+                    </div>
+                </div>
+                <div class="event-champions">
+                    ${championHtml}
+                </div>
+            </div>
+        `;
+    }
+    
+    content.innerHTML = html;
+}
+
+// 异步版本（优先从JSON加载，确保数据最新）
+async function renderHonors() {
+    const events = getEvents();
+    const categoryEvents = events[currentHonorCategory] || [];
+    
+    console.log('渲染荣誉页面 - 当前分类:', currentHonorCategory);
+    console.log('赛事列表:', categoryEvents);
+    
+    // 先检查缓存是否有数据
+    let champions = getChampions();
+    console.log('缓存冠军数据:', champions);
+    
+    // 如果缓存为空，尝试直接加载 JSON
+    if (!champions || Object.keys(champions).length === 0) {
+        console.log('缓存为空，从JSON文件加载...');
+        try {
+            const jsonData = await loadChampionsFromJSON();
+            if (jsonData && Object.keys(jsonData).length > 0) {
+                champions = jsonData;
+                cachedChampions = jsonData; // 更新缓存
+                console.log('JSON加载成功:', champions);
+            } else {
+                console.log('JSON文件也为空');
+            }
+        } catch (e) {
+            console.error('JSON加载失败:', e);
+        }
+    }
+    
+    const players = getPlayers();
     
     const content = document.getElementById('honors-content');
     
