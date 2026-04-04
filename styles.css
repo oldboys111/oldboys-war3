@@ -539,19 +539,6 @@ body {
     margin-right: 130px;
 }
 
-/* SR等级组特殊调整：标签跟随图标右移15px */
-.level-group.level-group-SR .label-level {
-    margin-left: 65px;  /* 50px + 15px 跟随SR图标右移 */
-}
-
-.level-group.level-group-SR .label-id {
-    margin-left: 215px;  /* 200px + 15px 跟随SR图标右移 */
-}
-
-.level-group.level-group-SR .label-race {
-    margin-left: 360px;  /* 345px + 15px 跟随SR图标右移 */
-}
-
 .level-group .members-table {
     background: transparent;
     border: none;
@@ -634,7 +621,6 @@ body {
     border: 1px solid #b8860b;
     font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
     font-weight: bold;
-    margin-left: 15px;  /* 右移15px */
 }
 .level-S {
     background: rgba(231, 76, 60, 0.15);
