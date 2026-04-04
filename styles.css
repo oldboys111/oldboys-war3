@@ -509,6 +509,26 @@ body {
     border-radius: 12px;
 }
 
+/* 表头标签 - 与表格列对齐 */
+.level-group-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 4px 0;
+}
+
+.label-id {
+    margin-left: 130px;  /* 排名(50px) + 等级(80px) - 微调 */
+}
+
+.label-race {
+    margin-left: 60px;  /* ID列宽度 - 微调 */
+}
+
+.label-points {
+    margin-left: auto;  /* 靠右对齐 */
+    margin-right: 10px;
+}
+
 .level-group .members-table {
     background: transparent;
     border: none;
@@ -571,6 +591,7 @@ body {
     font-weight: 700;
     font-size: 16px;
     color: var(--accent-gold);
+    padding-left: 20px;  /* 增加左边距，与边框保持距离 */
 }
 
 /* 等级列 */
