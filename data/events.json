@@ -1,5 +1,19 @@
 {
-  "personal": [],
+  "personal": [
+    {
+      "id": "event-SA级别对抗赛",
+      "emoji": "🏆",
+      "name": "SA级别对抗赛",
+      "subtitle": "个人赛冠军"
+    }
+  ],
   "cup": [],
-  "team": []
+  "team": [
+    {
+      "id": "event-老男孩种族赛",
+      "emoji": "🏆",
+      "name": "老男孩种族赛",
+      "subtitle": "团队赛冠军"
+    }
+  ]
 }
