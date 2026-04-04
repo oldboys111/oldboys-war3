@@ -536,7 +536,7 @@ body {
 /* 天梯分标签 - 在积分列上方 */
 .label-points {
     margin-left: auto;
-    margin-right: 130px;
+    margin-right: 150px;
 }
 
 .level-group .members-table {
