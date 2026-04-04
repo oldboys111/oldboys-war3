@@ -260,14 +260,28 @@ async function loadAllData() {
                     return m;
                 }
                 // 旧格式 (player1, player2, score) 转换为新格式
+                // result 字段存的是玩家名字（非ID），格式如 "LNR.Lyn胜"
                 if (m.player1 && m.player2) {
-                    const isP1Winner = m.result && m.result.includes(m.player1);
+                    // 从 result 中提取胜者名字（去掉末尾的"胜"字）
+                    const winnerName = m.result ? m.result.replace(/胜$/, '') : '';
+                    // 通过 players 数据查找 player1 和 player2 对应的名字
+                    const p1Data = cachedPlayers.find(p => p.id === m.player1);
+                    const p2Data = cachedPlayers.find(p => p.id === m.player2);
+                    const p1Name = p1Data?.name || p1Data?.kkName || '';
+                    const p2Name = p2Data?.name || p2Data?.kkName || '';
+                    // 判断 player1 是否是胜者（比较名字是否包含在 result 中）
+                    const isP1Winner = winnerName && (
+                        (p1Name && p1Name.includes(winnerName)) ||
+                        (p1Data?.kkName && p1Data.kkName.includes(winnerName))
+                    );
+                    const redId = isP1Winner ? m.player1 : m.player2;
+                    const blueId = isP1Winner ? m.player2 : m.player1;
                     return {
                         id: m.id || 'm' + Date.now(),
-                        type: m.type || '自定义',
+                        type: m.type === '天梯' || m.type === 'ladder' ? 'ladder' : 'custom',
                         date: m.date || new Date().toISOString(),
-                        redPlayers: isP1Winner ? [m.player1] : [m.player2],
-                        bluePlayers: isP1Winner ? [m.player2] : [m.player1],
+                        redPlayers: [redId],
+                        bluePlayers: [blueId],
                         redScore: isP1Winner ? parseInt(m.score?.split('-')[0]) || 1 : parseInt(m.score?.split('-')[1]) || 0,
                         blueScore: isP1Winner ? parseInt(m.score?.split('-')[1]) || 0 : parseInt(m.score?.split('-')[0]) || 1
                     };
