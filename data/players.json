@@ -1216,5 +1216,61 @@
     "honors": "",
     "kkRank": "",
     "id": "p87"
+  },
+  {
+    "name": "Miss",
+    "race": "HUM",
+    "kkname": "",
+    "points": 2120,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p88"
+  },
+  {
+    "name": "古吉",
+    "race": "NE",
+    "kkname": "",
+    "points": 2120,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p89"
+  },
+  {
+    "name": "句号",
+    "race": "NE",
+    "kkname": "",
+    "points": 2100,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p90"
+  },
+  {
+    "name": "葡萄",
+    "race": "ORC",
+    "kkname": "",
+    "points": 2080,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p91"
   }
 ]
