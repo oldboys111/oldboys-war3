@@ -1,1 +1,72 @@
-[]
+[
+  {
+    "name": "LNR.Lyn",
+    "race": "UD",
+    "kkname": "",
+    "points": 3500,
+    "wins": 0,
+    "losses": 0,
+    "apm": 300,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "钻石一",
+    "id": "p1"
+  },
+  {
+    "name": "蛾眉月",
+    "race": "NE",
+    "kkname": "",
+    "points": 3480,
+    "wins": 0,
+    "losses": 0,
+    "apm": 250,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "钻石二",
+    "id": "p2"
+  },
+  {
+    "name": "橙子",
+    "race": "NE",
+    "kkname": "",
+    "points": 3490,
+    "wins": 0,
+    "losses": 0,
+    "apm": 300,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "钻石一",
+    "id": "p3"
+  },
+  {
+    "name": "马虎",
+    "race": "UD",
+    "kkname": "",
+    "points": 3460,
+    "wins": 0,
+    "losses": 0,
+    "apm": 200,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "青铜四",
+    "id": "p4"
+  },
+  {
+    "name": "野狼",
+    "race": "HUM",
+    "kkname": "",
+    "points": 3440,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "钻石二",
+    "id": "p5"
+  }
+]
