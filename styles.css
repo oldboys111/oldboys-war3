@@ -621,6 +621,7 @@ body {
     border: 1px solid #b8860b;
     font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
     font-weight: bold;
+    margin-left: 15px;  /* 右移15px */
 }
 .level-S {
     background: rgba(231, 76, 60, 0.15);
