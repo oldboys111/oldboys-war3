@@ -542,6 +542,7 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
                 <div class="level-group-header">
                     <span class="level-cell level-${level}">${level}</span>
                     <span class="level-group-count">${levelPlayers.length} 人</span>
+                    <span class="level-group-label label-level">等级</span>
                     <span class="level-group-label label-id">ID</span>
                     <span class="level-group-label label-race">种族</span>
                     <span class="level-group-label label-points">天梯分</span>
