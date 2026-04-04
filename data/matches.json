@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "player1": "p1",
+    "player2": "p3",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "LNR.Lyn胜",
+    "date": "2026-04-04",
+    "id": "m1"
+  }
+]
