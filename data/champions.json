@@ -1,14 +1,16 @@
-[
-  {
-    "eventId": "event-SA级别对抗赛",
-    "name": "LNR.Lyn",
-    "runnerUp": "橙子",
-    "period": "第1届"
-  },
-  {
-    "eventId": "event-老男孩种族赛",
-    "name": "暗夜精灵",
-    "runnerUp": "兽人",
-    "period": "第1届"
-  }
-]
+{
+  "event-SA级别对抗赛": [
+    {
+      "name": "LNR.Lyn",
+      "runnerUp": "橙子",
+      "period": "第1届"
+    }
+  ],
+  "event-老男孩种族赛": [
+    {
+      "name": "暗夜精灵",
+      "runnerUp": "兽人",
+      "period": "第1届"
+    }
+  ]
+}
