@@ -210,6 +210,26 @@ body {
    总览页面
    ======================================== */
 
+.intro-box {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+    border: 1px solid #3182ce;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.intro-box h3 {
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.intro-box p {
+    font-size: 14px;
+    color: #e2e8f0;
+    line-height: 1.8;
+}
+
 .overview-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
