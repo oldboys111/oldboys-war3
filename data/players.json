@@ -978,5 +978,47 @@
     "honors": "",
     "kkRank": "",
     "id": "p70"
+  },
+  {
+    "name": "Steam",
+    "race": "ORC",
+    "kkname": "",
+    "points": 2350,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p71"
+  },
+  {
+    "name": "守望者",
+    "race": "HUM",
+    "kkname": "",
+    "points": 2330,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p72"
+  },
+  {
+    "name": "盟友",
+    "race": "UD",
+    "kkname": "",
+    "points": 2330,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "kkRank": "",
+    "id": "p73"
   }
 ]
