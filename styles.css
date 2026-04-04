@@ -823,8 +823,8 @@ body {
     font-size: 16px;
 }
 
-.race-ud svg {
-    vertical-align: middle;
+.race-ud {
+    filter: sepia(1) saturate(4) hue-rotate(220deg) brightness(0.9);
 }
 
 .player-level-mini {
