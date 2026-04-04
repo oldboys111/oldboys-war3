@@ -428,7 +428,7 @@ function renderOverview() {
     document.getElementById('recent-matches-list').innerHTML = recentHtml || '<p style="color:var(--text-muted)">暂无对战记录</p>';
 
     // TOP10玩家
-    const medals = ['🥇', '🥈', '🥉'];
+    const medals = ['🏆', '🥈', '🥉'];
     const topHtml = players.map((p, i) => `
         <div class="top-player-item">
             <span class="top-player-rank ${i < 3 ? 'rank-' + (i+1) : ''}">${i < 3 ? medals[i] : i + 1}</span>
