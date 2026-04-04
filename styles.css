@@ -558,6 +558,7 @@ body {
     font-weight: 500;
     color: var(--text-secondary);
     border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
 }
 
 .members-table td {
@@ -577,15 +578,21 @@ body {
 }
 
 /* 排名列 */
-.th-rank { width: 60px; }
+.th-rank { width: 60px; min-width: 60px; }
 .members-table .rank-cell {
     font-weight: 700;
     font-size: 16px;
     color: var(--accent-gold);
+    width: 60px;
+    min-width: 60px;
 }
 
 /* 等级列 */
-.th-level { width: 80px; }
+.th-level { width: 80px; min-width: 80px; }
+.members-table td:nth-child(2) {
+    width: 80px;
+    min-width: 80px;
+}
 .members-table .level-cell {
     font-weight: 600;
     font-size: 16px;
@@ -681,21 +688,25 @@ body {
 }
 
 /* 种族列 */
-.th-race { width: 80px; }
+.th-race { width: 80px; min-width: 80px; }
 
 /* KK昵称列 */
-.th-kkname { width: 120px; }
+.th-kkname { width: 120px; min-width: 120px; }
 .members-table .kkname-cell {
     color: var(--text-muted);
+    width: 120px;
+    min-width: 120px;
 }
 
 /* 积分列 */
-.th-points { width: 100px; text-align: right !important; }
+.th-points { width: 100px; min-width: 100px; text-align: right !important; }
 .members-table .points-cell {
     text-align: right;
     font-weight: 600;
     color: var(--accent-gold);
     font-size: 16px;
+    width: 100px;
+    min-width: 100px;
 }
 
 /* ========================================
