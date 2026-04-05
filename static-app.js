@@ -1871,7 +1871,7 @@ const DEFAULT_EVENTS = {
         { id: 'spring-cup', emoji: '🌸', name: '春季杯', subtitle: '春季赛冠军' }
     ],
     team: [
-        { id: 'team-match', emoji: '🛡️', name: '团队赛', subtitle: '部落对战' }
+        { id: 'team-match', emoji: '🛡️', name: '战队赛', subtitle: '部落对战' }
     ]
 };
 
