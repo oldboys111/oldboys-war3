@@ -654,7 +654,7 @@ function renderPlayerDetail(playerId) {
     const glory = player.glory || '';
     const gloryContent = document.getElementById('detail-glory');
     if (glory) {
-        gloryContent.innerHTML = `<span class="glory-text">${glory}</span>`;
+        gloryContent.innerHTML = `<span class="glory-text">${glory.replace(/\n/g, '<br>')}</span>`;
     } else {
         gloryContent.innerHTML = '<span class="glory-text">暂无辉煌战绩</span>';
     }
@@ -663,7 +663,7 @@ function renderPlayerDetail(playerId) {
     const honors = player.honors || '';
     const honorsContent = document.getElementById('detail-honors');
     if (honors) {
-        honorsContent.innerHTML = `<span class="honors-text">${honors}</span>`;
+        honorsContent.innerHTML = `<span class="honors-text">${honors.replace(/\n/g, '<br>')}</span>`;
     } else {
         honorsContent.innerHTML = '<span class="honors-text">暂无比赛荣誉</span>';
     }
@@ -681,7 +681,7 @@ function renderPlayerDetail(playerId) {
     const trait = player.trait || '';
     const traitContent = document.getElementById('detail-trait');
     if (trait) {
-        traitContent.innerHTML = `<span class="trait-text">${trait}</span>`;
+        traitContent.innerHTML = `<span class="trait-text">${trait.replace(/\n/g, '<br>')}</span>`;
     } else {
         traitContent.innerHTML = '<span class="trait-text">暂无性格特点</span>';
     }
@@ -815,7 +815,7 @@ function saveTrait() {
     savePlayers(players);
     
     document.getElementById('detail-trait').innerHTML = player.trait 
-        ? `<span class="trait-text">${player.trait}</span>` 
+        ? `<span class="trait-text">${player.trait.replace(/\n/g, '<br>')}</span>` 
         : '<span class="trait-text">暂无性格特点</span>';
     
     cancelEditTrait();
@@ -847,7 +847,7 @@ function saveGlory() {
     savePlayers(players);
     
     document.getElementById('detail-glory').innerHTML = player.glory 
-        ? `<span class="glory-text">${player.glory}</span>` 
+        ? `<span class="glory-text">${player.glory.replace(/\n/g, '<br>')}</span>` 
         : '<span class="glory-text">暂无辉煌战绩</span>';
     
     cancelEditGlory();
@@ -879,7 +879,7 @@ function saveHonors() {
     savePlayers(players);
     
     document.getElementById('detail-honors').innerHTML = player.honors 
-        ? `<span class="honors-text">${player.honors}</span>` 
+        ? `<span class="honors-text">${player.honors.replace(/\n/g, '<br>')}</span>` 
         : '<span class="honors-text">暂无比赛荣誉</span>';
     
     cancelEditHonors();
@@ -1816,7 +1816,7 @@ function showEventDetail(eventId) {
     // 设置赛事说明
     const descContent = document.getElementById('detail-event-description');
     if (event.description) {
-        descContent.innerHTML = `<span class="trait-text">${event.description}</span>`;
+        descContent.innerHTML = `<span class="trait-text">${event.description.replace(/\n/g, '<br>')}</span>`;
     } else {
         descContent.innerHTML = '<span class="trait-text">暂无赛事说明</span>';
     }
