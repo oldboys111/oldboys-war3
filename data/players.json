@@ -1233,16 +1233,16 @@
   },
   {
     "name": "古吉",
-    "race": "NE",
     "kkname": "",
+    "race": "NE",
+    "kkRank": "",
     "points": 2120,
     "wins": 0,
     "losses": 0,
     "apm": 0,
-    "trait": "",
-    "glory": "",
-    "honors": "",
-    "kkRank": "",
+    "trait": "老男孩组委会常委\n最美观的战报图制作者",
+    "glory": "曾经20分钟 2:0 miss\n个人赛对战句号胜率100%",
+    "honors": "第二十届种族赛冠军\n第十九届团队赛亚军",
     "id": "p89"
   },
   {
