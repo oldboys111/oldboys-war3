@@ -12,5 +12,57 @@
       "runnerUp": "兽人",
       "period": "第1届"
     }
+  ],
+  "event-正赛": [
+    {
+      "name": "库克+JD",
+      "runnerUp": "菜菜+星河",
+      "period": "第1届"
+    },
+    {
+      "name": "大D甩甩",
+      "runnerUp": "惊喜",
+      "period": "第2届"
+    },
+    {
+      "name": "大白+7LG",
+      "runnerUp": "野狼+米饭",
+      "period": "第3届"
+    },
+    {
+      "name": "野狼",
+      "runnerUp": "小德",
+      "period": "第4届"
+    },
+    {
+      "name": "霹雳烽火狼",
+      "runnerUp": "深藏Blue",
+      "period": "第5届"
+    },
+    {
+      "name": "七武士",
+      "runnerUp": "",
+      "period": "第6届"
+    },
+    {
+      "name": "LG+艾伦+狙击",
+      "runnerUp": "蛾眉月+星河+窒息",
+      "period": "第7届"
+    },
+    {
+      "name": "狗窝",
+      "runnerUp": "老男孩",
+      "period": "第8届"
+    },
+    {
+      "name": "被迫组队",
+      "runnerUp": "不是被迫选择",
+      "period": "第9届"
+    },
+    {
+      "name": "汉大帮",
+      "runnerUp": "收割机",
+      "period": "第10届"
+    }
   ]
 }
