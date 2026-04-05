@@ -305,7 +305,10 @@ async function loadAllData() {
                 id: e.id,
                 name: e.name,
                 emoji: '🏆',  // 默认图标
-                subtitle: e.subtitle || '',
+                subtitle: e.subtitle || '',  // 保留subtitle，但工具端会用它作为地图池
+                maps: e.maps || [],  // 地图池
+                mapsText: e.mapsText || '',  // 地图池文本
+                sponsor: e.sponsor || '',  // 赞助商
                 status: 'ongoing',  // 默认状态
                 description: e.description || ''
             }));
@@ -1148,11 +1151,7 @@ function renderEvents() {
                     <span class="event-emoji-large">${event.emoji}</span>
                     <div class="event-card-info">
                         <h3 class="event-name">${event.name}</h3>
-                        <span class="event-subtitle">${event.subtitle || ''}</span>
                     </div>
-                </div>
-                <div class="event-card-body">
-                    <p class="event-description">${event.description || '暂无描述'}</p>
                 </div>
                 ${admin ? `
                     <div class="event-card-actions">
@@ -1794,19 +1793,32 @@ function showEventDetail(eventId) {
     document.getElementById('detail-event-players').textContent = event.players || '未知';
     document.getElementById('detail-event-prize').textContent = event.prize || '待定';
     
-    // 设置地图池
+    // 设置赞助商
+    const sponsorEl = document.getElementById('detail-event-sponsor');
+    if (sponsorEl) {
+        sponsorEl.textContent = event.sponsor || '暂无赞助商';
+    }
+    
+    // 设置地图池（优先使用 mapsText，否则使用 subtitle 作为地图池文本）
     const mapsContent = document.getElementById('detail-event-maps');
-    if (event.maps && event.maps.length > 0) {
-        mapsContent.innerHTML = `
-            <div class="event-maps-list">
-                ${event.maps.map(map => `
-                    <span class="event-map-item">
-                        <span class="map-icon">🗺️</span>
-                        ${map}
-                    </span>
-                `).join('')}
-            </div>
-        `;
+    const mapsText = event.mapsText || event.subtitle || '';
+    if (mapsText) {
+        // 将文本按换行或逗号分割成地图列表
+        const mapList = mapsText.split(/[\n,，]/).filter(m => m.trim());
+        if (mapList.length > 0) {
+            mapsContent.innerHTML = `
+                <div class="event-maps-list">
+                    ${mapList.map(map => `
+                        <span class="event-map-item">
+                            <span class="map-icon">🗺️</span>
+                            ${map.trim()}
+                        </span>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            mapsContent.innerHTML = `<span class="glory-text">${mapsText}</span>`;
+        }
     } else {
         mapsContent.innerHTML = '<span class="glory-text">暂无地图信息</span>';
     }
