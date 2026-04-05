@@ -7,7 +7,14 @@
       "subtitle": "个人赛冠军"
     }
   ],
-  "cup": [],
+  "cup": [
+    {
+      "id": "event-正赛",
+      "emoji": "🏆",
+      "name": "正赛",
+      "subtitle": "杯赛冠军"
+    }
+  ],
   "team": [
     {
       "id": "event-老男孩种族赛",
