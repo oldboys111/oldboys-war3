@@ -13,6 +13,12 @@
       "emoji": "🏆",
       "name": "正赛",
       "subtitle": "杯赛冠军"
+    },
+    {
+      "id": "event-正赛二",
+      "emoji": "🏆",
+      "name": "正赛二",
+      "subtitle": "杯赛冠军"
     }
   ],
   "team": [
