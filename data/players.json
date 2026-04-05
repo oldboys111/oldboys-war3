@@ -7,9 +7,9 @@
     "wins": 0,
     "losses": 0,
     "apm": 300,
-    "trait": "",
-    "glory": "",
-    "honors": "",
+    "trait": "特点",
+    "glory": "荣誉",
+    "honors": "其他荣誉",
     "kkRank": "钻石一",
     "id": "p1"
   },
