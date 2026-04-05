@@ -19,6 +19,7 @@ let cachedPlayers = [];
 let cachedMatches = [];
 let cachedEvents = {};
 let cachedChampions = {};
+let cachedShowEvents = [];  // 赛事管理页面的赛事列表（从 event_infos.json 加载）
 
 // API 请求辅助函数
 async function apiGet(endpoint) {
@@ -246,8 +247,9 @@ async function loadAllData() {
         const matches = await loadJSON('matches.json');
         const events = await loadJSON('events.json');
         const champions = await loadJSON('champions.json');
+        const eventInfos = await loadJSON('event_infos.json');  // 加载赛事管理数据
 
-        console.log('原始数据:', { players, matches, events, champions });
+        console.log('原始数据:', { players, matches, events, champions, eventInfos });
 
         if (players) cachedPlayers = players;
         
@@ -297,15 +299,29 @@ async function loadAllData() {
         if (events) cachedEvents = events;
         if (champions) cachedChampions = champions;
         
+        // 处理 event_infos 数据 - 转换为网站赛事页面需要的格式
+        if (eventInfos && eventInfos.events) {
+            cachedShowEvents = eventInfos.events.map(e => ({
+                id: e.id,
+                name: e.name,
+                emoji: '🏆',  // 默认图标
+                subtitle: e.subtitle || '',
+                status: 'ongoing',  // 默认状态
+                description: e.description || ''
+            }));
+        }
+        
         console.log('冠军数据加载结果:', champions);
         console.log('cachedChampions 状态:', cachedChampions);
+        console.log('cachedShowEvents 状态:', cachedShowEvents);
     }
 
     console.log('数据加载完成:', {
         mode: RUNTIME_MODE,
         players: cachedPlayers.length,
         matches: cachedMatches.length,
-        champions: Object.keys(cachedChampions).length
+        champions: Object.keys(cachedChampions).length,
+        showEvents: cachedShowEvents.length
     });
     console.log('cachedMatches 示例:', cachedMatches.slice(0, 2));
 }
@@ -1072,8 +1088,28 @@ let currentEventStatus = 'all';
 // 默认赛事展示数据
 const DEFAULT_SHOW_EVENTS = [];
 
-// 获取赛事展示数据
+// 获取赛事展示数据 - 合并 localStorage 和 event_infos.json 的数据
 function getShowEvents() {
+    // 优先使用从 event_infos.json 加载的数据
+    if (cachedShowEvents && cachedShowEvents.length > 0) {
+        // 也合并 localStorage 的数据（去重）
+        const storageData = localStorage.getItem('wc3_show_events');
+        const storageEvents = storageData ? JSON.parse(storageData) : [];
+        
+        // 合并两个数据源，event_infos 的数据优先
+        const storageIds = new Set(storageEvents.map(e => e.id));
+        const mergedEvents = [...cachedShowEvents];
+        
+        storageEvents.forEach(e => {
+            if (!storageIds.has(e.id)) {
+                mergedEvents.push(e);
+            }
+        });
+        
+        return mergedEvents;
+    }
+    
+    // 降级到 localStorage
     const data = localStorage.getItem('wc3_show_events');
     return data ? JSON.parse(data) : JSON.parse(JSON.stringify(DEFAULT_SHOW_EVENTS));
 }
