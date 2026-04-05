@@ -64,5 +64,57 @@
       "runnerUp": "收割机",
       "period": "第10届"
     }
+  ],
+  "event-正赛二": [
+    {
+      "name": "小心我Rush",
+      "runnerUp": "跌停板",
+      "period": "第11届"
+    },
+    {
+      "name": "周黑达",
+      "runnerUp": "一轮游",
+      "period": "第12届"
+    },
+    {
+      "name": "SNS战队",
+      "runnerUp": "污妖王5.0",
+      "period": "第13届"
+    },
+    {
+      "name": "跌停板",
+      "runnerUp": "深藏Blue",
+      "period": "第14届"
+    },
+    {
+      "name": "深藏Blue",
+      "runnerUp": "拼多多",
+      "period": "第15届"
+    },
+    {
+      "name": "猛攻大队",
+      "runnerUp": "杀鸡者",
+      "period": "第16届"
+    },
+    {
+      "name": "猛攻大队",
+      "runnerUp": "给个眼神自己体会",
+      "period": "第17届"
+    },
+    {
+      "name": "贾维斯队",
+      "runnerUp": "老牛队",
+      "period": "第18届"
+    },
+    {
+      "name": "老王批发队",
+      "runnerUp": "功夫队",
+      "period": "第19届"
+    },
+    {
+      "name": "暗夜精灵",
+      "runnerUp": "兽人",
+      "period": "第20届"
+    }
   ]
 }
