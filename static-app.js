@@ -107,7 +107,7 @@ const RACES = {
     HUM: { name: '人族', color: '#4a90d9', icon: '🛡️' },
     ORC: { name: '兽族', color: '#e67e22', icon: '🔥' },
     UD: { name: '亡灵', color: '#4a148c', icon: '👻' },
-    NE: { name: '暗夜', color: '#27ae60', icon: '🌲' }
+    NE: { name: '暗夜', color: '#27ae60', icon: '🌙' }
 };
 
 // 等级人数配置：SR=5人, A到F=10人, G不限
