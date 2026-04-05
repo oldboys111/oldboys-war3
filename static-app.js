@@ -620,7 +620,9 @@ function renderPlayerDetail(playerId) {
     
     // 基本信息
     document.getElementById('detail-player-name').textContent = player.name;
-    document.getElementById('detail-avatar').textContent = RACES[player.race].icon;
+    document.getElementById('detail-avatar').innerHTML = player.race === 'NE'
+        ? '<img src="images/暗夜.jpg" alt="暗夜" style="width:64px;height:64px;object-fit:contain;border-radius:8px;">'
+        : RACES[player.race].icon;
     document.getElementById('detail-name').textContent = player.name;
     document.getElementById('detail-race-tag').className = `race-tag race-${player.race}`;
     document.getElementById('detail-race-tag').textContent = RACES[player.race].name;
@@ -770,7 +772,9 @@ function renderPlayerBattles(playerId) {
             return `
                 <div class="battle-item">
                     <div class="battle-opponent">
-                        <span class="race-tag race-${opponent.race || 'unknown'}">${opponent.race && RACES[opponent.race] ? RACES[opponent.race].icon : '🏰'}</span>
+                        <span class="race-tag race-${opponent.race || 'unknown'}">${opponent.race === 'NE'
+                        ? '<img src="images/暗夜.jpg" style="width:20px;height:20px;vertical-align:middle;border-radius:4px;">'
+                        : (opponent.race && RACES[opponent.race] ? RACES[opponent.race].icon : '🏰')}</span>
                         <span class="battle-opponent-name">${opponent.name}</span>
                     </div>
                     <div class="battle-progress">
