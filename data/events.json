@@ -39,6 +39,12 @@
       "emoji": "🏆",
       "name": "老男孩种族赛",
       "subtitle": "团队赛冠军"
+    },
+    {
+      "id": "event-集团冲突",
+      "emoji": "🏆",
+      "name": "集团冲突",
+      "subtitle": "战队赛冠军"
     }
   ]
 }
