@@ -939,16 +939,16 @@
   },
   {
     "name": "决战",
-    "race": "ORC",
     "kkname": "",
-    "points": 2420,
+    "race": "ORC",
+    "kkRank": "",
+    "points": 2620,
     "wins": 0,
     "losses": 0,
     "apm": 0,
     "trait": "",
     "glory": "",
     "honors": "",
-    "kkRank": "",
     "id": "p68"
   },
   {
