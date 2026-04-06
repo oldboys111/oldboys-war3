@@ -3,139 +3,164 @@
     {
       "name": "LNR.Lyn",
       "runnerUp": "橙子",
-      "period": "第1届"
+      "period": "第1届",
+      "image": ""
     }
   ],
   "event-老男孩种族赛": [
     {
       "name": "暗夜精灵",
       "runnerUp": "兽人",
-      "period": "第1届"
+      "period": "第1届",
+      "image": ""
     }
   ],
   "event-正赛": [
     {
       "name": "库克+JD",
       "runnerUp": "菜菜+星河",
-      "period": "第1届"
+      "period": "第1届",
+      "image": "正赛_第1届_1775452494.jpg"
     },
     {
       "name": "大D甩甩",
       "runnerUp": "惊喜",
-      "period": "第2届"
+      "period": "第2届",
+      "image": ""
     },
     {
       "name": "大白+7LG",
       "runnerUp": "野狼+米饭",
-      "period": "第3届"
+      "period": "第3届",
+      "image": ""
     },
     {
       "name": "野狼",
       "runnerUp": "小德",
-      "period": "第4届"
+      "period": "第4届",
+      "image": ""
     },
     {
       "name": "霹雳烽火狼",
       "runnerUp": "深藏Blue",
-      "period": "第5届"
+      "period": "第5届",
+      "image": ""
     },
     {
       "name": "七武士",
       "runnerUp": "",
-      "period": "第6届"
+      "period": "第6届",
+      "image": ""
     },
     {
       "name": "LG+艾伦+狙击",
       "runnerUp": "蛾眉月+星河+窒息",
-      "period": "第7届"
+      "period": "第7届",
+      "image": ""
     },
     {
       "name": "狗窝",
       "runnerUp": "老男孩",
-      "period": "第8届"
+      "period": "第8届",
+      "image": ""
     },
     {
       "name": "被迫组队",
       "runnerUp": "不是被迫选择",
-      "period": "第9届"
+      "period": "第9届",
+      "image": ""
     },
     {
       "name": "汉大帮",
       "runnerUp": "收割机",
-      "period": "第10届"
+      "period": "第10届",
+      "image": ""
     }
   ],
   "event-正赛二": [
     {
       "name": "小心我Rush",
       "runnerUp": "跌停板",
-      "period": "第11届"
+      "period": "第11届",
+      "image": ""
     },
     {
       "name": "周黑达",
       "runnerUp": "一轮游",
-      "period": "第12届"
+      "period": "第12届",
+      "image": ""
     },
     {
       "name": "SNS战队",
       "runnerUp": "污妖王5.0",
-      "period": "第13届"
+      "period": "第13届",
+      "image": ""
     },
     {
       "name": "跌停板",
       "runnerUp": "深藏Blue",
-      "period": "第14届"
+      "period": "第14届",
+      "image": ""
     },
     {
       "name": "深藏Blue",
       "runnerUp": "拼多多",
-      "period": "第15届"
+      "period": "第15届",
+      "image": ""
     },
     {
       "name": "猛攻大队",
       "runnerUp": "杀鸡者",
-      "period": "第16届"
+      "period": "第16届",
+      "image": ""
     },
     {
       "name": "猛攻大队",
       "runnerUp": "给个眼神自己体会",
-      "period": "第17届"
+      "period": "第17届",
+      "image": ""
     },
     {
       "name": "贾维斯队",
       "runnerUp": "老牛队",
-      "period": "第18届"
+      "period": "第18届",
+      "image": ""
     },
     {
       "name": "老王批发队",
       "runnerUp": "功夫队",
-      "period": "第19届"
+      "period": "第19届",
+      "image": ""
     },
     {
       "name": "暗夜精灵",
       "runnerUp": "兽人",
-      "period": "第20届"
+      "period": "第20届",
+      "image": ""
     }
   ],
   "event-A级对抗赛": [
     {
       "name": "郑强",
       "runnerUp": "老陈",
-      "period": "第1届"
+      "period": "第1届",
+      "image": ""
     }
   ],
   "event-B级对抗赛": [
     {
       "name": "哈拉少",
       "runnerUp": "山东",
-      "period": "第1届"
+      "period": "第1届",
+      "image": ""
     }
   ],
   "event-集团冲突": [
     {
       "name": "达克集团",
       "runnerUp": "惊喜战队",
-      "period": "第1届"
+      "period": "第1届",
+      "image": ""
     }
   ]
 }
