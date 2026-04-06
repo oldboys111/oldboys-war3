@@ -2439,7 +2439,7 @@ function showHonorDetail(eventId, index) {
     if (c.image) {
         imageBlock = `
             <div class="hd-image-wrapper">
-                <img class="hd-image" src="images/honors/${c.image}" alt="冠军图片" loading="lazy" />
+                <img class="hd-image" src="data/images/honors/${c.image}" alt="冠军图片" loading="lazy" />
             </div>`;
     }
     
