@@ -116,5 +116,19 @@
       "runnerUp": "兽人",
       "period": "第20届"
     }
+  ],
+  "event-A级对抗赛": [
+    {
+      "name": "郑强",
+      "runnerUp": "老陈",
+      "period": "第1届"
+    }
+  ],
+  "event-B级对抗赛": [
+    {
+      "name": "哈拉少",
+      "runnerUp": "山东",
+      "period": "第1届"
+    }
   ]
 }
