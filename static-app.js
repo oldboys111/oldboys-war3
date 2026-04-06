@@ -1953,7 +1953,7 @@ function renderHonorsSync() {
     let html = '';
     for (const event of categoryEvents) {
         const eventChampions = champions[event.id] || [];
-        const championHtml = renderStoredChampions(eventChampions);
+        const championHtml = renderStoredChampions(eventChampions, event.id);
         
         html += `
             <div class="event-card">
@@ -2014,7 +2014,7 @@ async function renderHonors() {
     let html = '';
     for (const event of categoryEvents) {
         const eventChampions = champions[event.id] || [];
-        const championHtml = renderStoredChampions(eventChampions);
+        const championHtml = renderStoredChampions(eventChampions, event.id);
         
         html += `
             <div class="event-card">
@@ -2036,7 +2036,7 @@ async function renderHonors() {
 
 // 渲染个人赛冠军（动态计算）
 // 渲染已存储的冠军
-function renderStoredChampions(storedChampions) {
+function renderStoredChampions(storedChampions, eventId) {
     if (storedChampions.length === 0) {
         return '<div class="honor-list-empty">暂无冠军记录</div>';
     }
@@ -2064,13 +2064,18 @@ function renderStoredChampions(storedChampions) {
             runnerUpHtml = `<span class="honor-runnerup">🥈 ${runnerUpLevelTag}${c.runnerUp}</span>`;
         }
 
+        // 点击入口（如果有 eventId，则支持点击查看详情）
+        const clickAttr = eventId ? `onclick="showHonorDetail('${eventId}', ${i})" style="cursor:pointer"` : '';
+        const clickableClass = eventId ? ' honor-list-item-clickable' : '';
+
         return `
-            <div class="honor-list-item">
+            <div class="honor-list-item${clickableClass}" ${clickAttr}>
                 <span class="honor-period">第${i + 1}届</span>
                 <div class="honor-players">
                     <span class="honor-champion">🏆 ${championLevelTag}${c.name}</span>
                     ${runnerUpHtml}
                 </div>
+                ${eventId ? '<span class="honor-detail-arrow">›</span>' : ''}
             </div>
         `;
     }).join('');
@@ -2370,6 +2375,80 @@ function deleteChampionSimple(index) {
     
     // 刷新荣誉页面
     renderHonors();
+}
+
+// ========================================
+// 荣誉榜 - 届次详情弹窗
+// ========================================
+
+function showHonorDetail(eventId, index) {
+    // 获取赛事信息
+    const events = getEvents();
+    let eventName = '';
+    // 遍历所有分类找到对应赛事
+    for (const cat of ['cup', 'personal', 'team', 'cup2']) {
+        const found = (events[cat] || []).find(e => e.id === eventId);
+        if (found) { eventName = found.name; break; }
+    }
+    
+    // 获取冠军数据
+    const champions = getChampions();
+    const eventChampions = champions[eventId] || [];
+    const c = eventChampions[index];
+    if (!c) return;
+    
+    const period = c.period || `第${index + 1}届`;
+    const players = getPlayers();
+    
+    // 冠军等级
+    let championLevelTag = '';
+    const cp = players.find(p => p.name === c.name);
+    if (cp) {
+        const lv = getPlayerLevel(cp.id);
+        championLevelTag = `<span class="level-cell level-${lv}">${lv}</span>`;
+    }
+    
+    // 亚军等级
+    let runnerUpBlock = '';
+    if (c.runnerUp) {
+        let runnerUpLevelTag = '';
+        const rp = players.find(p => p.name === c.runnerUp);
+        if (rp) {
+            const lv = getPlayerLevel(rp.id);
+            runnerUpLevelTag = `<span class="level-cell level-${lv}">${lv}</span>`;
+        }
+        runnerUpBlock = `
+            <div class="hd-row">
+                <span class="hd-label">🥈 亚军</span>
+                <span class="hd-value">${runnerUpLevelTag}${c.runnerUp}</span>
+            </div>`;
+    }
+    
+    // 备注
+    let noteBlock = '';
+    if (c.note) {
+        noteBlock = `
+            <div class="hd-row hd-note">
+                <span class="hd-label">📝 备注</span>
+                <span class="hd-value">${c.note}</span>
+            </div>`;
+    }
+    
+    const modal = document.getElementById('honor-detail-modal');
+    document.getElementById('hd-title').textContent = `${eventName} · ${period}`;
+    document.getElementById('hd-body').innerHTML = `
+        <div class="hd-row">
+            <span class="hd-label">🏆 冠军</span>
+            <span class="hd-value">${championLevelTag}${c.name}</span>
+        </div>
+        ${runnerUpBlock}
+        ${noteBlock}
+    `;
+    modal.classList.add('active');
+}
+
+function closeHonorDetail() {
+    document.getElementById('honor-detail-modal').classList.remove('active');
 }
 
 // 格式化时间
