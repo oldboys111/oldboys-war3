@@ -2434,9 +2434,19 @@ function showHonorDetail(eventId, index) {
             </div>`;
     }
     
+    // 图片
+    let imageBlock = '';
+    if (c.image) {
+        imageBlock = `
+            <div class="hd-image-wrapper">
+                <img class="hd-image" src="images/honors/${c.image}" alt="冠军图片" loading="lazy" />
+            </div>`;
+    }
+    
     const modal = document.getElementById('honor-detail-modal');
     document.getElementById('hd-title').textContent = `${eventName} · ${period}`;
     document.getElementById('hd-body').innerHTML = `
+        ${imageBlock}
         <div class="hd-row">
             <span class="hd-label">🏆 冠军</span>
             <span class="hd-value">${championLevelTag}${c.name}</span>
