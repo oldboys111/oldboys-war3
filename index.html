@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Old boys' War3-老男孩天梯排行榜</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260406113400">
+
 </head>
 <body>
     <!-- 顶部导航栏 -->
@@ -203,10 +204,12 @@
                         <div class="event-stat-value" id="detail-event-prize"></div>
                         <div class="event-stat-label">冠军</div>
                     </div>
-                    <div class="event-stat-card">
+                    <div class="event-stat-card event-stat-sponsor">
                         <div class="event-stat-icon">💰</div>
-                        <div class="event-stat-value" id="detail-event-sponsor"></div>
-                        <div class="event-stat-label">赞助商</div>
+                        <div class="event-stat-sponsor-text">
+                            <div class="event-stat-label">赞助商</div>
+                            <div class="event-stat-value" id="detail-event-sponsor"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -495,6 +498,17 @@
         </section>
     </main>
 
+    <!-- 荣誉届次详情弹窗 -->
+    <div id="honor-detail-modal" class="modal honor-detail-modal" onclick="closeHonorDetail()">
+        <div class="honor-detail-content" onclick="event.stopPropagation()">
+            <div class="honor-detail-header">
+                <h3 id="hd-title"></h3>
+                <button class="modal-close" onclick="closeHonorDetail()">×</button>
+            </div>
+            <div class="honor-detail-body" id="hd-body"></div>
+        </div>
+    </div>
+
     <!-- 荣誉编辑弹窗 -->
     <div id="honors-editor-modal" class="modal">
         <div class="modal-content honors-editor-modal-content">
@@ -734,6 +748,6 @@
         </div>
     </div>
 
-    <script src="static-app.js?v=20260406110910"></script>
+    <script src="static-app.js?v=20260406113400"></script>
 </body>
 </html>
