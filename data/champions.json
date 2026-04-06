@@ -130,5 +130,12 @@
       "runnerUp": "山东",
       "period": "第1届"
     }
+  ],
+  "event-集团冲突": [
+    {
+      "name": "达克集团",
+      "runnerUp": "惊喜战队",
+      "period": "第1届"
+    }
   ]
 }
