@@ -5,6 +5,18 @@
       "emoji": "🏆",
       "name": "SA级别对抗赛",
       "subtitle": "个人赛冠军"
+    },
+    {
+      "id": "event-A级对抗赛",
+      "emoji": "🏆",
+      "name": "A级对抗赛",
+      "subtitle": "个人赛冠军"
+    },
+    {
+      "id": "event-B级对抗赛",
+      "emoji": "🏆",
+      "name": "B级对抗赛",
+      "subtitle": "个人赛冠军"
     }
   ],
   "cup": [
