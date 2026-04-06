@@ -1190,9 +1190,10 @@
     "id": "p85"
   },
   {
-    "name": "新手",
-    "race": "HUM",
+    "name": "沉迷",
     "kkname": "",
+    "race": "HUM",
+    "kkRank": "",
     "points": 2150,
     "wins": 0,
     "losses": 0,
@@ -1200,7 +1201,6 @@
     "trait": "",
     "glory": "",
     "honors": "",
-    "kkRank": "",
     "id": "p86"
   },
   {
