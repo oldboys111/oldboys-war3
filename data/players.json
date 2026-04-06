@@ -1247,16 +1247,16 @@
   },
   {
     "name": "句号",
-    "race": "NE",
     "kkname": "",
+    "race": "NE",
+    "kkRank": "",
     "points": 2100,
     "wins": 0,
     "losses": 0,
     "apm": 0,
-    "trait": "",
+    "trait": "不知道这人是什么族",
     "glory": "",
     "honors": "",
-    "kkRank": "",
     "id": "p90"
   },
   {
