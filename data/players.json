@@ -239,16 +239,16 @@
   },
   {
     "name": "听蜂的熊",
-    "race": "UD",
     "kkname": "",
+    "race": "UD",
+    "kkRank": "钻石三",
     "points": 3170,
     "wins": 0,
     "losses": 0,
     "apm": 0,
-    "trait": "",
-    "glory": "",
-    "honors": "",
-    "kkRank": "钻石三",
+    "trait": "功底扎实的亡灵选手\n喜欢用冰龙",
+    "glory": "比赛中击败过Garls",
+    "honors": "暂无",
     "id": "p18"
   },
   {
@@ -449,16 +449,16 @@
   },
   {
     "name": "飞鱼",
-    "race": "ORC",
     "kkname": "",
+    "race": "ORC",
+    "kkRank": "钻石四",
     "points": 2950,
     "wins": 0,
     "losses": 0,
     "apm": 0,
-    "trait": "",
-    "glory": "",
-    "honors": "",
-    "kkRank": "钻石四",
+    "trait": "不爱洗澡，不讲卫生\n喜欢造兽栏和磨坊\n作战风格多变，经常不打算跟对手进行作战",
+    "glory": "比赛中击败华安、bigm、韵鸡等一众好手\n正赛决胜局使用地洞TR击败歌手，惊为天人\n被库克率领夺得冬至杯冠军\n练习中面对大帝几乎没有败绩",
+    "honors": "第九、十六届正赛冠军\n冬至杯冠军",
     "id": "p33"
   },
   {
