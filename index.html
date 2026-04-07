@@ -58,17 +58,6 @@
             <div class="replay-section">
                 <div class="replay-header">
                     <h3>🎬 精彩比赛回放</h3>
-                    <button id="add-replay-btn" class="replay-add-btn" onclick="toggleAddReplayForm()" style="display:none">＋ 添加回放</button>
-                </div>
-                <!-- 添加回放表单（管理员可见） -->
-                <div id="add-replay-form" class="replay-add-form" style="display:none">
-                    <input type="text" id="replay-title" placeholder="回放标题（如：第10届决赛 - 狗窝 vs 老男孩）" class="replay-input" />
-                    <input type="text" id="replay-url" placeholder="链接地址（如：https://www.bilibili.com/...）" class="replay-input" />
-                    <input type="text" id="replay-desc" placeholder="简介（可选）" class="replay-input" />
-                    <div class="replay-form-btns">
-                        <button onclick="addReplayLink()" class="replay-btn-confirm">✅ 确认添加</button>
-                        <button onclick="toggleAddReplayForm()" class="replay-btn-cancel">取消</button>
-                    </div>
                 </div>
                 <!-- 回放列表 -->
                 <div id="replay-list" class="replay-list"></div>
@@ -767,6 +756,6 @@
         </div>
     </div>
 
-    <script src="static-app.js?v=20260407174000"></script>
+    <script src="static-app.js?v=20260407175500"></script>
 </body>
 </html>
