@@ -323,16 +323,16 @@
   },
   {
     "name": "头环",
-    "race": "ORC",
     "kkname": "",
+    "race": "ORC",
+    "kkRank": "钻石三",
     "points": 3120,
     "wins": 0,
     "losses": 0,
     "apm": 0,
-    "trait": "",
-    "glory": "",
-    "honors": "",
-    "kkRank": "钻石三",
+    "trait": "著名魔兽群群主，APM微操达人\n钢琴手S环\n唯一克星机智的二胖",
+    "glory": "在比赛中曾击败老陈等高手\n日常训练中曾击败WCG冠军\n其师父曾将大王小Lyn玩弄至破防",
+    "honors": "第二十届正赛亚军",
     "id": "p24"
   },
   {
