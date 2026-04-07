@@ -477,47 +477,50 @@ function renderOverview() {
 
     // 渲染精彩回放列表
     renderReplayList();
-
-    // 管理员按钮显示
-    const addBtn = document.getElementById('add-replay-btn');
-    if (addBtn) addBtn.style.display = isAdmin ? 'inline-block' : 'none';
 }
 
 // ========================================
-// 精彩比赛回放 - 数据管理
+// 精彩比赛回放 - 从 JSON 文件加载并展示
 // ========================================
 
-const REPLAY_KEY = 'wc3_replays';
+let cachedReplays = null;
 
-function getReplayLinks() {
+async function loadReplaysFromJSON() {
     try {
-        const raw = localStorage.getItem(REPLAY_KEY);
-        return raw ? JSON.parse(raw) : [];
-    } catch(e) { return []; }
+        const resp = await fetch('data/replays.json?t=' + Date.now());
+        if (resp.ok) {
+            const data = await resp.json();
+            cachedReplays = Array.isArray(data) ? data : [];
+        } else {
+            cachedReplays = [];
+        }
+    } catch(e) {
+        cachedReplays = [];
+    }
 }
 
-function saveReplayLinks(links) {
-    localStorage.setItem(REPLAY_KEY, JSON.stringify(links));
-}
-
-function renderReplayList() {
-    const links = getReplayLinks();
+async function renderReplayList() {
     const container = document.getElementById('replay-list');
     if (!container) return;
 
+    // 如果缓存为空，尝试加载
+    if (!cachedReplays) {
+        await loadReplaysFromJSON();
+    }
+    const links = cachedReplays || [];
+
     if (links.length === 0) {
-        container.innerHTML = '<p class="replay-empty">暂无回放，管理员可点击右上角"＋ 添加回放"添加链接</p>';
+        container.innerHTML = '<p class="replay-empty">暂无回放</p>';
         return;
     }
 
-    container.innerHTML = links.map((link, i) => `
+    container.innerHTML = links.map((link) => `
         <a class="replay-item" href="${escapeHtml(link.url)}" target="_blank" rel="noopener">
             <div class="replay-item-icon">▶</div>
             <div class="replay-item-info">
                 <div class="replay-item-title">${escapeHtml(link.title)}</div>
                 ${link.desc ? `<div class="replay-item-desc">${escapeHtml(link.desc)}</div>` : ''}
             </div>
-            ${isAdmin ? `<button class="replay-delete-btn" onclick="deleteReplayLink(event, ${i})">🗑</button>` : ''}
         </a>
     `).join('');
 }
@@ -525,46 +528,6 @@ function renderReplayList() {
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function toggleAddReplayForm() {
-    const form = document.getElementById('add-replay-form');
-    if (!form) return;
-    form.style.display = form.style.display === 'none' ? 'flex' : 'none';
-    if (form.style.display === 'flex') {
-        document.getElementById('replay-title').focus();
-    }
-}
-
-function addReplayLink() {
-    const title = document.getElementById('replay-title').value.trim();
-    const url   = document.getElementById('replay-url').value.trim();
-    const desc  = document.getElementById('replay-desc').value.trim();
-
-    if (!title) { alert('请填写回放标题'); return; }
-    if (!url)   { alert('请填写链接地址'); return; }
-    if (!/^https?:\/\//.test(url)) { alert('链接地址需以 http:// 或 https:// 开头'); return; }
-
-    const links = getReplayLinks();
-    links.unshift({ title, url, desc });
-    saveReplayLinks(links);
-
-    // 清空表单并隐藏
-    document.getElementById('replay-title').value = '';
-    document.getElementById('replay-url').value = '';
-    document.getElementById('replay-desc').value = '';
-    toggleAddReplayForm();
-    renderReplayList();
-}
-
-function deleteReplayLink(e, index) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!confirm('确认删除这条回放链接？')) return;
-    const links = getReplayLinks();
-    links.splice(index, 1);
-    saveReplayLinks(links);
-    renderReplayList();
 }
 
 // 等级段位值配置（用于积分计算）
