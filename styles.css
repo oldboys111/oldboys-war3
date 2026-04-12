@@ -1037,7 +1037,9 @@ body {
     font-size: 16px;
 }
 
-.player-race-icon img {
+.player-race-icon img,
+.member-avatar-small img,
+#detail-avatar img {
     object-fit: contain;
     border-radius: 4px;
     box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.25);
