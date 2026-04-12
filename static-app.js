@@ -630,7 +630,7 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
                                     <td><span class="level-cell level-${level}">${level}</span></td>
                                     <td>
                                         <div class="name-cell">
-                                            <div class="member-avatar-small">${p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:45px;height:45px;object-fit:contain;border-radius:4px;">` : ''}</div>
+                                            <div class="member-avatar-small">${p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:${RACES[p.race].size?.small||36}px;height:${RACES[p.race].size?.small||36}px;object-fit:contain;border-radius:4px;">` : ''}</div>
                                             <span>${p.name}</span>
                                         </div>
                                     </td>
@@ -694,7 +694,7 @@ function renderPlayerDetail(playerId) {
     // 基本信息
     document.getElementById('detail-player-name').textContent = player.name;
     document.getElementById('detail-avatar').innerHTML = player.race && RACES[player.race]
-        ? `<img src="${RACES[player.race].icon}" alt="${RACES[player.race].name}" style="width:100px;height:100px;object-fit:contain;border-radius:8px;">`
+        ? `<img src="${RACES[player.race].icon}" alt="${RACES[player.race].name}" style="width:${RACES[player.race].size?.large||80}px;height:${RACES[player.race].size?.large||80}px;object-fit:contain;border-radius:8px;">`
         : '';
     document.getElementById('detail-name').textContent = player.name;
     document.getElementById('detail-race-tag').className = `race-tag race-${player.race}`;
@@ -845,7 +845,7 @@ function renderPlayerBattles(playerId) {
             return `
                 <div class="battle-item">
                     <div class="battle-opponent">
-                        <span class="race-tag race-${opponent.race || 'unknown'}">${opponent.race && RACES[opponent.race] ? `<img src="${RACES[opponent.race].icon}" style="width:40px;height:40px;vertical-align:middle;border-radius:4px;">` : '🏰'}</span>
+                        <span class="race-tag race-${opponent.race || 'unknown'}">${opponent.race && RACES[opponent.race] ? `<img src="${RACES[opponent.race].icon}" style="width:${RACES[opponent.race].size?.medium||32}px;height:${RACES[opponent.race].size?.medium||32}px;vertical-align:middle;border-radius:4px;">` : '🏰'}</span>
                         <span class="battle-opponent-name">${opponent.name}</span>
                     </div>
                     <div class="battle-progress">
@@ -1073,7 +1073,7 @@ function renderMatches(filterType = 'all', playerSearch = '') {
             if (!p) return '';
             const rank = getRank(p.id);
             const level = getPlayerLevel(p.id);
-            const raceImg = p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:40px;height:40px;vertical-align:middle;border-radius:3px;">` : '';
+            const raceImg = p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:${RACES[p.race].size?.medium||32}px;height:${RACES[p.race].size?.medium||32}px;vertical-align:middle;border-radius:3px;">` : '';
             return `<div class="match-player-badge ${redWinner ? 'winner' : ''}">
                 <span class="player-race-icon ${p.race ? 'race-' + p.race.toLowerCase() : ''}">${raceImg}</span>
                 <span class="player-level-mini level-${level}">${level}</span>
@@ -1088,7 +1088,7 @@ function renderMatches(filterType = 'all', playerSearch = '') {
             if (!p) return '';
             const rank = getRank(p.id);
             const level = getPlayerLevel(p.id);
-            const raceImg = p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:40px;height:40px;vertical-align:middle;border-radius:3px;">` : '';
+            const raceImg = p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:${RACES[p.race].size?.medium||32}px;height:${RACES[p.race].size?.medium||32}px;vertical-align:middle;border-radius:3px;">` : '';
             return `<div class="match-player-badge ${blueWinner ? 'winner' : ''}">
                 <span class="player-race-icon ${p.race ? 'race-' + p.race.toLowerCase() : ''}">${raceImg}</span>
                 <span class="player-level-mini level-${level}">${level}</span>
