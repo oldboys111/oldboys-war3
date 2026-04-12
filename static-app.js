@@ -105,10 +105,10 @@ async function checkAuth() {
 
 // 种族配置
 const RACES = {
-    HUM: { name: '人族', color: '#4a90d9', icon: '🛡️' },
-    ORC: { name: '兽族', color: '#e67e22', icon: '🔥' },
-    UD: { name: '亡灵', color: '#4a148c', icon: '<img src="images/不死.jpg" alt="亡灵" style="width:100px;height:100px;object-fit:contain;border-radius:8px;">' },
-    NE: { name: '暗夜', color: '#27ae60', icon: '🌙' }
+    HUM: { name: '人族', color: '#4a90d9', icon: 'images/人族.jpg' },
+    ORC: { name: '兽族', color: '#e67e22', icon: 'images/兽族.jpg' },
+    UD: { name: '亡灵', color: '#4a148c', icon: 'images/不死.jpg' },
+    NE: { name: '暗夜', color: '#27ae60', icon: 'images/暗夜2.jpg' }
 };
 
 // 等级人数配置：SR=5人, A到F=10人, G不限
@@ -630,7 +630,7 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
                                     <td><span class="level-cell level-${level}">${level}</span></td>
                                     <td>
                                         <div class="name-cell">
-                                            <div class="member-avatar-small">${p.race === 'NE' ? '<img src="images/暗夜.jpg" style="width:45px;height:45px;object-fit:contain;border-radius:4px;">' : p.race === 'UD' ? '<img src="images/不死.jpg" style="width:45px;height:45px;object-fit:contain;border-radius:4px;">' : (p.race && RACES[p.race] ? RACES[p.race].icon : '')}</div>
+                                            <div class="member-avatar-small">${p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:45px;height:45px;object-fit:contain;border-radius:4px;">` : ''}</div>
                                             <span>${p.name}</span>
                                         </div>
                                     </td>
@@ -693,11 +693,9 @@ function renderPlayerDetail(playerId) {
     
     // 基本信息
     document.getElementById('detail-player-name').textContent = player.name;
-    document.getElementById('detail-avatar').innerHTML = player.race === 'NE'
-        ? '<img src="images/暗夜.jpg" alt="暗夜" style="width:100px;height:100px;object-fit:contain;border-radius:8px;">'
-        : player.race === 'UD'
-        ? '<img src="images/不死.jpg" alt="亡灵" style="width:100px;height:100px;object-fit:contain;border-radius:8px;">'
-        : RACES[player.race].icon;
+    document.getElementById('detail-avatar').innerHTML = player.race && RACES[player.race]
+        ? `<img src="${RACES[player.race].icon}" alt="${RACES[player.race].name}" style="width:100px;height:100px;object-fit:contain;border-radius:8px;">`
+        : '';
     document.getElementById('detail-name').textContent = player.name;
     document.getElementById('detail-race-tag').className = `race-tag race-${player.race}`;
     document.getElementById('detail-race-tag').textContent = RACES[player.race].name;
@@ -847,11 +845,7 @@ function renderPlayerBattles(playerId) {
             return `
                 <div class="battle-item">
                     <div class="battle-opponent">
-                        <span class="race-tag race-${opponent.race || 'unknown'}">${opponent.race === 'NE'
-                        ? '<img src="images/暗夜.jpg" style="width:40px;height:40px;vertical-align:middle;border-radius:4px;">'
-                        : opponent.race === 'UD'
-                        ? '<img src="images/不死.jpg" style="width:40px;height:40px;vertical-align:middle;border-radius:4px;">'
-                        : (opponent.race && RACES[opponent.race] ? RACES[opponent.race].icon : '🏰')}</span>
+                        <span class="race-tag race-${opponent.race || 'unknown'}">${opponent.race && RACES[opponent.race] ? `<img src="${RACES[opponent.race].icon}" style="width:40px;height:40px;vertical-align:middle;border-radius:4px;">` : '🏰'}</span>
                         <span class="battle-opponent-name">${opponent.name}</span>
                     </div>
                     <div class="battle-progress">
@@ -1079,7 +1073,7 @@ function renderMatches(filterType = 'all', playerSearch = '') {
             if (!p) return '';
             const rank = getRank(p.id);
             const level = getPlayerLevel(p.id);
-            const raceImg = p.race === 'NE' ? '<img src="images/暗夜.jpg" style="width:40px;height:40px;vertical-align:middle;border-radius:3px;">' : p.race === 'UD' ? '<img src="images/不死.jpg" style="width:40px;height:40px;vertical-align:middle;border-radius:3px;">' : (p.race && RACES[p.race] ? RACES[p.race].icon : '');
+            const raceImg = p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:40px;height:40px;vertical-align:middle;border-radius:3px;">` : '';
             return `<div class="match-player-badge ${redWinner ? 'winner' : ''}">
                 <span class="player-race-icon ${p.race ? 'race-' + p.race.toLowerCase() : ''}">${raceImg}</span>
                 <span class="player-level-mini level-${level}">${level}</span>
@@ -1094,7 +1088,7 @@ function renderMatches(filterType = 'all', playerSearch = '') {
             if (!p) return '';
             const rank = getRank(p.id);
             const level = getPlayerLevel(p.id);
-            const raceImg = p.race === 'NE' ? '<img src="images/暗夜.jpg" style="width:40px;height:40px;vertical-align:middle;border-radius:3px;">' : p.race === 'UD' ? '<img src="images/不死.jpg" style="width:40px;height:40px;vertical-align:middle;border-radius:3px;">' : (p.race && RACES[p.race] ? RACES[p.race].icon : '');
+            const raceImg = p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:40px;height:40px;vertical-align:middle;border-radius:3px;">` : '';
             return `<div class="match-player-badge ${blueWinner ? 'winner' : ''}">
                 <span class="player-race-icon ${p.race ? 'race-' + p.race.toLowerCase() : ''}">${raceImg}</span>
                 <span class="player-level-mini level-${level}">${level}</span>
