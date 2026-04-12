@@ -11,10 +11,10 @@
 
 :root {
     --bg-primary: #0a0e17;
-    --bg-secondary: #111827;
-    --bg-card: rgba(15, 22, 40, 0.82);
-    --bg-card-hover: rgba(24, 34, 58, 0.88);
-    --border-color: rgba(40, 60, 90, 0.7);
+    --bg-secondary: rgba(17, 24, 39, 0.97);
+    --bg-card: rgba(15, 22, 40, 0.97);
+    --bg-card-hover: rgba(24, 34, 58, 0.99);
+    --border-color: rgba(40, 60, 90, 0.85);
     --text-primary: #e8e8e8;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
@@ -45,7 +45,7 @@ body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: rgba(5, 8, 18, 0.72);
+    background: rgba(5, 8, 18, 0.82);
     z-index: 0;
     pointer-events: none;
 }
