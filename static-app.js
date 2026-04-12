@@ -105,10 +105,10 @@ async function checkAuth() {
 
 // 种族配置
 const RACES = {
-    HUM: { name: '人族', color: '#4a90d9', icon: 'images/人族.jpg', size: { small: 18, medium: 16, large: 40 } },
-    ORC: { name: '兽族', color: '#e67e22', icon: 'images/兽族.jpg', size: { small: 18, medium: 16, large: 40 } },
-    UD: { name: '亡灵', color: '#4a148c', icon: 'images/不死.jpg' },
-    NE: { name: '暗夜', color: '#27ae60', icon: 'images/暗夜3.jpg', size: { small: 18, medium: 16, large: 40 } }
+    HUM: { name: '人族', color: '#4a90d9', icon: 'images/人族.jpg', size: { small: 24, medium: 21, large: 53 } },
+    ORC: { name: '兽族', color: '#e67e22', icon: 'images/兽族.jpg', size: { small: 24, medium: 21, large: 53 } },
+    UD: { name: '亡灵', color: '#4a148c', icon: 'images/不死.jpg', size: { small: 48, medium: 43, large: 107 } },
+    NE: { name: '暗夜', color: '#27ae60', icon: 'images/暗夜3.jpg', size: { small: 24, medium: 21, large: 53 } }
 };
 
 // 等级人数配置：SR=5人, A到F=10人, G不限
