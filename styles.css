@@ -884,8 +884,6 @@ body {
 }
 
 .members-table .member-avatar-small {
-    width: 40px;
-    height: 40px;
     background: var(--bg-secondary);
     border-radius: 6px;
     display: flex;
@@ -1037,16 +1035,12 @@ body {
 }
 
 .player-race-icon img {
-    width: 24px;
-    height: 24px;
     object-fit: contain;
     border-radius: 4px;
 }
 
 .race-ud {
     filter: sepia(1) saturate(4) hue-rotate(220deg) brightness(0.9);
-    width: 24px;
-    height: 24px;
     object-fit: contain;
     border-radius: 4px;
 }
