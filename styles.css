@@ -1042,6 +1042,21 @@ body {
 #detail-avatar img {
     object-fit: contain;
     border-radius: 4px;
+    position: relative;
+}
+.player-race-icon img::after,
+.member-avatar-small img::after,
+#detail-avatar img::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    height: 6px;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.4) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
 }
 
 .race-ud {
