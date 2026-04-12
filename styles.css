@@ -40,29 +40,8 @@ body {
     min-height: 100vh;
 }
 
-/* 全局背景遮罩，让图片不影响文字可读性 */
-body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 8, 18, 0.82);
-    z-index: 0;
-    pointer-events: none;
-}
-
-/* 确保所有内容层级高于遮罩 */
-.main-header,
-.main-nav,
-.page-container,
-#page-overview,
-#page-members,
-#page-battles,
-#page-honors,
-#page-events,
-.modal-overlay {
-    position: relative;
-    z-index: 1;
-}
+/* 去掉全局遮罩，背景图只在空白区域自然可见 */
+/* 卡片/面板完全不透明，遮住背景图，保证文字清晰 */
 
 /* ========================================
    顶部导航栏
