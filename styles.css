@@ -1040,6 +1040,7 @@ body {
 .player-race-icon img {
     object-fit: contain;
     border-radius: 4px;
+    box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.25);
 }
 
 .race-ud {
