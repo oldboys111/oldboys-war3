@@ -7,5 +7,59 @@
     "result": "54胜",
     "date": "2026-04-06",
     "id": "m1"
+  },
+  {
+    "player1": "p79",
+    "player2": "p94",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "八二年老菜胜",
+    "date": "2026-04-13",
+    "id": "m2"
+  },
+  {
+    "player1": "p84",
+    "player2": "p88",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "天赋胜",
+    "date": "2026-04-13",
+    "id": "m3"
+  },
+  {
+    "player1": "p83",
+    "player2": "p86",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "春秋胜",
+    "date": "2026-04-13",
+    "id": "m4"
+  },
+  {
+    "player1": "p70",
+    "player2": "p75",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "可乐胜",
+    "date": "2026-04-13",
+    "id": "m5"
+  },
+  {
+    "player1": "p79",
+    "player2": "p84",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "八二年老菜胜",
+    "date": "2026-04-13",
+    "id": "m6"
+  },
+  {
+    "player1": "p70",
+    "player2": "p83",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "可乐胜",
+    "date": "2026-04-13",
+    "id": "m7"
   }
 ]
