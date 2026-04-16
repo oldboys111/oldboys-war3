@@ -541,8 +541,8 @@ function calculatePointsChange(winnerId, loserId, scoreDiff, players) {
     
     if (!winner || !loser) return { winnerPoints: 0, loserPoints: 0 };
     
-    const winnerLevel = getLevelByPoints(winner.points);
-    const loserLevel = getLevelByPoints(loser.points);
+    const winnerLevel = getPlayerLevel(winnerId);
+    const loserLevel = getPlayerLevel(loserId);
     
     const winnerLevelValue = LEVEL_VALUE[winnerLevel] || 0;
     const loserLevelValue = LEVEL_VALUE[loserLevel] || 0;
