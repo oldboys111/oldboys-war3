@@ -1,0 +1,7 @@
+{
+  "name": "oldboys-war3",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "npx serve -p 8080 -s ."
+  }
+}
