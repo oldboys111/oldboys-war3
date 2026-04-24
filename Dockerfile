@@ -1,6 +1,6 @@
 FROM caddy:alpine
 
-COPY war3-match-system/public /usr/share/caddy
+COPY ./war3-match-system/public /usr/share/caddy
 
 EXPOSE 3000
 
