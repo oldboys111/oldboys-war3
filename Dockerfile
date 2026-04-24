@@ -1,9 +1,7 @@
-FROM alpine:latest
+FROM caddy:alpine
 
-RUN apk add --no-cache caddy
-
-COPY war3-match-system/public /public
+COPY war3-match-system/public /usr/share/caddy
 
 EXPOSE 3000
 
-CMD ["caddy", "file-server", "--root", "/public", "--listen", ":3000"]
+CMD ["caddy", "file-server", "--root", "/usr/share/caddy", "--listen", ":3000"]
