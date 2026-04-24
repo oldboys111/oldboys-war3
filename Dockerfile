@@ -1,6 +1,8 @@
-FROM caddy:alpine
+FROM caddy:2-alpine
 
-COPY ./public /usr/share/caddy
+COPY index.html static-app.js styles.css app.js /usr/share/caddy/
+COPY images/ /usr/share/caddy/images/
+COPY data/ /usr/share/caddy/data/
 
 EXPOSE 3000
 
