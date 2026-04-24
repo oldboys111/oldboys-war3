@@ -1,8 +1,10 @@
 FROM caddy:2-alpine
 
-COPY index.html static-app.js styles.css app.js /usr/share/caddy/
-COPY images/ /usr/share/caddy/images/
-COPY data/ /usr/share/caddy/data/
+# 创建工作目录
+WORKDIR /usr/share/caddy
+
+# 复制所有文件
+COPY . /usr/share/caddy/
 
 EXPOSE 3000
 
