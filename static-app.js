@@ -432,7 +432,7 @@ function renderCurrentPage(page) {
 
 // 渲染总览页面
 function renderOverview() {
-    const matches = getMatches().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+    const matches = getMatches().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 9);
     const players = getPlayers().sort((a, b) => b.points - a.points).slice(0, 10);
 
     // 最近对战 - 添加安全检查处理旧格式数据
