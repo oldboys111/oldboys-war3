@@ -603,8 +603,9 @@
   },
   {
     "name": "窒息",
-    "race": "ORC",
     "kkname": "",
+    "race": "UD",
+    "kkRank": "",
     "points": 2830,
     "wins": 0,
     "losses": 0,
@@ -612,7 +613,6 @@
     "trait": "",
     "glory": "",
     "honors": "",
-    "kkRank": "",
     "id": "p44"
   },
   {
