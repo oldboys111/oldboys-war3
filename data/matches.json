@@ -214,5 +214,59 @@
     "result": "雨后胜",
     "date": "2026-05-15",
     "id": "m24"
+  },
+  {
+    "player1": "p21",
+    "player2": "p22",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "贝爷胜",
+    "date": "2026-05-18",
+    "id": "m25"
+  },
+  {
+    "player1": "p11",
+    "player2": "p22",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "大帝胜",
+    "date": "2026-05-18",
+    "id": "m26"
+  },
+  {
+    "player1": "p11",
+    "player2": "p22",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "大帝胜",
+    "date": "2026-05-18",
+    "id": "m27"
+  },
+  {
+    "player1": "p22",
+    "player2": "p11",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "熊猫胜",
+    "date": "2026-05-18",
+    "id": "m28"
+  },
+  {
+    "player1": "p22",
+    "player2": "p11",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "熊猫胜",
+    "date": "2026-05-18",
+    "id": "m29"
+  },
+  {
+    "player1": "p21",
+    "player2": "p20",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "贝爷胜",
+    "date": "2026-05-18",
+    "id": "m30"
   }
 ]
