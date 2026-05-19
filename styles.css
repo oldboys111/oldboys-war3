@@ -3031,58 +3031,233 @@ body {
 .battles-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .battle-item {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 14px;
+    padding: 14px 16px;
     background: var(--bg-secondary);
-    border-radius: 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.04);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.battle-item:hover {
+    background: var(--bg-card);
+    border-color: rgba(255,255,255,0.08);
+    transform: translateX(4px);
+}
+
+.battle-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.battle-item:hover::before {
+    opacity: 1;
+}
+
+/* 左侧：对手信息 */
+.battle-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 140px;
 }
 
 .battle-opponent {
-    min-width: 100px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
-.battle-opponent-name {
-    font-size: 14px;
-    color: var(--text-primary);
-}
-
-.battle-progress {
-    flex: 1;
-    height: 24px;
-    background: var(--bg-card);
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-}
-
-.battle-progress-bar {
-    height: 100%;
+.battle-race-icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    flex-shrink: 0;
+}
+
+.battle-opponent-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.battle-opponent-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.battle-level-tag {
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.battle-level .level-cell {
+    font-size: 11px !important;
+    padding: 1px 6px !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+}
+
+.battle-meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-left: 42px;
+}
+
+.battle-total {
     font-size: 12px;
-    font-weight: 500;
-    color: #fff;
-    transition: width 0.3s ease;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    padding: 2px 8px;
+    border-radius: 10px;
 }
 
-.battle-progress-bar.win {
+.battle-last-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+/* 中间：进度条和战绩 */
+.battle-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.battle-progress-duo {
+    display: flex;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(231, 76, 60, 0.15);
+    position: relative;
+}
+
+.battle-progress-win {
+    height: 100%;
     background: linear-gradient(90deg, #27ae60, #2ecc71);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 2px;
 }
 
-.battle-progress-bar.loss {
+.battle-progress-lose {
+    height: 100%;
     background: linear-gradient(90deg, #e74c3c, #c0392b);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 2px;
 }
 
+.battle-rate-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.rate-win {
+    color: #2ecc71;
+    font-weight: 600;
+}
+
+.rate-lose {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.rate-sep {
+    color: var(--text-muted);
+    opacity: 0.4;
+    font-size: 10px;
+}
+
+.rate-pct {
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.rate-high {
+    color: #2ecc71;
+}
+
+.rate-low {
+    color: #e74c3c;
+}
+
+/* 右侧：趋势 */
+.battle-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 50px;
+}
+
+.battle-trend {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.battle-trend.advantage {
+    background: rgba(39, 174, 96, 0.15);
+    color: #2ecc71;
+}
+
+.battle-trend.even {
+    background: rgba(241, 196, 15, 0.15);
+    color: #f1c40f;
+}
+
+.battle-trend.disadvantage {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+}
+
+.battle-net {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.net-positive {
+    color: #2ecc71;
+}
+
+.net-negative {
+    color: #e74c3c;
+}
+
+/* 旧样式兼容 */
 .battle-stats {
     min-width: 80px;
     text-align: right;
