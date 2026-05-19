@@ -780,50 +780,42 @@ function renderPlayerBattles(playerId) {
     
     if (!currentPlayer) return;
     
-    // 计算与每个对手的胜负
+    // 计算与每个对手的胜负（增强版：包含最后交手日期）
     const battleStats = {};
     
     matches.forEach(match => {
-        // 兼容两种数据格式: player1/player2 或 redPlayers/bluePlayers
         let isRed = false, isBlue = false;
         let opponents = [];
         let won = false;
         
         if (match.player1 && match.player2) {
-            // 旧格式: player1/player2
             const p1 = match.player1;
             const p2 = match.player2;
             isRed = p1 === playerId;
             isBlue = p2 === playerId;
-            
             if (!isRed && !isBlue) return;
-            
             opponents = isRed ? [p2] : [p1];
-            
-            // 从 result 字段判断胜负
             const playerName = currentPlayer.name;
             won = match.result && match.result.includes(playerName) && match.result.includes('胜');
         } else if (match.redPlayers && match.bluePlayers) {
-            // 新格式: redPlayers/bluePlayers 数组
             isRed = match.redPlayers.includes(playerId);
             isBlue = match.bluePlayers.includes(playerId);
-            
             if (!isRed && !isBlue) return;
-            
             opponents = isRed ? match.bluePlayers : match.redPlayers;
             won = (isRed && match.redScore > match.blueScore) || (isBlue && match.blueScore > match.redScore);
         } else {
-            return; // 格式不对，跳过
+            return;
         }
         
         opponents.forEach(opponentId => {
             if (!battleStats[opponentId]) {
-                battleStats[opponentId] = { wins: 0, losses: 0 };
+                battleStats[opponentId] = { wins: 0, losses: 0, lastDate: match.date };
             }
-            if (won) {
-                battleStats[opponentId].wins++;
-            } else {
-                battleStats[opponentId].losses++;
+            if (won) battleStats[opponentId].wins++;
+            else battleStats[opponentId].losses++;
+            // 保留最近的交手日期
+            if (match.date && new Date(match.date) > new Date(battleStats[opponentId].lastDate || 0)) {
+                battleStats[opponentId].lastDate = match.date;
             }
         });
     });
@@ -833,28 +825,76 @@ function renderPlayerBattles(playerId) {
     const battlesCount = Object.values(battleStats).reduce((sum, s) => sum + s.wins + s.losses, 0);
     document.getElementById('detail-battles-count').textContent = battlesCount;
     
-    const battlesHtml = Object.entries(battleStats)
+    // 按交手总场次降序排列（交手多的优先）
+    const sortedBattles = Object.entries(battleStats)
+        .sort(([, a], [, b]) => (b.wins + b.losses) - (a.wins + a.losses));
+    
+    const battlesHtml = sortedBattles
         .map(([opponentId, stats]) => {
             const opponent = players.find(p => p.id === opponentId);
             if (!opponent) return '';
             
             const total = stats.wins + stats.losses;
-            const winRate = total > 0 ? (stats.wins / total) * 100 : 50;
-            const isWin = stats.wins > stats.losses || (stats.wins === stats.losses && Math.random() > 0.5);
+            const winRate = total > 0 ? Math.round((stats.wins / total) * 100) : 0;
+            const loseRate = 100 - winRate;
+            const netWins = stats.wins - stats.losses;
+            
+            // 判断优劣势：净胜>0 优势 =0 均势 <0 劣势
+            let trendClass = 'even';
+            let trendText = '均势';
+            if (netWins > 0) { trendClass = 'advantage'; trendText = '优势'; }
+            else if (netWins < 0) { trendClass = 'disadvantage'; trendText = '劣势'; }
+            
+            // 格式化日期
+            let dateText = '';
+            if (stats.lastDate) {
+                const d = new Date(stats.lastDate);
+                const now = new Date();
+                const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+                if (diffDays === 0) dateText = '今天';
+                else if (diffDays === 1) dateText = '昨天';
+                else if (diffDays < 7) dateText = diffDays + '天前';
+                else if (diffDays < 30) dateText = Math.floor(diffDays / 7) + '周前';
+                else dateText = (d.getMonth() + 1) + '/' + d.getDate();
+            }
+            
+            const raceIcon = opponent.race && RACES[opponent.race] 
+                ? `<img src="${RACES[opponent.race].icon}" style="width:28px;height:28px;vertical-align:middle;border-radius:4px;object-fit:cover;">` 
+                : '<span style="font-size:20px;">🏰</span>';
+            
+            const levelTagHtml = getPlayerLevelTag(opponent.id);
             
             return `
-                <div class="battle-item">
-                    <div class="battle-opponent">
-                        <span class="race-tag race-${opponent.race || 'unknown'}">${opponent.race && RACES[opponent.race] ? `<img src="${RACES[opponent.race].icon}" style="width:${RACES[opponent.race].size?.medium||32}px;height:${RACES[opponent.race].size?.medium||32}px;vertical-align:middle;border-radius:4px;">` : '🏰'}</span>
-                        <span class="battle-opponent-name">${opponent.name}</span>
-                    </div>
-                    <div class="battle-progress">
-                        <div class="battle-progress-bar ${isWin ? 'win' : 'loss'}" style="width: ${winRate}%">
-                            ${winRate.toFixed(0)}%
+                <div class="battle-item" data-total="${total}">
+                    <div class="battle-left">
+                        <div class="battle-opponent">
+                            <span class="battle-race-icon">${raceIcon}</span>
+                            <div class="battle-opponent-info">
+                                <span class="battle-opponent-name">${opponent.name}</span>
+                                ${levelTagHtml ? `<span class="battle-level">${levelTagHtml}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="battle-meta">
+                            <span class="battle-total">${total}场交手</span>
+                            ${dateText ? `<span class="battle-last-date">${dateText}</span>` : ''}
                         </div>
                     </div>
-                    <div class="battle-stats">
-                        <span class="wins">${stats.wins}胜</span> / <span class="losses">${stats.losses}败</span>
+                    <div class="battle-center">
+                        <div class="battle-progress-duo">
+                            <div class="battle-progress-win" style="width: ${winRate}%"></div>
+                            <div class="battle-progress-lose" style="width: ${loseRate}%"></div>
+                        </div>
+                        <div class="battle-rate-text">
+                            <span class="rate-win">${stats.wins}胜</span>
+                            <span class="rate-sep">|</span>
+                            <span class="rate-lose">${stats.losses}败</span>
+                            <span class="rate-sep">|</span>
+                            <span class="rate-pct ${winRate >= 50 ? 'rate-high' : 'rate-low'}">${winRate}%</span>
+                        </div>
+                    </div>
+                    <div class="battle-right">
+                        <span class="battle-trend ${trendClass}">${trendText}</span>
+                        <span class="battle-net ${netWins >= 0 ? 'net-positive' : 'net-negative'}">${netWins >= 0 ? '+' : ''}${netWins}</span>
                     </div>
                 </div>
             `;
