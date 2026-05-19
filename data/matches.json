@@ -502,5 +502,95 @@
     "result": "54胜",
     "date": "2026-05-19",
     "id": "m56"
+  },
+  {
+    "player1": "p97",
+    "player2": "p9",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "胡子胜",
+    "date": "2026-05-19",
+    "id": "m57"
+  },
+  {
+    "player1": "p60",
+    "player2": "p62",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "也许胜",
+    "date": "2026-05-19",
+    "id": "m58"
+  },
+  {
+    "player1": "p53",
+    "player2": "p29",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "Ymevol胜",
+    "date": "2026-05-19",
+    "id": "m59"
+  },
+  {
+    "player1": "p8",
+    "player2": "p12",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "冠希胜",
+    "date": "2026-05-19",
+    "id": "m60"
+  },
+  {
+    "player1": "p12",
+    "player2": "p17",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "郑强胜",
+    "date": "2026-05-19",
+    "id": "m61"
+  },
+  {
+    "player1": "p97",
+    "player2": "p2_auto",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "胡子胜",
+    "date": "2026-05-19",
+    "id": "m62"
+  },
+  {
+    "player1": "p60",
+    "player2": "p88",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "也许胜",
+    "date": "2026-05-19",
+    "id": "m63"
+  },
+  {
+    "player1": "p63",
+    "player2": "p59",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "燎原火胜",
+    "date": "2026-05-19",
+    "id": "m64"
+  },
+  {
+    "player1": "p8",
+    "player2": "p1",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "冠希胜",
+    "date": "2026-05-19",
+    "id": "m65"
+  },
+  {
+    "player1": "p27",
+    "player2": "p43",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "韵光胜",
+    "date": "2026-05-19",
+    "id": "m66"
   }
 ]
