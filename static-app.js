@@ -625,7 +625,7 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
                         ${levelPlayers.map(p => {
                             const rank = globalRank++;
                             return `
-                                <tr onclick="showPlayerDetail('${p.id}')">
+                                <tr class="race-row race-${p.race || 'unknown'}" onclick="showPlayerDetail('${p.id}')">
                                     <td class="rank-cell">${rank}</td>
                                     <td><span class="level-cell level-${level}">${level}</span></td>
                                     <td>
@@ -693,6 +693,8 @@ function renderPlayerDetail(playerId) {
     
     // 基本信息
     document.getElementById('detail-player-name').textContent = player.name;
+    const infoCard = document.getElementById('player-info-card');
+    infoCard.className = `player-info-card race-border-${player.race || 'unknown'}`;
     document.getElementById('detail-avatar').innerHTML = player.race && RACES[player.race]
         ? `<img src="${RACES[player.race].icon}" alt="${RACES[player.race].name}" style="width:${RACES[player.race].size?.large||80}px;height:${RACES[player.race].size?.large||80}px;object-fit:contain;border-radius:8px;">`
         : '';
@@ -768,7 +770,14 @@ function renderPlayerDetail(playerId) {
     document.getElementById('btn-edit-kk-rank').style.display = admin ? 'block' : 'none';
     document.getElementById('btn-edit-trait').style.display = admin ? 'block' : 'none';
     document.getElementById('honors-edit-btn').style.display = admin ? 'block' : 'none';
-    
+
+    // 给各区块加种族边框class
+    const raceClass = `race-border-${player.race || 'unknown'}`;
+    ['player-glory-section','player-honors-section','player-kk-rank-section','player-trait-section','player-glory-battles-section','player-battles-section'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = el.className.replace(/race-border-\S+/g, '').trim() + ' ' + raceClass;
+    });
+
     // 计算荣耀战绩（击败高段位对手）
     renderGloryBattles(playerId);
     
