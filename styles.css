@@ -637,13 +637,15 @@ body {
     color: var(--text-muted);
 }
 
-/* 按等级分组显示 */
-.level-group {
-    margin-bottom: 20px;
+/* 按等级分组显示 - 表格内标题行 */
+.members-table .level-group-header-row td {
+    padding: 0;
+    border-bottom: 1px solid var(--border-color);
+    cursor: default;
 }
 
-.level-group:last-child {
-    margin-bottom: 0;
+.members-table .level-group-header-row:hover td {
+    background: transparent !important;
 }
 
 .level-group-header {
@@ -652,22 +654,22 @@ body {
     gap: 12px;
     padding: 10px 16px;
     background: var(--bg-secondary);
-    border-radius: 8px;
-    margin-bottom: 12px;
+    border-radius: 0;
+    margin-bottom: 0;
     position: relative;
     overflow: hidden;
 }
 
 /* 等级组标题栏左侧色条 */
-.level-group-SR .level-group-header::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #b8860b, rgba(184,134,11,0.3)); border-radius: 8px 0 0 8px; }
-.level-group-S .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #e74c3c, rgba(231,76,60,0.3)); border-radius: 8px 0 0 8px; }
-.level-group-A .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #e67e22, rgba(230,126,34,0.3)); border-radius: 8px 0 0 8px; }
-.level-group-B .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #f1c40f, rgba(241,196,15,0.3)); border-radius: 8px 0 0 8px; }
-.level-group-C .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #6495ed, rgba(65,105,225,0.3)); border-radius: 8px 0 0 8px; }
-.level-group-D .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #3498db, rgba(52,152,219,0.3)); border-radius: 8px 0 0 8px; }
-.level-group-E .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #27ae60, rgba(39,174,96,0.3)); border-radius: 8px 0 0 8px; }
-.level-group-F .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #9b59b6, rgba(155,89,182,0.3)); border-radius: 8px 0 0 8px; }
-.level-group-G .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #7f8c8d, rgba(127,140,141,0.3)); border-radius: 8px 0 0 8px; }
+.level-group-SR .level-group-header::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #b8860b, rgba(184,134,11,0.3)); }
+.level-group-S .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #e74c3c, rgba(231,76,60,0.3)); }
+.level-group-A .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #e67e22, rgba(230,126,34,0.3)); }
+.level-group-B .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #f1c40f, rgba(241,196,15,0.3)); }
+.level-group-C .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #6495ed, rgba(65,105,225,0.3)); }
+.level-group-D .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #3498db, rgba(52,152,219,0.3)); }
+.level-group-E .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #27ae60, rgba(39,174,96,0.3)); }
+.level-group-F .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #9b59b6, rgba(155,89,182,0.3)); }
+.level-group-G .level-group-header::before  { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #7f8c8d, rgba(127,140,141,0.3)); }
 
 .level-group-title {
     font-size: 18px;
@@ -682,40 +684,13 @@ body {
     border-radius: 12px;
 }
 
-/* 表头标签 - 与表格列对齐 */
-.level-group-label {
-    font-size: 12px;
-    color: var(--text-muted);
-    padding: 4px 0;
-}
-
-/* 等级标签 - 在排名数字下方（跳过排名列约50px） */
-.label-level {
-    margin-left: 50px;
-    font-size: 11px;
-    color: var(--text-muted);
-}
-
-/* ID标签 - 在ID/名称列上方 */
-.label-id {
-    margin-left: 200px;
-}
-
-/* 种族标签 - 在种族列上方 */
-.label-race {
-    margin-left: 345px;
-}
-
-/* 天梯分标签 - 在积分列上方 */
-.label-points {
-    margin-left: auto;
-    margin-right: 130px;
-}
-
-.level-group .members-table {
-    background: transparent;
-    border: none;
-}
+/* 固定列宽 - 确保上下对齐 */
+.members-table .rank-cell { width: 65px; min-width: 65px; max-width: 65px; }
+.members-table .level-col { width: 80px; min-width: 80px; max-width: 80px; text-align: center; }
+.members-table .name-col  { min-width: 180px; }
+.members-table .race-col  { width: 80px; min-width: 80px; max-width: 80px; }
+.members-table .kkname-col { width: 120px; min-width: 120px; max-width: 120px; color: var(--text-muted); }
+.members-table .points-col { width: 100px; min-width: 100px; max-width: 100px; font-weight: 600; color: var(--accent-gold); font-size: 15px; text-align: center; }
 
 .race-tab {
     padding: 8px 16px;
@@ -751,6 +726,7 @@ body {
 .members-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .members-table td {
@@ -867,15 +843,15 @@ body {
 }
 
 /* KK昵称列 */
-.members-table .kkname-cell {
+.members-table .kkname-col {
     color: var(--text-muted);
 }
 
 /* 积分列 */
-.members-table .points-cell {
+.members-table .points-col {
     font-weight: 600;
     color: var(--accent-gold);
-    font-size: 16px;
+    font-size: 15px;
 }
 
 /* ========================================
