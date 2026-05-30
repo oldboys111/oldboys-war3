@@ -601,7 +601,7 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
     });
 
     let globalRank = 1;
-    let rows = '';
+    let html = '';
     
     LEVEL_ORDER.forEach(level => {
         // 如果有段位筛选，只显示该段位
@@ -610,42 +610,50 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
         const levelPlayers = grouped[level];
         if (levelPlayers.length === 0) return;
         
-        // 等级组标题行
-        rows += `
-            <tr class="level-group-header-row level-group-${level}" data-level="${level}">
-                <td colspan="6">
-                    <div class="level-group-header">
-                        <span class="level-cell level-${level}">${level}</span>
-                        <span class="level-group-count">${levelPlayers.length} 人</span>
-                    </div>
-                </td>
-            </tr>
+        html += `
+            <div class="level-group level-group-${level}">
+                <div class="level-group-header">
+                    <span class="level-cell level-${level}">${level}</span>
+                    <span class="level-group-count">${levelPlayers.length} 人</span>
+                </div>
+                <table class="members-table">
+                    <colgroup>
+                        <col class="col-rank">
+                        <col class="col-level">
+                        <col class="col-name">
+                        <col class="col-race">
+                        <col class="col-kkname">
+                        <col class="col-points">
+                    </colgroup>
+                    <tbody>
+                        ${levelPlayers.map(p => {
+                            const rank = globalRank++;
+                            const rankClass = rank <= 3 ? `rank-top-${rank}` : '';
+                            return `
+                                <tr onclick="showPlayerDetail('${p.id}')" data-level="${level}">
+                                    <td class="rank-cell ${rankClass}">${rank}</td>
+                                    <td class="level-col"><span class="level-cell level-${level}">${level}</span></td>
+                                    <td class="name-col">
+                                        <div class="name-cell">
+                                            <div class="member-avatar-small">${p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:${RACES[p.race].size?.small||36}px;height:${RACES[p.race].size?.small||36}px;object-fit:contain;border-radius:4px;">` : ''}</div>
+                                            <span class="player-id-glow">${p.name}</span>
+                                        </div>
+                                    </td>
+                                    <td class="race-col"><span class="race-tag race-${p.race || 'unknown'}">${p.race && RACES[p.race] ? RACES[p.race].name : '未知'}</span></td>
+                                    <td class="kkname-col">${p.kkname || ''}</td>
+                                    <td class="points-col">${p.points}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
         `;
-        
-        levelPlayers.forEach(p => {
-            const rank = globalRank++;
-            const rankClass = rank <= 3 ? `rank-top-${rank}` : '';
-            rows += `
-                <tr onclick="showPlayerDetail('${p.id}')" data-level="${level}">
-                    <td class="rank-cell ${rankClass}">${rank}</td>
-                    <td class="level-col"><span class="level-cell level-${level}">${level}</span></td>
-                    <td class="name-col">
-                        <div class="name-cell">
-                            <div class="member-avatar-small">${p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:${RACES[p.race].size?.small||36}px;height:${RACES[p.race].size?.small||36}px;object-fit:contain;border-radius:4px;">` : ''}</div>
-                            <span class="player-id-glow">${p.name}</span>
-                        </div>
-                    </td>
-                    <td class="race-col"><span class="race-tag race-${p.race || 'unknown'}">${p.race && RACES[p.race] ? RACES[p.race].name : '未知'}</span></td>
-                    <td class="kkname-col">${p.kkname || '-'}</td>
-                    <td class="points-col">${p.points}</td>
-                </tr>
-            `;
-        });
     });
 
     const container = document.querySelector('.members-list-wrapper');
-    if (rows) {
-        container.innerHTML = `<table class="members-table"><tbody>${rows}</tbody></table>`;
+    if (html) {
+        container.innerHTML = html;
     } else {
         container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:40px;background:var(--bg-card);border-radius:8px">暂无成员</p>';
     }
