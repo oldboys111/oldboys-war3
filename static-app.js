@@ -631,7 +631,7 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
                                     <td>
                                         <div class="name-cell">
                                             <div class="member-avatar-small">${p.race && RACES[p.race] ? `<img src="${RACES[p.race].icon}" style="width:${RACES[p.race].size?.small||36}px;height:${RACES[p.race].size?.small||36}px;object-fit:contain;border-radius:4px;">` : ''}</div>
-                                            <span>${p.name}</span>
+                                            <span class="player-id-glow">${p.name}</span>
                                         </div>
                                     </td>
                                     <td><span class="race-tag race-${p.race || 'unknown'}">${p.race && RACES[p.race] ? RACES[p.race].name : '未知'}</span></td>
