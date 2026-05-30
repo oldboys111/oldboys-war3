@@ -769,8 +769,100 @@ function renderPlayerDetail(playerId) {
     document.getElementById('btn-edit-trait').style.display = admin ? 'block' : 'none';
     document.getElementById('honors-edit-btn').style.display = admin ? 'block' : 'none';
     
+    // 计算荣耀战绩（击败高段位对手）
+    renderGloryBattles(playerId);
+    
     // 计算群内互殴数据
     renderPlayerBattles(playerId);
+}
+
+function renderGloryBattles(playerId) {
+    const players = getPlayers();
+    const matches = getMatches();
+    const currentPlayer = players.find(p => p.id === playerId);
+    if (!currentPlayer) return;
+
+    const myLevel = getPlayerLevel(playerId);
+    const myLevelIndex = LEVEL_ORDER.indexOf(myLevel);
+
+    // 收集击败的高段位对手：key=opponentId, value={ wins, level, opponentLevel, opponentName, opponentRace }
+    const gloryKills = {};
+
+    matches.forEach(match => {
+        let isRed = false, isBlue = false;
+        let opponents = [];
+        let won = false;
+
+        if (match.player1 && match.player2) {
+            const p1 = match.player1;
+            const p2 = match.player2;
+            isRed = p1 === playerId;
+            isBlue = p2 === playerId;
+            if (!isRed && !isBlue) return;
+            opponents = isRed ? [p2] : [p1];
+            const playerName = currentPlayer.name;
+            won = match.result && match.result.includes(playerName) && match.result.includes('胜');
+        } else if (match.redPlayers && match.bluePlayers) {
+            isRed = match.redPlayers.includes(playerId);
+            isBlue = match.bluePlayers.includes(playerId);
+            if (!isRed && !isBlue) return;
+            opponents = isRed ? match.bluePlayers : match.redPlayers;
+            won = (isRed && match.redScore > match.blueScore) || (isBlue && match.blueScore > match.redScore);
+        } else {
+            return;
+        }
+
+        if (!won) return;
+
+        opponents.forEach(opponentId => {
+            const opponentLevel = getPlayerLevel(opponentId);
+            const opponentLevelIndex = LEVEL_ORDER.indexOf(opponentLevel);
+            // 只记录击败比自己段位高的对手
+            if (opponentLevelIndex < myLevelIndex) {
+                const opponent = players.find(p => p.id === opponentId);
+                if (!opponent) return;
+                if (!gloryKills[opponentId]) {
+                    gloryKills[opponentId] = { wins: 0, opponentLevel, opponentName: opponent.name, opponentRace: opponent.race };
+                }
+                gloryKills[opponentId].wins++;
+            }
+        });
+    });
+
+    // 按对手段位从高到低排序，同段位按击败次数降序
+    const sortedGlory = Object.entries(gloryKills)
+        .sort(([, a], [, b]) => {
+            const aIdx = LEVEL_ORDER.indexOf(a.opponentLevel);
+            const bIdx = LEVEL_ORDER.indexOf(b.opponentLevel);
+            if (aIdx !== bIdx) return aIdx - bIdx; // 段位越高(index越小)越靠前
+            return b.wins - a.wins;
+        });
+
+    document.getElementById('detail-glory-count').textContent = sortedGlory.length;
+
+    const gloryList = document.getElementById('detail-glory-battles-list');
+    if (sortedGlory.length === 0) {
+        gloryList.innerHTML = '<p class="glory-empty">暂无击败高段位记录</p>';
+        return;
+    }
+
+    gloryList.innerHTML = sortedGlory.map(([opponentId, data]) => {
+        const raceIcon = data.opponentRace && RACES[data.opponentRace]
+            ? `<img src="${RACES[data.opponentRace].icon}" style="width:24px;height:24px;vertical-align:middle;border-radius:4px;object-fit:contain;">`
+            : '';
+        const levelDiff = myLevelIndex - LEVEL_ORDER.indexOf(data.opponentLevel);
+        return `
+            <div class="glory-battle-item">
+                <div class="glory-opponent">
+                    <span class="glory-race-icon">${raceIcon}</span>
+                    <span class="glory-opponent-name">${data.opponentName}</span>
+                    <span class="level-cell level-${data.opponentLevel}">${data.opponentLevel}</span>
+                    <span class="glory-level-diff">↑${levelDiff}档</span>
+                </div>
+                <div class="glory-wins">击败 <strong>${data.wins}</strong> 次</div>
+            </div>
+        `;
+    }).join('');
 }
 
 function renderPlayerBattles(playerId) {
