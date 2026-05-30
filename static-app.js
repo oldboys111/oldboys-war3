@@ -611,7 +611,7 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
         if (levelPlayers.length === 0) return;
         
         html += `
-            <div class="level-group">
+            <div class="level-group level-group-${level}">
                 <div class="level-group-header">
                     <span class="level-cell level-${level}">${level}</span>
                     <span class="level-group-count">${levelPlayers.length} 人</span>
@@ -624,9 +624,10 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
                     <tbody>
                         ${levelPlayers.map(p => {
                             const rank = globalRank++;
+                            const rankClass = rank <= 3 ? `rank-top-${rank}` : '';
                             return `
-                                <tr onclick="showPlayerDetail('${p.id}')">
-                                    <td class="rank-cell">${rank}</td>
+                                <tr onclick="showPlayerDetail('${p.id}')" data-level="${level}">
+                                    <td class="rank-cell ${rankClass}">${rank}</td>
                                     <td><span class="level-cell level-${level}">${level}</span></td>
                                     <td>
                                         <div class="name-cell">
