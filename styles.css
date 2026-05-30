@@ -600,52 +600,16 @@ body {
     font-weight: bold;
 }
 
-/* 段位筛选标签 - 各等级颜色（半透明填充风格） */
-.level-tab.level-SR.active { 
-    background: rgba(184, 134, 11, 0.2); 
-    color: #b8860b; 
-    border-color: #b8860b; 
-}
-.level-tab.level-S.active { 
-    background: rgba(231, 76, 60, 0.15); 
-    color: #e74c3c; 
-    border-color: #e74c3c; 
-}
-.level-tab.level-A.active { 
-    background: rgba(230, 126, 34, 0.15); 
-    color: #e67e22; 
-    border-color: #e67e22; 
-}
-.level-tab.level-B.active { 
-    background: rgba(241, 196, 15, 0.15); 
-    color: #f1c40f; 
-    border-color: #f1c40f; 
-}
-.level-tab.level-C.active { 
-    background: rgba(65, 105, 225, 0.2); 
-    color: #6495ed; 
-    border-color: #6495ed; 
-}
-.level-tab.level-D.active { 
-    background: rgba(52, 152, 219, 0.15); 
-    color: #3498db; 
-    border-color: #3498db; 
-}
-.level-tab.level-E.active { 
-    background: rgba(39, 174, 96, 0.15); 
-    color: #27ae60; 
-    border-color: #27ae60; 
-}
-.level-tab.level-F.active { 
-    background: rgba(155, 89, 182, 0.15); 
-    color: #9b59b6; 
-    border-color: #9b59b6; 
-}
-.level-tab.level-G.active { 
-    background: rgba(127, 140, 141, 0.15); 
-    color: #7f8c8d; 
-    border-color: #7f8c8d; 
-}
+/* 段位筛选标签 - 各等级独立底色 */
+.level-tab.level-SR.active { background: rgba(184, 134, 11, 0.15); color: #b8860b; border-color: rgba(184, 134, 11, 0.5); }
+.level-tab.level-S.active { background: rgba(231, 76, 60, 0.12); color: #e74c3c; border-color: rgba(231, 76, 60, 0.4); }
+.level-tab.level-A.active { background: rgba(230, 126, 34, 0.12); color: #e67e22; border-color: rgba(230, 126, 34, 0.4); }
+.level-tab.level-B.active { background: rgba(241, 196, 15, 0.12); color: #f1c40f; border-color: rgba(241, 196, 15, 0.4); }
+.level-tab.level-C.active { background: rgba(65, 105, 225, 0.12); color: #6495ed; border-color: rgba(65, 105, 225, 0.4); }
+.level-tab.level-D.active { background: rgba(52, 152, 219, 0.12); color: #3498db; border-color: rgba(52, 152, 219, 0.4); }
+.level-tab.level-E.active { background: rgba(39, 174, 96, 0.12); color: #27ae60; border-color: rgba(39, 174, 96, 0.4); }
+.level-tab.level-F.active { background: rgba(155, 89, 182, 0.12); color: #9b59b6; border-color: rgba(155, 89, 182, 0.4); }
+.level-tab.level-G.active { background: rgba(127, 140, 141, 0.12); color: #7f8c8d; border-color: rgba(127, 140, 141, 0.4); }
 
 /* 成员页面搜索栏 */
 .member-filter-bar {
@@ -811,69 +775,16 @@ body {
     text-align: center;
 }
 
-.level-SR {
-    background: rgba(184, 134, 11, 0.2);
-    color: #b8860b;
-    border: 1px solid #b8860b;
-    font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
-    font-weight: bold;
-}
-.level-S {
-    background: rgba(231, 76, 60, 0.15);
-    color: #e74c3c;
-    border: 1px solid #e74c3c;
-    font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
-    font-weight: bold;
-}
-.level-A {
-    background: rgba(230, 126, 34, 0.15);
-    color: #e67e22;
-    border: 1px solid #e67e22;
-    font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
-    font-weight: bold;
-}
-.level-B {
-    background: rgba(241, 196, 15, 0.15);
-    color: #f1c40f;
-    border: 1px solid #f1c40f;
-    font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
-    font-weight: bold;
-}
-.level-C {
-    background: rgba(65, 105, 225, 0.2);
-    color: #6495ed;
-    border: 1px solid #6495ed;
-    font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
-    font-weight: bold;
-}
-.level-D {
-    background: rgba(52, 152, 219, 0.15);
-    color: #3498db;
-    border: 1px solid #3498db;
-    font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
-    font-weight: bold;
-}
-.level-E {
-    background: rgba(39, 174, 96, 0.15);
-    color: #27ae60;
-    border: 1px solid #27ae60;
-    font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
-    font-weight: bold;
-}
-.level-F {
-    background: rgba(155, 89, 182, 0.15);
-    color: #9b59b6;
-    border: 1px solid #9b59b6;
-    font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
-    font-weight: bold;
-}
-.level-G {
-    background: rgba(127, 140, 141, 0.15);
-    color: #7f8c8d;
-    border: 1px solid #7f8c8d;
-    font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
-    font-weight: bold;
-}
+/* 等级标签 - 各等级独立底色 */
+.level-SR { background: rgba(184, 134, 11, 0.2); color: #b8860b; border: 1px solid rgba(184, 134, 11, 0.5); }
+.level-S  { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.4); }
+.level-A  { background: rgba(230, 126, 34, 0.15); color: #e67e22; border: 1px solid rgba(230, 126, 34, 0.4); }
+.level-B  { background: rgba(241, 196, 15, 0.15); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.4); }
+.level-C  { background: rgba(65, 105, 225, 0.15); color: #6495ed; border: 1px solid rgba(65, 105, 225, 0.4); }
+.level-D  { background: rgba(52, 152, 219, 0.15); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.4); }
+.level-E  { background: rgba(39, 174, 96, 0.15); color: #27ae60; border: 1px solid rgba(39, 174, 96, 0.4); }
+.level-F  { background: rgba(155, 89, 182, 0.15); color: #9b59b6; border: 1px solid rgba(155, 89, 182, 0.4); }
+.level-G  { background: rgba(127, 140, 141, 0.15); color: #7f8c8d; border: 1px solid rgba(127, 140, 141, 0.4); }
 
 /* ID/名称列 */
 .members-table .name-cell {
@@ -4422,111 +4333,8 @@ body {
 }
 
 /* ========================================
-   种族色彩风 - 各元素按种族上色
+   种族色彩风 - 已移除（统一底色风格）
    ======================================== */
-
-/* 成员列表行：左边框按种族颜色 */
-.members-table .race-row td:first-child {
-    border-left: 3px solid transparent;
-}
-.members-table .race-human td:first-child {
-    border-left-color: var(--race-human);
-}
-.members-table .race-orc td:first-child {
-    border-left-color: var(--race-orc);
-}
-.members-table .race-undead td:first-child {
-    border-left-color: var(--race-undead);
-}
-.members-table .race-nightelf td:first-child {
-    border-left-color: var(--race-nightelf);
-}
-
-/* 成员列表行悬停：左边框变亮 */
-.members-table tbody tr.race-human:hover td:first-child {
-    border-left-color: #6aafff;
-}
-.members-table tbody tr.race-orc:hover td:first-child {
-    border-left-color: #ffa040;
-}
-.members-table tbody tr.race-undead:hover td:first-child {
-    border-left-color: #b06cd4;
-}
-.members-table tbody tr.race-nightelf:hover td:first-child {
-    border-left-color: #4ade80;
-}
-
-/* 个人详情页头部卡片：顶部边框按种族颜色 */
-.player-info-card.race-border-human {
-    border-top: 3px solid var(--race-human);
-}
-.player-info-card.race-border-orc {
-    border-top: 3px solid var(--race-orc);
-}
-.player-info-card.race-border-undead {
-    border-top: 3px solid var(--race-undead);
-}
-.player-info-card.race-border-nightelf {
-    border-top: 3px solid var(--race-nightelf);
-}
-
-/* 个人详情页：各区块标题左边框按种族颜色 */
-.player-glory-section.race-border-human h3,
-.player-honors-section.race-border-human h3,
-.player-kk-rank-section.race-border-human h3,
-.player-trait-section.race-border-human h3,
-.player-glory-battles-section.race-border-human h3,
-.player-battles-section.race-border-human h3 {
-    border-left-color: var(--race-human);
-}
-.player-glory-section.race-border-orc h3,
-.player-honors-section.race-border-orc h3,
-.player-kk-rank-section.race-border-orc h3,
-.player-trait-section.race-border-orc h3,
-.player-glory-battles-section.race-border-orc h3,
-.player-battles-section.race-border-orc h3 {
-    border-left-color: var(--race-orc);
-}
-.player-glory-section.race-border-undead h3,
-.player-honors-section.race-border-undead h3,
-.player-kk-rank-section.race-border-undead h3,
-.player-trait-section.race-border-undead h3,
-.player-glory-battles-section.race-border-undead h3,
-.player-battles-section.race-border-undead h3 {
-    border-left-color: var(--race-undead);
-}
-.player-glory-section.race-border-nightelf h3,
-.player-honors-section.race-border-nightelf h3,
-.player-kk-rank-section.race-border-nightelf h3,
-.player-trait-section.race-border-nightelf h3,
-.player-glory-battles-section.race-border-nightelf h3,
-.player-battles-section.race-border-nightelf h3 {
-    border-left-color: var(--race-nightelf);
-}
-
-/* 群内互殴对手：种族图标带种族色小光晕 */
-.battle-opponent .battle-race-icon {
-    filter: drop-shadow(0 0 4px currentColor);
-}
-.battle-opponent .battle-race-icon img {
-    transition: filter 0.2s;
-}
-.battle-item:hover .battle-race-icon img {
-    filter: drop-shadow(0 0 6px currentColor);
-}
-
-/* 荣耀战绩对手：种族色小标签 */
-.glory-opponent .glory-race-icon {
-    filter: drop-shadow(0 0 3px currentColor);
-}
-
-/* 排行榜标题：加点种族色 */
-.main-header .logo {
-    background: linear-gradient(90deg, var(--race-human), var(--race-orc), var(--race-undead), var(--race-nightelf));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
 
 /* 响应式 */
 @media (max-width: 900px) {
