@@ -476,21 +476,18 @@ function renderOverview() {
     document.getElementById('top-players-list').innerHTML = topHtml || '<p style="color:var(--text-muted)">暂无成员</p>';
 
     // 最近排名提升最多（最近30场中净胜场最高Top3）
+    // 说明：取最近30场，统计每位选手净胜场(wins-losses)，取最高Top3
     const allMatches = getMatches();
     const recent30Matches = [...allMatches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 30);
     const risingStats = {};
     recent30Matches.forEach(m => {
-        let wIds = [], lIds = [];
-        if (m.player1 && m.player2) {
-            const p1 = m.player1, p2 = m.player2;
-            const res = m.result || '';
-            if (res.includes(p1) && res.includes('胜')) { wIds = [p1]; lIds = [p2]; }
-            else { wIds = [p2]; lIds = [p1]; }
-        } else if (m.redPlayers && m.bluePlayers) {
-            const redWin = (m.redScore || 0) > (m.blueScore || 0);
-            wIds = redWin ? m.redPlayers : m.bluePlayers;
-            lIds = redWin ? m.bluePlayers : m.redPlayers;
-        }
+        // 只处理新格式（redPlayers/bluePlayers），getMatches() 保证返回此格式
+        if (!m.redPlayers || !m.bluePlayers) return;
+        const redScore = Number(m.redScore) || 0;
+        const blueScore = Number(m.blueScore) || 0;
+        const redWin = redScore > blueScore;
+        const wIds = redWin ? m.redPlayers : m.bluePlayers;
+        const lIds = redWin ? m.bluePlayers : m.redPlayers;
         wIds.forEach(id => { if (!risingStats[id]) risingStats[id] = { w: 0, l: 0 }; risingStats[id].w++; });
         lIds.forEach(id => { if (!risingStats[id]) risingStats[id] = { w: 0, l: 0 }; risingStats[id].l++; });
     });
@@ -514,17 +511,12 @@ function renderOverview() {
     const recent20Matches = [...allMatches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 20);
     const mvpStats = {};
     recent20Matches.forEach(m => {
-        let wIds = [], lIds = [];
-        if (m.player1 && m.player2) {
-            const p1 = m.player1, p2 = m.player2;
-            const res = m.result || '';
-            if (res.includes(p1) && res.includes('胜')) { wIds = [p1]; lIds = [p2]; }
-            else { wIds = [p2]; lIds = [p1]; }
-        } else if (m.redPlayers && m.bluePlayers) {
-            const redWin = (m.redScore || 0) > (m.blueScore || 0);
-            wIds = redWin ? m.redPlayers : m.bluePlayers;
-            lIds = redWin ? m.bluePlayers : m.redPlayers;
-        }
+        if (!m.redPlayers || !m.bluePlayers) return;
+        const redScore = Number(m.redScore) || 0;
+        const blueScore = Number(m.blueScore) || 0;
+        const redWin = redScore > blueScore;
+        const wIds = redWin ? m.redPlayers : m.bluePlayers;
+        const lIds = redWin ? m.bluePlayers : m.redPlayers;
         wIds.forEach(id => { if (!mvpStats[id]) mvpStats[id] = { w: 0, t: 0 }; mvpStats[id].w++; mvpStats[id].t++; });
         lIds.forEach(id => { if (!mvpStats[id]) mvpStats[id] = { w: 0, t: 0 }; mvpStats[id].t++; });
     });
