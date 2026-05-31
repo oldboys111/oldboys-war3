@@ -580,7 +580,8 @@ body {
 .level-tab {
     padding: 6px 12px;
     background: transparent;
-    color: var(--text-secondary);
+    color: #e8e8e8;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 13px;
@@ -591,8 +592,9 @@ body {
 }
 
 .level-tab:hover {
-    color: var(--text-primary);
-    background: rgba(255,255,255,0.05);
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    background: rgba(255,255,255,0.08);
 }
 
 .level-tab.active {
@@ -707,7 +709,8 @@ body {
 .race-tab {
     padding: 8px 16px;
     background: transparent;
-    color: var(--text-secondary);
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
     text-decoration: none;
     border-radius: 4px;
     font-size: 13px;
@@ -717,8 +720,9 @@ body {
 }
 
 .race-tab:hover {
-    color: var(--text-primary);
-    background: rgba(255,255,255,0.05);
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    background: rgba(255,255,255,0.08);
 }
 
 .race-tab.active {
