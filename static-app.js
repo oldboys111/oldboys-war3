@@ -475,6 +475,82 @@ function renderOverview() {
     `).join('');
     document.getElementById('top-players-list').innerHTML = topHtml || '<p style="color:var(--text-muted)">暂无成员</p>';
 
+    // 最近排名提升最多（最近30场中净胜场最高Top3）
+    const allMatches = getMatches();
+    const recent30Matches = [...allMatches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 30);
+    const risingStats = {};
+    recent30Matches.forEach(m => {
+        let wIds = [], lIds = [];
+        if (m.player1 && m.player2) {
+            const p1 = m.player1, p2 = m.player2;
+            const res = m.result || '';
+            if (res.includes(p1) && res.includes('胜')) { wIds = [p1]; lIds = [p2]; }
+            else { wIds = [p2]; lIds = [p1]; }
+        } else if (m.redPlayers && m.bluePlayers) {
+            const redWin = (m.redScore || 0) > (m.blueScore || 0);
+            wIds = redWin ? m.redPlayers : m.bluePlayers;
+            lIds = redWin ? m.bluePlayers : m.redPlayers;
+        }
+        wIds.forEach(id => { if (!risingStats[id]) risingStats[id] = { w: 0, l: 0 }; risingStats[id].w++; });
+        lIds.forEach(id => { if (!risingStats[id]) risingStats[id] = { w: 0, l: 0 }; risingStats[id].l++; });
+    });
+    const risingArr = Object.entries(risingStats)
+        .map(([id, s]) => ({ id, w: s.w, l: s.l, net: s.w - s.l }))
+        .filter(x => x.net > 0)
+        .sort((a, b) => b.net - a.net || b.w - a.w)
+        .slice(0, 3);
+    const risingHtml = risingArr.length > 0 ? risingArr.map((x, i) => {
+        const pl = getPlayers().find(p => p.id === x.id);
+        if (!pl) return '';
+        return `<div class="rising-player-item">
+            <span class="rising-rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
+            <span class="rising-name" onclick="showPlayerDetail('${x.id}')">${pl.name}</span>
+            <span class="rising-net">+${x.net} 净胜</span>
+        </div>`;
+    }).join('') : '<p style="color:var(--text-muted);font-size:13px;">暂无足够数据</p>';
+    document.getElementById('rising-players-list').innerHTML = risingHtml;
+
+    // 当前对战MVP（最近20场中胜率最高，至少3场）
+    const recent20Matches = [...allMatches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 20);
+    const mvpStats = {};
+    recent20Matches.forEach(m => {
+        let wIds = [], lIds = [];
+        if (m.player1 && m.player2) {
+            const p1 = m.player1, p2 = m.player2;
+            const res = m.result || '';
+            if (res.includes(p1) && res.includes('胜')) { wIds = [p1]; lIds = [p2]; }
+            else { wIds = [p2]; lIds = [p1]; }
+        } else if (m.redPlayers && m.bluePlayers) {
+            const redWin = (m.redScore || 0) > (m.blueScore || 0);
+            wIds = redWin ? m.redPlayers : m.bluePlayers;
+            lIds = redWin ? m.bluePlayers : m.redPlayers;
+        }
+        wIds.forEach(id => { if (!mvpStats[id]) mvpStats[id] = { w: 0, t: 0 }; mvpStats[id].w++; mvpStats[id].t++; });
+        lIds.forEach(id => { if (!mvpStats[id]) mvpStats[id] = { w: 0, t: 0 }; mvpStats[id].t++; });
+    });
+    const mvpArr = Object.entries(mvpStats)
+        .map(([id, s]) => ({ id, w: s.w, t: s.t, rate: s.t >= 3 ? Math.round(s.w / s.t * 100) : -1 }))
+        .filter(x => x.rate >= 0)
+        .sort((a, b) => b.rate - a.rate || b.w - a.w);
+    const mvpHtml = mvpArr.length > 0 ? (() => {
+        const x = mvpArr[0];
+        const pl = getPlayers().find(p => p.id === x.id);
+        if (!pl) return '<p style="color:var(--text-muted);font-size:13px;">暂无数据</p>';
+        return `<div class="mvp-item">
+            <span class="mvp-crown">🏆</span>
+            <span class="mvp-name" onclick="showPlayerDetail('${x.id}')">${pl.name}</span>
+            <span class="mvp-info">${x.w}胜${x.t - x.w}负 ${x.rate}%</span>
+        </div>` + (mvpArr.length > 1 ? mvpArr.slice(1, 3).map(x => {
+            const pl2 = getPlayers().find(p => p.id === x.id);
+            if (!pl2) return '';
+            return `<div class="mvp-item-sub">
+                <span class="mvp-name-sub" onclick="showPlayerDetail('${x.id}')">${pl2.name}</span>
+                <span class="mvp-info-sub">${x.w}胜${x.t - x.w}负 ${x.rate}%</span>
+            </div>`;
+        }).join('') : '');
+    })() : '<p style="color:var(--text-muted);font-size:13px;">暂无足够数据</p>';
+    document.getElementById('mvp-list').innerHTML = mvpHtml;
+
     // 渲染精彩回放列表
     renderReplayList();
 }
@@ -781,6 +857,69 @@ function renderPlayerDetail(playerId) {
     
     // 计算群内互殴数据
     renderPlayerBattles(playerId);
+    // 计算种族对抗胜率
+    renderRaceVsStats(playerId);
+}
+
+function renderRaceVsStats(playerId) {
+    const players = getPlayers();
+    const matches = getMatches();
+    const currentPlayer = players.find(p => p.id === playerId);
+    if (!currentPlayer) return;
+
+    const raceStats = { HUM: { w: 0, t: 0 }, ORC: { w: 0, t: 0 }, UD: { w: 0, t: 0 }, NE: { w: 0, t: 0 } };
+
+    matches.forEach(m => {
+        let isRed = false, isBlue = false, won = false;
+        let opIds = [];
+
+        if (m.player1 && m.player2) {
+            isRed = m.player1 === playerId;
+            isBlue = m.player2 === playerId;
+            if (!isRed && !isBlue) return;
+            opIds = isRed ? [m.player2] : [m.player1];
+            won = m.result && m.result.includes(currentPlayer.name) && m.result.includes('胜');
+        } else if (m.redPlayers && m.bluePlayers) {
+            isRed = m.redPlayers.includes(playerId);
+            isBlue = m.bluePlayers.includes(playerId);
+            if (!isRed && !isBlue) return;
+            opIds = isRed ? m.bluePlayers : m.redPlayers;
+            won = (isRed && (m.redScore || 0) > (m.blueScore || 0)) || (isBlue && (m.blueScore || 0) > (m.redScore || 0));
+        } else {
+            return;
+        }
+
+        opIds.forEach(opId => {
+            const op = players.find(p => p.id === opId);
+            if (!op || !op.race || !raceStats[op.race]) return;
+            raceStats[op.race].t++;
+            if (won) raceStats[op.race].w++;
+        });
+    });
+
+    const raceKeys = ['HUM', 'ORC', 'UD', 'NE'];
+    const hasData = raceKeys.some(r => raceStats[r].t > 0);
+    if (!hasData) {
+        document.getElementById('detail-racevs').innerHTML = '<span class="racevs-text">暂无对战数据</span>';
+        return;
+    }
+
+    const raceHtml = raceKeys.map(r => {
+        const s = raceStats[r];
+        const rate = s.t > 0 ? Math.round(s.w / s.t * 100) : 0;
+        const rateCls = rate >= 60 ? 'rate-great' : rate >= 50 ? 'rate-good' : rate >= 40 ? 'rate-ok' : 'rate-bad';
+        const icon = RACES[r] ? `<img src="${RACES[r].icon}" style="width:22px;height:22px;border-radius:4px;object-fit:cover;">` : r;
+        return `<div class="racevs-row">
+            <span class="racevs-icon">${icon}</span>
+            <span class="racevs-name">${RACES[r] ? RACES[r].name : r}</span>
+            <div class="racevs-bar-bg">
+                <div class="racevs-bar ${rateCls}" style="width:${rate}%"></div>
+            </div>
+            <span class="racevs-rate ${rateCls}">${s.w}胜${s.t - s.w}负 ${rate}%</span>
+        </div>`;
+    }).join('');
+
+    document.getElementById('detail-racevs').innerHTML = raceHtml;
 }
 
 function renderGloryBattles(playerId) {
