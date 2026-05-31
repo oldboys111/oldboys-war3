@@ -879,13 +879,14 @@ function renderPlayerBattles(playerId) {
     
     if (!currentPlayer) return;
     
-    // 计算与每个对手的胜负（增强版：包含最后交手日期）
+    // 计算与每个对手的胜负（增强版：连胜连败、最近比分）
     const battleStats = {};
     
     matches.forEach(match => {
         let isRed = false, isBlue = false;
         let opponents = [];
         let won = false;
+        let redScore = 0, blueScore = 0;
         
         if (match.player1 && match.player2) {
             const p1 = match.player1;
@@ -902,29 +903,55 @@ function renderPlayerBattles(playerId) {
             if (!isRed && !isBlue) return;
             opponents = isRed ? match.bluePlayers : match.redPlayers;
             won = (isRed && match.redScore > match.blueScore) || (isBlue && match.blueScore > match.redScore);
+            redScore = match.redScore || 0;
+            blueScore = match.blueScore || 0;
         } else {
             return;
         }
         
         opponents.forEach(opponentId => {
             if (!battleStats[opponentId]) {
-                battleStats[opponentId] = { wins: 0, losses: 0, lastDate: match.date };
+                battleStats[opponentId] = { wins: 0, losses: 0, lastDate: match.date, matchHistory: [] };
             }
             if (won) battleStats[opponentId].wins++;
             else battleStats[opponentId].losses++;
-            // 保留最近的交手日期
             if (match.date && new Date(match.date) > new Date(battleStats[opponentId].lastDate || 0)) {
                 battleStats[opponentId].lastDate = match.date;
             }
+            battleStats[opponentId].matchHistory.push({
+                date: match.date,
+                won,
+                isRed,
+                redScore,
+                blueScore
+            });
         });
     });
     
-    // 生成对战列表
+    // 计算连胜连败和最近比分
+    Object.values(battleStats).forEach(stats => {
+        stats.matchHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+        let streak = 0;
+        for (let i = 0; i < stats.matchHistory.length; i++) {
+            if (stats.matchHistory[i].won) {
+                if (streak >= 0) streak++;
+                else break;
+            } else {
+                if (streak <= 0) streak--;
+                else break;
+            }
+        }
+        stats.streak = streak;
+        const last = stats.matchHistory[0];
+        if (last) {
+            stats.lastScore = last.isRed ? last.redScore + ':' + last.blueScore : last.blueScore + ':' + last.redScore;
+        }
+    });
+    
     const battlesList = document.getElementById('detail-battles-list');
     const battlesCount = Object.values(battleStats).reduce((sum, s) => sum + s.wins + s.losses, 0);
     document.getElementById('detail-battles-count').textContent = battlesCount;
     
-    // 按交手总场次降序排列（交手多的优先）
     const sortedBattles = Object.entries(battleStats)
         .sort(([, a], [, b]) => (b.wins + b.losses) - (a.wins + a.losses));
     
@@ -935,16 +962,18 @@ function renderPlayerBattles(playerId) {
             
             const total = stats.wins + stats.losses;
             const winRate = total > 0 ? Math.round((stats.wins / total) * 100) : 0;
-            const loseRate = 100 - winRate;
             const netWins = stats.wins - stats.losses;
             
-            // 判断优劣势：净胜>0 优势 =0 均势 <0 劣势
             let trendClass = 'even';
             let trendText = '均势';
             if (netWins > 0) { trendClass = 'advantage'; trendText = '优势'; }
             else if (netWins < 0) { trendClass = 'disadvantage'; trendText = '劣势'; }
             
-            // 格式化日期
+            let streakText = '';
+            let streakCls = '';
+            if (stats.streak > 0) { streakText = stats.streak + '连胜'; streakCls = 'streak-win'; }
+            else if (stats.streak < 0) { streakText = (-stats.streak) + '连败'; streakCls = 'streak-lose'; }
+            
             let dateText = '';
             if (stats.lastDate) {
                 const d = new Date(stats.lastDate);
@@ -957,46 +986,34 @@ function renderPlayerBattles(playerId) {
                 else dateText = (d.getMonth() + 1) + '/' + d.getDate();
             }
             
-            const raceIcon = opponent.race && RACES[opponent.race] 
-                ? `<img src="${RACES[opponent.race].icon}" style="width:28px;height:28px;vertical-align:middle;border-radius:4px;object-fit:cover;">` 
-                : '<span style="font-size:20px;">🏰</span>';
+            const raceIcon = opponent.race && RACES[opponent.race]
+                ? '<img src="' + RACES[opponent.race].icon + '" style="width:28px;height:28px;border-radius:6px;object-fit:cover;">'
+                : '<span style="font-size:18px;">&#9876;</span>';
             
             const levelTagHtml = getPlayerLevelTag(opponent.id);
+            const rateCls = winRate >= 60 ? 'rate-great' : winRate >= 50 ? 'rate-good' : winRate >= 40 ? 'rate-ok' : 'rate-bad';
             
-            return `
-                <div class="battle-item" data-total="${total}">
-                    <div class="battle-left">
-                        <div class="battle-opponent">
-                            <span class="battle-race-icon">${raceIcon}</span>
-                            <div class="battle-opponent-info">
-                                <span class="battle-opponent-name">${opponent.name}</span>
-                                ${levelTagHtml ? `<span class="battle-level">${levelTagHtml}</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="battle-meta">
-                            <span class="battle-total">${total}场交手</span>
-                            ${dateText ? `<span class="battle-last-date">${dateText}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="battle-center">
-                        <div class="battle-progress-duo">
-                            <div class="battle-progress-win" style="width: ${winRate}%"></div>
-                            <div class="battle-progress-lose" style="width: ${loseRate}%"></div>
-                        </div>
-                        <div class="battle-rate-text">
-                            <span class="rate-win">${stats.wins}胜</span>
-                            <span class="rate-sep">|</span>
-                            <span class="rate-lose">${stats.losses}败</span>
-                            <span class="rate-sep">|</span>
-                            <span class="rate-pct ${winRate >= 50 ? 'rate-high' : 'rate-low'}">${winRate}%</span>
-                        </div>
-                    </div>
-                    <div class="battle-right">
-                        <span class="battle-trend ${trendClass}">${trendText}</span>
-                        <span class="battle-net ${netWins >= 0 ? 'net-positive' : 'net-negative'}">${netWins >= 0 ? '+' : ''}${netWins}</span>
-                    </div>
-                </div>
-            `;
+            return '<div class="battle-item" data-total="' + total + '" data-rate="' + winRate + '">' +
+                '<div class="battle-row1">' +
+                    '<div class="battle-opponent-block">' +
+                        '<span class="battle-race-icon">' + raceIcon + '</span>' +
+                        '<div class="battle-opponent-text">' +
+                            '<span class="battle-opponent-name">' + opponent.name + '</span>' +
+                            '<span class="battle-opponent-sub">' +
+                                (levelTagHtml ? '<span class="battle-level-mini">' + levelTagHtml + '</span>' : '') +
+                                '<span class="battle-total-mini">' + total + '场</span>' +
+                                (dateText ? '<span class="battle-date-mini">· ' + dateText + '</span>' : '') +
+                            '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="battle-row2">' +
+                    '<span class="battle-record ' + rateCls + '">' + stats.wins + '胜' + stats.losses + '败 ' + winRate + '%</span>' +
+                    (stats.lastScore ? '<span class="battle-last-score">' + stats.lastScore + '</span>' : '') +
+                    (streakText ? '<span class="battle-streak ' + streakCls + '">' + streakText + '</span>' : '') +
+                    '<span class="battle-trend-badge ' + trendClass + '">' + trendText + '</span>' +
+                '</div>' +
+            '</div>';
         })
         .join('');
     
