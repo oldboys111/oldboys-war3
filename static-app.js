@@ -1009,7 +1009,7 @@ function renderPlayerBattles(playerId) {
                 '</div>' +
                 '<div class="battle-row2">' +
                     '<span class="battle-record ' + rateCls + '">' + stats.wins + '胜' + stats.losses + '败 ' + winRate + '%</span>' +
-                    (stats.lastScore ? '<span class="battle-last-score">' + stats.lastScore + '</span>' : '') +
+                    (stats.lastScore ? '<span class="battle-last-score"><span class="battle-last-score-label">最近比赛</span>' + stats.lastScore + '</span>' : '') +
                     (streakText ? '<span class="battle-streak ' + streakCls + '">' + streakText + '</span>' : '') +
                     '<span class="battle-trend-badge ' + trendClass + '">' + trendText + '</span>' +
                 '</div>' +
