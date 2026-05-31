@@ -698,7 +698,7 @@ body {
 
 /* td 备用宽度（colgroup不可用时的降级） */
 .members-table .rank-cell  { min-width: 65px; max-width: 65px; }
-.members-table .level-col  { min-width: 80px; max-width: 80px; text-align: center; }
+.members-table .level-col  { min-width: 80px; max-width: 80px; text-align: center; padding-left: 38px; }
 .members-table .name-col   { min-width: 180px; padding-left: 75px; }
 .members-table .race-col   { min-width: 80px; max-width: 80px; }
 .members-table .kkname-col { min-width: 120px; max-width: 120px; color: var(--text-muted); }
