@@ -11,9 +11,9 @@
 
 :root {
     --bg-primary: #0d0d0d;
-    --bg-secondary: rgba(22, 22, 22, 0.97);
-    --bg-card: rgba(20, 20, 20, 0.97);
-    --bg-card-hover: rgba(30, 30, 30, 0.99);
+    --bg-secondary: rgba(22, 22, 22, 0.82);
+    --bg-card: rgba(20, 20, 20, 0.82);
+    --bg-card-hover: rgba(30, 30, 30, 0.88);
     --border-color: rgba(50, 50, 50, 0.85);
     --text-primary: #e8e8e8;
     --text-secondary: #9ca3af;
