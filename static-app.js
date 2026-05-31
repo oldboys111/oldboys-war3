@@ -854,11 +854,10 @@ function renderPlayerDetail(playerId) {
 
     // 计算荣耀战绩（击败高段位对手）
     renderGloryBattles(playerId);
-    
-    // 计算群内互殴数据
-    renderPlayerBattles(playerId);
     // 计算种族对抗胜率
     renderRaceVsStats(playerId);
+    // 计算群内互殴数据
+    renderPlayerBattles(playerId);
 }
 
 function renderRaceVsStats(playerId) {
