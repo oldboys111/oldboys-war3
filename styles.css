@@ -709,12 +709,12 @@ body {
 .race-tab {
     padding: 8px 16px;
     background: transparent;
-    color: #ffffff;
+    color: var(--accent-gold);
     text-shadow: 0 1px 3px rgba(0,0,0,0.6);
     text-decoration: none;
     border-radius: 4px;
     font-size: 13px;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(212,168,83,0.4);
     transition: all 0.2s;
     font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
 }
@@ -722,11 +722,12 @@ body {
 .race-tab:hover {
     color: #ffffff;
     text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-    background: rgba(255,255,255,0.08);
+    border-color: var(--accent-gold);
+    background: rgba(212,168,83,0.1);
 }
 
 .race-tab.active {
-    background: transparent;
+    background: rgba(212,168,83,0.15);
     color: var(--accent-gold);
     border-color: var(--accent-gold);
     font-weight: 600;
