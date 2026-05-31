@@ -3102,21 +3102,22 @@ body {
 
 .battle-item {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 16px;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 18px;
     background: var(--bg-secondary);
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.04);
-    transition: all 0.2s ease;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.25s ease;
     position: relative;
     overflow: hidden;
 }
 
 .battle-item:hover {
     background: var(--bg-card);
-    border-color: rgba(255,255,255,0.08);
-    transform: translateX(4px);
+    border-color: rgba(212,168,83,0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 
 .battle-item::before {
@@ -3125,14 +3126,14 @@ body {
     left: 0;
     top: 0;
     bottom: 0;
-    width: 3px;
-    background: var(--accent);
+    width: 2px;
+    background: var(--accent-gold);
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.25s;
 }
 
 .battle-item:hover::before {
-    opacity: 1;
+    opacity: 0.6;
 }
 
 /* 左侧：对手信息 */
@@ -3336,6 +3337,129 @@ body {
 }
 
 .battle-stats .losses {
+    color: #e74c3c;
+}
+
+/* ========================================
+   群内互殴 - 重新设计版
+   ======================================== */
+
+/* 第一行：对手信息 */
+.battle-row1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.battle-opponent-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.battle-opponent-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.battle-opponent-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+.battle-opponent-sub {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.battle-level-mini .level-cell {
+    font-size: 10px !important;
+    padding: 0 5px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+}
+
+.battle-total-mini {
+    color: var(--text-muted);
+}
+
+.battle-date-mini {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+/* 第二行：战绩数据 */
+.battle-row2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 40px;
+}
+
+.battle-record {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.battle-record.rate-great { color: #2ecc71; }
+.battle-record.rate-good  { color: #82d9a0; }
+.battle-record.rate-ok    { color: #f1c40f; }
+.battle-record.rate-bad   { color: #e74c3c; }
+
+.battle-last-score {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.05);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+
+.battle-streak {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.battle-streak.streak-win {
+    background: rgba(46, 204, 113, 0.12);
+    color: #2ecc71;
+}
+
+.battle-streak.streak-lose {
+    background: rgba(231, 76, 60, 0.12);
+    color: #e74c3c;
+}
+
+.battle-trend-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: auto;
+}
+
+.battle-trend-badge.advantage {
+    background: rgba(39, 174, 96, 0.12);
+    color: #2ecc71;
+}
+
+.battle-trend-badge.even {
+    background: rgba(241, 196, 15, 0.12);
+    color: #f1c40f;
+}
+
+.battle-trend-badge.disadvantage {
+    background: rgba(231, 76, 60, 0.12);
     color: #e74c3c;
 }
 
