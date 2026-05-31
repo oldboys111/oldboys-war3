@@ -3421,6 +3421,15 @@ body {
     padding: 2px 8px;
     border-radius: 4px;
     letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.battle-last-score-label {
+    font-size: 10px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0;
 }
 
 .battle-streak {
