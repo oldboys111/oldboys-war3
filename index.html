@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Old boys' War3-老男孩天梯排行榜</title>
-    <link rel="stylesheet" href="styles.css?v=20260531103400">
+    <link rel="stylesheet" href="styles.css?v=20260531235000">
 
 </head>
 <body>
@@ -52,6 +52,14 @@
                 <div class="overview-card">
                     <h3>积分排行 TOP10</h3>
                     <div id="top-players-list" class="top-players"></div>
+                </div>
+                <div class="overview-card">
+                    <h3>🚀 最近排名提升最多</h3>
+                    <div id="rising-players-list" class="rising-players"></div>
+                </div>
+                <div class="overview-card">
+                    <h3>🏆 当前对战MVP</h3>
+                    <div id="mvp-list" class="mvp-list"></div>
                 </div>
             </div>
             <!-- 精彩比赛回放 -->
@@ -422,6 +430,16 @@
                     </div>
                 </div>
 
+                <!-- 种族对抗胜率 -->
+                <div class="player-racevs-section">
+                    <div class="section-title">
+                        <h3>种族对抗胜率</h3>
+                    </div>
+                    <div class="player-racevs-content" id="detail-racevs">
+                        <span class="racevs-text">暂无数据</span>
+                    </div>
+                </div>
+
                 <!-- 个人辉煌战绩 -->
                 <div class="player-glory-section">
                     <div class="section-title">
@@ -765,6 +783,6 @@
         </div>
     </div>
 
-    <script src="static-app.js?v=20260531131413"></script>
+    <script src="static-app.js?v=20260531235000"></script>
 </body>
 </html>
