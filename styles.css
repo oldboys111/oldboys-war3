@@ -4531,3 +4531,200 @@ body {
         min-width: auto;
     }
 }
+
+/* ========================================
+   总览页 - 最近排名提升 / MVP
+   ======================================== */
+
+.rising-players {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rising-player-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.rising-rank {
+    font-size: 16px;
+    width: 24px;
+    text-align: center;
+}
+
+.rising-name {
+    flex: 1;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.rising-name:hover {
+    color: var(--accent-gold);
+}
+
+.rising-net {
+    font-size: 12px;
+    color: #27ae60;
+    font-weight: 600;
+}
+
+/* MVP */
+.mvp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mvp-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, rgba(212,168,83,0.08), rgba(212,168,83,0.02));
+    border: 1px solid rgba(212,168,83,0.2);
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.mvp-crown {
+    font-size: 20px;
+}
+
+.mvp-name {
+    flex: 1;
+    color: var(--accent-gold);
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.mvp-name:hover {
+    color: var(--accent-gold-dark);
+}
+
+.mvp-info {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.mvp-item-sub {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.mvp-name-sub {
+    flex: 1;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.mvp-name-sub:hover {
+    color: var(--accent-gold);
+}
+
+.mvp-info-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* ========================================
+   个人页 - 种族对抗胜率
+   ======================================== */
+
+.player-racevs-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+}
+
+.player-racevs-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.racevs-text {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.racevs-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.racevs-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.racevs-name {
+    font-size: 13px;
+    color: var(--text-secondary);
+    width: 36px;
+    flex-shrink: 0;
+}
+
+.racevs-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.racevs-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s;
+}
+
+.racevs-bar.rate-great {
+    background: #27ae60;
+}
+
+.racevs-bar.rate-good {
+    background: var(--accent-gold);
+}
+
+.racevs-bar.rate-ok {
+    background: #f39c12;
+}
+
+.racevs-bar.rate-bad {
+    background: #e74c3c;
+}
+
+.racevs-rate {
+    font-size: 12px;
+    font-weight: 600;
+    width: 90px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.racevs-rate.rate-great { color: #27ae60; }
+.racevs-rate.rate-good { color: var(--accent-gold); }
+.racevs-rate.rate-ok   { color: #f39c12; }
+.racevs-rate.rate-bad  { color: #e74c3c; }
