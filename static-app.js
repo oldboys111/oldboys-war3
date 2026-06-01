@@ -3502,3 +3502,274 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 初始渲染
     renderOverview();
 });
+
+// ========== 战绩分享卡 ==========
+
+// 获取玩家在所属档位内的排名（如 C档#2）
+function getPlayerLevelRank(playerId) {
+    const players = getPlayers();
+    const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
+    const playerLevel = getPlayerLevel(playerId);
+    
+    // 找到同档位所有玩家
+    const sameLevelPlayers = sortedPlayers.filter(p => getPlayerLevel(p.id) === playerLevel);
+    
+    // 在同档位中的排名
+    const rankInLevel = sameLevelPlayers.findIndex(p => p.id === playerId) + 1;
+    return { level: playerLevel, rank: rankInLevel, total: sameLevelPlayers.length };
+}
+
+// 计算玩家当前连胜/连败streak
+function getPlayerStreak(playerId) {
+    const matches = getMatches().sort((a, b) => new Date(b.date) - new Date(a.date));
+    let streak = 0;
+    
+    for (const m of matches) {
+        let isRed = m.redPlayers && m.redPlayers.includes(playerId);
+        let isBlue = m.bluePlayers && m.bluePlayers.includes(playerId);
+        if (!isRed && !isBlue) continue;
+        
+        const redScore = Number(m.redScore) || 0;
+        const blueScore = Number(m.blueScore) || 0;
+        const won = (isRed && redScore > blueScore) || (isBlue && blueScore > redScore);
+        
+        if (streak === 0) {
+            streak = won ? 1 : -1;
+        } else if (streak > 0 && won) {
+            streak++;
+        } else if (streak < 0 && !won) {
+            streak--;
+        } else {
+            break;
+        }
+    }
+    return streak;
+}
+
+// 计算玩家最长连胜
+function getPlayerMaxStreak(playerId) {
+    const matches = getMatches().sort((a, b) => new Date(a.date) - new Date(b.date));
+    let current = 0, max = 0;
+    
+    for (const m of matches) {
+        let isRed = m.redPlayers && m.redPlayers.includes(playerId);
+        let isBlue = m.bluePlayers && m.bluePlayers.includes(playerId);
+        if (!isRed && !isBlue) continue;
+        
+        const redScore = Number(m.redScore) || 0;
+        const blueScore = Number(m.blueScore) || 0;
+        const won = (isRed && redScore > blueScore) || (isBlue && blueScore > redScore);
+        
+        if (won) {
+            current++;
+            if (current > max) max = current;
+        } else {
+            current = 0;
+        }
+    }
+    return max;
+}
+
+// 计算近期战绩序列（最近10场）
+function getRecentRecord(playerId, count) {
+    const matches = getMatches().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const record = [];
+    let wins = 0, losses = 0;
+    
+    for (const m of matches) {
+        let isRed = m.redPlayers && m.redPlayers.includes(playerId);
+        let isBlue = m.bluePlayers && m.bluePlayers.includes(playerId);
+        if (!isRed && !isBlue) continue;
+        
+        const redScore = Number(m.redScore) || 0;
+        const blueScore = Number(m.blueScore) || 0;
+        const won = (isRed && redScore > blueScore) || (isBlue && blueScore > redScore);
+        
+        record.push(won ? 'W' : 'L');
+        if (won) wins++; else losses++;
+        if (record.length >= count) break;
+    }
+    return { record, wins, losses };
+}
+
+// 等级颜色映射
+const LEVEL_COLORS = {
+    'SR': { bg: 'rgba(184,134,11,0.25)', text: '#b8860b', border: '#b8860b' },
+    'S':  { bg: 'rgba(231,76,60,0.2)', text: '#e74c3c', border: '#e74c3c' },
+    'A':  { bg: 'rgba(230,126,34,0.2)', text: '#e67e22', border: '#e67e22' },
+    'B':  { bg: 'rgba(241,196,15,0.2)', text: '#f1c40f', border: '#f1c40f' },
+    'C':  { bg: 'rgba(65,105,225,0.2)', text: '#6495ed', border: '#6495ed' },
+    'D':  { bg: 'rgba(52,152,219,0.2)', text: '#3498db', border: '#3498db' },
+    'E':  { bg: 'rgba(39,174,96,0.2)', text: '#27ae60', border: '#27ae60' },
+    'F':  { bg: 'rgba(155,89,182,0.2)', text: '#9b59b6', border: '#9b59b6' },
+    'G':  { bg: 'rgba(127,140,141,0.2)', text: '#7f8c8d', border: '#7f8c8d' }
+};
+
+// 种族颜色映射
+const RACE_BAR_COLORS = {
+    'HUM': '#6495ed',
+    'ORC': '#e67e22',
+    'UD':  '#9b59b6',
+    'NE':  '#27ae60'
+};
+
+// 生成分享战绩卡
+function generateShareCard() {
+    const playerId = window.currentPlayerId;
+    if (!playerId) return;
+    
+    const players = getPlayers();
+    const player = players.find(p => p.id === playerId);
+    if (!player) return;
+    
+    const level = getPlayerLevel(playerId);
+    const levelRank = getPlayerLevelRank(playerId);
+    const streak = getPlayerStreak(playerId);
+    const maxStreak = getPlayerMaxStreak(playerId);
+    const recent = getRecentRecord(playerId, 10);
+    
+    // 总胜率
+    const totalGames = player.wins + player.losses;
+    const winrate = totalGames > 0 ? ((player.wins / totalGames) * 100).toFixed(1) : '0.0';
+    
+    // 种族对抗胜率
+    const raceStats = { HUM: { w: 0, t: 0 }, ORC: { w: 0, t: 0 }, UD: { w: 0, t: 0 }, NE: { w: 0, t: 0 } };
+    const matches = getMatches();
+    matches.forEach(m => {
+        if (!m.redPlayers || !m.bluePlayers) return;
+        const isRed = m.redPlayers.includes(playerId);
+        const isBlue = m.bluePlayers.includes(playerId);
+        if (!isRed && !isBlue) return;
+        const opIds = isRed ? m.bluePlayers : m.redPlayers;
+        const redScore = Number(m.redScore) || 0;
+        const blueScore = Number(m.blueScore) || 0;
+        const won = (isRed && redScore > blueScore) || (isBlue && blueScore > redScore);
+        opIds.forEach(opId => {
+            const op = players.find(p => p.id === opId);
+            if (op && op.race && raceStats[op.race]) {
+                raceStats[op.race].t++;
+                if (won) raceStats[op.race].w++;
+            }
+        });
+    });
+    
+    const levelColor = LEVEL_COLORS[level] || LEVEL_COLORS['G'];
+    const raceName = RACES[player.race] ? RACES[player.race].name : '未知';
+    
+    // streak显示
+    let streakText = '';
+    let streakClass = '';
+    if (streak > 0) { streakText = streak + ' 连胜'; streakClass = 'streak'; }
+    else if (streak < 0) { streakText = Math.abs(streak) + ' 连败'; streakClass = 'lose'; }
+    else { streakText = '无'; streakClass = ''; }
+    
+    // 近期W/L序列
+    const recentDotsHtml = recent.record.map(r => 
+        `<div class="sc-dot ${r === 'W' ? 'w' : 'l'}">${r}</div>`
+    ).join('');
+    
+    // 种族胜率条
+    const raceKeys = ['HUM', 'ORC', 'UD', 'NE'];
+    const raceShortNames = { HUM: '人族', ORC: '兽族', UD: '亡灵', NE: '暗夜' };
+    const raceBarHtml = raceKeys.map(r => {
+        const s = raceStats[r];
+        const pct = s.t > 0 ? Math.round(s.w / s.t * 100) : 0;
+        const barColor = RACE_BAR_COLORS[r] || '#555';
+        return `<div class="sc-race-row">
+            <span class="sc-race-name">${raceShortNames[r]}</span>
+            <div class="sc-race-track"><div class="sc-race-fill" style="width:${pct}%;background:${barColor}"></div></div>
+            <span class="sc-race-pct">${s.t > 0 ? pct + '%' : '-'}</span>
+        </div>`;
+    }).join('');
+    
+    const cardHtml = `
+    <div class="sc-card" id="sc-card-render">
+        <div class="sc-header">
+            <span class="sc-brand">OLD BOYS LADDER</span>
+            <span class="sc-season">S2026</span>
+        </div>
+        <div class="sc-hero">
+            <div class="sc-avatar">${player.name.charAt(0)}</div>
+            <p class="sc-name">${player.name}</p>
+            <div class="sc-badges">
+                <span class="sc-level-badge" style="background:${levelColor.bg};color:${levelColor.text};border:1px solid ${levelColor.border}">${level}档#${levelRank.rank}</span>
+                <span class="sc-race-badge">${raceName}</span>
+            </div>
+            <p class="sc-points">${player.points}</p>
+            <p class="sc-points-label">积分 / ${level}档第${levelRank.rank}名</p>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-stats">
+            <div class="sc-stat-box">
+                <div class="sc-stat-val win">${winrate}%</div>
+                <div class="sc-stat-label">总胜率</div>
+            </div>
+            <div class="sc-stat-box">
+                <div class="sc-stat-val">${recent.wins}W ${recent.losses}L</div>
+                <div class="sc-stat-label">近 10 场</div>
+            </div>
+            <div class="sc-stat-box">
+                <div class="sc-stat-val ${streakClass}">${streakText}</div>
+                <div class="sc-stat-label">当前势头</div>
+            </div>
+            <div class="sc-stat-box">
+                <div class="sc-stat-val streak">${maxStreak}</div>
+                <div class="sc-stat-label">最长连胜</div>
+            </div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-recent">
+            <div class="sc-recent-title">近期战绩</div>
+            <div class="sc-recent-row">
+                ${recentDotsHtml || '<span style="color:#666;font-size:11px">暂无比赛</span>'}
+            </div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-race-bar">
+            ${raceBarHtml}
+        </div>
+        <div class="sc-footer">
+            <span class="sc-footer-text">OLD BOYS WAR3</span>
+            <span class="sc-footer-url">oldboys111.github.io/oldboys-war3</span>
+        </div>
+    </div>`;
+    
+    const container = document.getElementById('share-card-container');
+    container.innerHTML = cardHtml;
+    document.getElementById('share-card-overlay').style.display = 'flex';
+}
+
+// 下载分享战绩卡图片
+async function downloadShareCard() {
+    const cardEl = document.getElementById('sc-card-render');
+    if (!cardEl) return;
+    
+    const btn = document.querySelector('.share-card-download-btn');
+    btn.textContent = '生成中...';
+    btn.disabled = true;
+    
+    try {
+        const canvas = await html2canvas(cardEl, {
+            backgroundColor: '#0d0d0d',
+            scale: 2,
+            useCORS: true,
+            logging: false
+        });
+        
+        const link = document.createElement('a');
+        link.download = `war3-战绩卡-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (e) {
+        console.error('生成图片失败:', e);
+        alert('生成图片失败，请尝试截图分享');
+    } finally {
+        btn.textContent = '保存图片';
+        btn.disabled = false;
+    }
+}
+
+// 关闭分享卡弹窗
+function closeShareCard() {
+    document.getElementById('share-card-overlay').style.display = 'none';
+}
