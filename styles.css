@@ -4728,3 +4728,252 @@ body {
 .racevs-rate.rate-good { color: var(--accent-gold); }
 .racevs-rate.rate-ok   { color: #f39c12; }
 .racevs-rate.rate-bad  { color: #e74c3c; }
+
+/* ========== 分享战绩卡 ========== */
+.share-card-btn-wrap {
+    text-align: center;
+    padding: 16px 0 24px;
+}
+.share-card-btn {
+    background: linear-gradient(135deg, #b8860b, #d4a017);
+    color: #0d0d0d;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: opacity 0.2s;
+}
+.share-card-btn:hover { opacity: 0.85; }
+
+.share-card-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.share-card-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.share-card-container {
+    width: 375px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.share-card-actions {
+    display: flex;
+    gap: 12px;
+}
+.share-card-download-btn {
+    background: linear-gradient(135deg, #b8860b, #d4a017);
+    color: #0d0d0d;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.share-card-close-btn {
+    background: transparent;
+    color: #888;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px 24px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* 战绩卡内部样式 */
+.sc-card {
+    width: 375px;
+    background: #0d0d0d;
+    font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', sans-serif;
+    color: #e8e8e8;
+    overflow: hidden;
+}
+.sc-header {
+    background: #141414;
+    padding: 14px 20px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.sc-brand {
+    font-size: 11px;
+    color: #b8860b;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+.sc-season {
+    font-size: 10px;
+    color: #555;
+}
+.sc-hero {
+    background: #0d0d0d;
+    padding: 22px 20px 16px;
+    text-align: center;
+}
+.sc-avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: rgba(184,134,11,0.15);
+    border: 2px solid #b8860b;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #b8860b;
+    font-weight: 600;
+}
+.sc-name {
+    font-size: 18px;
+    color: #e8e8e8;
+    font-weight: 600;
+    margin: 0 0 6px;
+    letter-spacing: 1px;
+}
+.sc-badges {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+.sc-level-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 14px;
+    border-radius: 4px;
+}
+.sc-race-badge {
+    font-size: 11px;
+    color: #999;
+    padding: 2px 10px;
+    border: 1px solid #333;
+    border-radius: 4px;
+}
+.sc-points {
+    font-size: 30px;
+    color: #b8860b;
+    font-weight: 600;
+    margin: 10px 0 0;
+    letter-spacing: 1px;
+}
+.sc-points-label {
+    font-size: 10px;
+    color: #666;
+    margin-top: 2px;
+}
+.sc-divider {
+    height: 1px;
+    background: #222;
+    margin: 0 20px;
+}
+.sc-stats {
+    padding: 14px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.sc-stat-box {
+    background: #141414;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+.sc-stat-val {
+    font-size: 16px;
+    font-weight: 600;
+}
+.sc-stat-val.win { color: #27ae60; }
+.sc-stat-val.lose { color: #e74c3c; }
+.sc-stat-val.streak { color: #b8860b; }
+.sc-stat-label {
+    font-size: 10px;
+    color: #666;
+    margin-top: 3px;
+}
+.sc-recent {
+    padding: 8px 20px 14px;
+}
+.sc-recent-title {
+    font-size: 10px;
+    color: #666;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+.sc-recent-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+.sc-dot {
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+}
+.sc-dot.w { background: rgba(39,174,96,0.7); }
+.sc-dot.l { background: rgba(231,76,60,0.5); }
+.sc-race-bar {
+    padding: 4px 20px 14px;
+}
+.sc-race-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.sc-race-name {
+    font-size: 11px;
+    color: #999;
+    width: 28px;
+}
+.sc-race-track {
+    flex: 1;
+    height: 6px;
+    background: #1a1a1a;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.sc-race-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+.sc-race-pct {
+    font-size: 10px;
+    color: #888;
+    width: 30px;
+    text-align: right;
+}
+.sc-footer {
+    background: #111;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.sc-footer-text {
+    font-size: 9px;
+    color: #444;
+    letter-spacing: 1px;
+}
+.sc-footer-url {
+    font-size: 9px;
+    color: #555;
+}
