@@ -2834,6 +2834,15 @@ function closeLoginModal() {
     document.getElementById('login-password').value = '';
 }
 
+// 积分规则弹窗
+function showPointsRules(e) {
+    if (e) e.preventDefault();
+    document.getElementById('points-rules-modal').classList.add('active');
+}
+function closePointsRules() {
+    document.getElementById('points-rules-modal').classList.remove('active');
+}
+
 async function handleLogin(e) {
     e.preventDefault();
     const username = document.getElementById('login-username').value;
@@ -3432,10 +3441,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // 段位筛选
-    document.querySelectorAll('.level-tab').forEach(tab => {
+    document.querySelectorAll('.level-tab:not(.rules-tab)').forEach(tab => {
         tab.addEventListener('click', (e) => {
             e.preventDefault();
-            document.querySelectorAll('.level-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.level-tab:not(.rules-tab)').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             const searchText = document.getElementById('member-search').value;
             const filterRace = document.querySelector('.race-tab.active')?.dataset.race || 'all';
