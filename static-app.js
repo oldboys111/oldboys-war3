@@ -602,6 +602,7 @@ function renderRaceHeatmap() {
     }
     const raceKeys = ['HUM','ORC','UD','NE'];
     const raceNames = { HUM:'人族', ORC:'兽族', UD:'亡灵', NE:'暗夜' };
+    const raceColors = { HUM:'#6495ed', ORC:'#e67e22', UD:'#9b59b6', NE:'#27ae60' };
     const winMatrix = {};
     raceKeys.forEach(a => { winMatrix[a] = {}; raceKeys.forEach(d => { winMatrix[a][d] = {w:0,l:0}; }); });
     matches.forEach(m => {
@@ -626,29 +627,69 @@ function renderRaceHeatmap() {
             });
         });
     });
+    
+    // 表头
     let table = '<table class="heatmap-table"><thead><tr><th></th>';
-    raceKeys.forEach(d => { table += '<th>' + raceNames[d] + '</th>'; });
+    raceKeys.forEach(d => { 
+        table += '<th style="color:' + raceColors[d] + '">' + raceNames[d] + '</th>'; 
+    });
     table += '</tr></thead><tbody>';
+    
+    // 表格内容
     raceKeys.forEach(a => {
-        table += '<tr><th>' + raceNames[a] + '</th>';
+        table += '<tr><th style="color:' + raceColors[a] + '">' + raceNames[a] + '</th>';
         raceKeys.forEach(d => {
             const nd = winMatrix[a][d];
-            const total = nd.w+nd.l;
-            const rate = total > 0 ? Math.round(nd.w/total*100) : 0;
-            let bg = 'rgba(255,255,255,0.04)';
-            if (total >= 3) {
-                if (rate >= 60) bg = 'rgba(39,174,96,' + (0.18+0.3*Math.min((rate-60)/40,1)) + ')';
-                else if (rate <= 40) bg = 'rgba(231,76,60,' + (0.18+0.3*Math.min((40-rate)/40,1)) + ')';
-                else bg = 'rgba(241,196,15,' + (0.12+0.15*Math.abs(rate-50)/10) + ')';
+            const total = nd.w + nd.l;
+            const rate = total > 0 ? Math.round(nd.w / total * 100) : 0;
+            
+            if (a === d) {
+                // 对角线：空白
+                table += '<td class="heatmap-cell heatmap-diagonal">—</td>';
+            } else {
+                // 计算背景色
+                let bgColor, textColor;
+                if (total < 3) {
+                    bgColor = 'rgba(255,255,255,0.03)';
+                    textColor = 'rgba(255,255,255,0.3)';
+                } else if (rate >= 60) {
+                    // 绿色系：胜率高
+                    const intensity = 0.15 + 0.35 * Math.min((rate - 60) / 40, 1);
+                    bgColor = 'rgba(46,204,113,' + intensity + ')';
+                    textColor = '#fff';
+                } else if (rate <= 40) {
+                    // 红色系：胜率低
+                    const intensity = 0.15 + 0.35 * Math.min((40 - rate) / 40, 1);
+                    bgColor = 'rgba(231,76,60,' + intensity + ')';
+                    textColor = '#fff';
+                } else {
+                    // 黄色系：均衡
+                    const intensity = 0.10 + 0.20 * Math.abs(rate - 50) / 10;
+                    bgColor = 'rgba(241,196,15,' + intensity + ')';
+                    textColor = '#fff';
+                }
+                
+                const label = total >= 3 ? rate + '%' : '—';
+                const sublabel = total >= 3 ? total + '场' : '';
+                const title = raceNames[a] + ' vs ' + raceNames[d] + ': ' + nd.w + '胜' + nd.l + '负 (' + total + '场)';
+                
+                table += '<td class="heatmap-cell" style="background:' + bgColor + ';" title="' + title + '">' +
+                         '<div class="rate" style="color:' + textColor + '">' + label + '</div>' +
+                         (sublabel ? '<div class="games">' + sublabel + '</div>' : '') +
+                         '</td>';
             }
-            const label = a === d ? '—' : (total >= 3 ? rate+'%' : '-');
-            const title = a===d ? '' : raceNames[a] + ' vs ' + raceNames[d] + ': ' + nd.w + '胜' + nd.l + '负 (' + total + '场)';
-            table += '<td class="heatmap-cell" style="background:' + bg + ';" title="' + title + '">' + label + '</td>';
         });
         table += '</tr>';
     });
     table += '</tbody></table>';
-    table += '<div class="heatmap-legend"><span style="color:#e74c3c;">红=克制弱</span><span style="color:#f1c40f;">黄=均衡</span><span style="color:#27ae60;">绿=克制强</span></div>';
+    
+    // 图例
+    table += '<div class="heatmap-legend">' +
+             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(231,76,60,0.5)"></span>克制弱</span>' +
+             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(241,196,15,0.3)"></span>均衡</span>' +
+             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(46,204,113,0.5)"></span>克制强</span>' +
+             '</div>';
+    
     container.innerHTML = table;
 }
 
