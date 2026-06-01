@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Old boys' War3-老男孩天梯排行榜</title>
-    <link rel="stylesheet" href="styles.css?v=20260601005900">
+    <link rel="stylesheet" href="styles.css?v=20260601143700">
 
 </head>
 <body>
@@ -530,7 +530,23 @@
                     <div class="battles-list" id="detail-battles-list"></div>
                 </div>
             </div>
+
+            <!-- 分享战绩卡按钮 -->
+            <div class="share-card-btn-wrap">
+                <button class="share-card-btn" onclick="generateShareCard()">分享战绩卡</button>
+            </div>
         </section>
+
+        <!-- 战绩分享卡（隐藏，导出用） -->
+        <div id="share-card-overlay" class="share-card-overlay" style="display:none" onclick="closeShareCard()">
+            <div class="share-card-modal" onclick="event.stopPropagation()">
+                <div id="share-card-container" class="share-card-container"></div>
+                <div class="share-card-actions">
+                    <button class="share-card-download-btn" onclick="downloadShareCard()">保存图片</button>
+                    <button class="share-card-close-btn" onclick="closeShareCard()">关闭</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- 荣誉届次详情弹窗 -->
@@ -783,6 +799,7 @@
         </div>
     </div>
 
-    <script src="static-app.js?v=20260601134300"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="static-app.js?v=20260601143700"></script>
 </body>
 </html>
