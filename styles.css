@@ -613,6 +613,105 @@ body {
 .level-tab.level-F.active { background: rgba(155, 89, 182, 0.12); color: #9b59b6; border-color: rgba(155, 89, 182, 0.4); }
 .level-tab.level-G.active { background: rgba(127, 140, 141, 0.12); color: #7f8c8d; border-color: rgba(127, 140, 141, 0.4); }
 
+/* 积分规则按钮 */
+.level-tab.rules-tab {
+    margin-left: auto;
+    color: var(--accent-gold);
+    border-color: rgba(212, 168, 83, 0.4);
+    font-size: 12px;
+}
+.level-tab.rules-tab:hover {
+    background: rgba(212, 168, 83, 0.12);
+    color: var(--accent-gold);
+}
+.level-tab.rules-tab.active {
+    background: transparent;
+}
+
+/* 积分规则弹窗 */
+.rules-modal-content {
+    max-width: 560px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+.rules-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.rules-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent-gold);
+    margin: 0;
+}
+.rules-body {
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+.rules-section {
+    margin-bottom: 24px;
+}
+.rules-section:last-child {
+    margin-bottom: 0;
+}
+.rules-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent-gold);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(212, 168, 83, 0.2);
+}
+.rules-section p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.rules-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+}
+.rules-table th {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+.rules-table td {
+    font-size: 13px;
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(50, 50, 50, 0.4);
+    color: var(--text-primary);
+}
+.rules-table tr:last-child td {
+    border-bottom: none;
+}
+.rules-example {
+    font-size: 12px !important;
+    color: var(--text-muted) !important;
+    background: rgba(212, 168, 83, 0.06);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent-gold);
+    margin-top: 8px;
+}
+.rules-level-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+.rules-level-values .level-cell {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
 /* 成员页面搜索栏 */
 .member-filter-bar {
     margin-bottom: 16px;
