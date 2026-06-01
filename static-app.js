@@ -507,8 +507,8 @@ function renderOverview() {
     }).join('') : '<p style="color:var(--text-muted);font-size:13px;">暂无足够数据</p>';
     document.getElementById('rising-players-list').innerHTML = risingHtml;
 
-    // 当前对战MVP（最近20场中胜率最高，至少3场）
-    const recent20Matches = [...allMatches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 20);
+    // 当前对战MVP（最近50场中胜率最高，至少3场）
+    const recent20Matches = [...allMatches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 50);
     const mvpStats = {};
     recent20Matches.forEach(m => {
         if (!m.redPlayers || !m.bluePlayers) return;
