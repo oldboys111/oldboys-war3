@@ -154,6 +154,15 @@ function getPlayerLevel(playerId) {
     return 'G';
 }
 
+// 获取玩家总排名（1-based）
+function getRank(playerId) {
+    const players = getPlayers();
+    if (!players || players.length === 0) return 0;
+    const sorted = [...players].sort((a, b) => b.points - a.points);
+    const idx = sorted.findIndex(p => p.id === playerId);
+    return idx >= 0 ? idx + 1 : 0;
+}
+
 // 根据积分判断等级（用于团队赛等场景）
 function getLevelByPoints(points) {
     if (points >= 2000) return 'SR';
@@ -545,9 +554,106 @@ function renderOverview() {
 
     // 渲染精彩回放列表
     renderReplayList();
+
+    // 各段位第一名
+    renderLevelTop();
+
+    // 种族克制热力图
+    renderRaceHeatmap();
 }
 
-// ========================================
+// 各段位第一名
+function renderLevelTop() {
+    const container = document.getElementById('level-top-list');
+    if (!container) return;
+    const players = getPlayers();
+    if (!players || players.length === 0) {
+        container.innerHTML = '<p class="overview-empty">暂无数据</p>';
+        return;
+    }
+    const LEVEL_ORDER_LOCAL = ['SR','S','A','B','C','D','E','F','G'];
+    let html = '';
+    LEVEL_ORDER_LOCAL.forEach(level => {
+        const arr = players.filter(p => getPlayerLevel(p.id) === level).sort((a,b) => b.points - a.points);
+        if (arr.length === 0) return;
+        const top = arr[0];
+        const rank = getRank(top.id);
+        const raceHtml = (top.race && RACES[top.race]) ? '<img src="' + RACES[top.race].icon + '" style="width:20px;height:20px;vertical-align:middle;border-radius:3px;">' : '';
+        html += '<div class="level-top-item">' +
+            '<span class="level-cell level-' + level + '">' + level + '</span>' +
+            '<span class="level-top-rank">#' + rank + '</span>' +
+            '<span class="level-top-race">' + raceHtml + '</span>' +
+            '<span class="level-top-name" onclick="showPlayerDetail(\'' + top.id + '\')">' + escapeHtml(top.name) + '</span>' +
+            '<span class="level-top-points">' + top.points + '分</span>' +
+            '</div>';
+    });
+    container.innerHTML = html || '<p class="overview-empty">暂无数据</p>';
+}
+
+// 种族克制热力图
+function renderRaceHeatmap() {
+    const container = document.getElementById('race-heatmap');
+    if (!container) return;
+    const players = getPlayers();
+    const matches = getMatches();
+    if (!players || !matches || matches.length === 0) {
+        container.innerHTML = '<p class="overview-empty">暂无数据</p>';
+        return;
+    }
+    const raceKeys = ['HUM','ORC','UD','NE'];
+    const raceNames = { HUM:'人族', ORC:'兽族', UD:'亡灵', NE:'暗夜' };
+    const winMatrix = {};
+    raceKeys.forEach(a => { winMatrix[a] = {}; raceKeys.forEach(d => { winMatrix[a][d] = {w:0,l:0}; }); });
+    matches.forEach(m => {
+        if (!m.redPlayers || !m.bluePlayers) return;
+        const redScore = Number(m.redScore)||0, blueScore = Number(m.blueScore)||0;
+        if (redScore === blueScore) return;
+        const winnerIsRed = redScore > blueScore;
+        const winners = winnerIsRed ? m.redPlayers : m.bluePlayers;
+        const losers = winnerIsRed ? m.bluePlayers : m.redPlayers;
+        winners.forEach(wId => {
+            const wp = players.find(p=>p.id===wId); if(!wp||!wp.race) return;
+            losers.forEach(lId => {
+                const lp = players.find(p=>p.id===lId); if(!lp||!lp.race) return;
+                winMatrix[wp.race][lp.race].w++;
+            });
+        });
+        losers.forEach(lId => {
+            const lp = players.find(p=>p.id===lId); if(!lp||!lp.race) return;
+            winners.forEach(wId => {
+                const wp = players.find(p=>p.id===wId); if(!wp||!wp.race) return;
+                winMatrix[lp.race][wp.race].l++;
+            });
+        });
+    });
+    let table = '<table class="heatmap-table"><thead><tr><th></th>';
+    raceKeys.forEach(d => { table += '<th>' + raceNames[d] + '</th>'; });
+    table += '</tr></thead><tbody>';
+    raceKeys.forEach(a => {
+        table += '<tr><th>' + raceNames[a] + '</th>';
+        raceKeys.forEach(d => {
+            const nd = winMatrix[a][d];
+            const total = nd.w+nd.l;
+            const rate = total > 0 ? Math.round(nd.w/total*100) : 0;
+            let bg = 'rgba(255,255,255,0.04)';
+            if (total >= 3) {
+                if (rate >= 60) bg = 'rgba(39,174,96,' + (0.18+0.3*Math.min((rate-60)/40,1)) + ')';
+                else if (rate <= 40) bg = 'rgba(231,76,60,' + (0.18+0.3*Math.min((40-rate)/40,1)) + ')';
+                else bg = 'rgba(241,196,15,' + (0.12+0.15*Math.abs(rate-50)/10) + ')';
+            }
+            const label = a === d ? '—' : (total >= 3 ? rate+'%' : '-');
+            const title = a===d ? '' : raceNames[a] + ' vs ' + raceNames[d] + ': ' + nd.w + '胜' + nd.l + '负 (' + total + '场)';
+            table += '<td class="heatmap-cell" style="background:' + bg + ';" title="' + title + '">' + label + '</td>';
+        });
+        table += '</tr>';
+    });
+    table += '</tbody></table>';
+    table += '<div class="heatmap-legend"><span style="color:#e74c3c;">红=克制弱</span><span style="color:#f1c40f;">黄=均衡</span><span style="color:#27ae60;">绿=克制强</span></div>';
+    container.innerHTML = table;
+}
+
+
+// =======================================
 // 精彩比赛回放 - 从 JSON 文件加载并展示
 // ========================================
 
