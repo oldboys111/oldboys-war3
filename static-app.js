@@ -3615,7 +3615,7 @@ const RACE_BAR_COLORS = {
 
 // 生成分享战绩卡
 function generateShareCard() {
-    const playerId = window.currentPlayerId;
+    const playerId = currentPlayerId;
     if (!playerId) return;
     
     const players = getPlayers();
