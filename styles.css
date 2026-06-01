@@ -617,12 +617,16 @@ body {
 .level-tab.rules-tab {
     margin-left: auto;
     color: var(--accent-gold);
-    border-color: rgba(212, 168, 83, 0.4);
-    font-size: 12px;
+    border-color: rgba(212, 168, 83, 0.6);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    background: rgba(212, 168, 83, 0.08);
 }
 .level-tab.rules-tab:hover {
-    background: rgba(212, 168, 83, 0.12);
+    background: rgba(212, 168, 83, 0.18);
     color: var(--accent-gold);
+    border-color: rgba(212, 168, 83, 0.8);
 }
 .level-tab.rules-tab.active {
     background: transparent;
