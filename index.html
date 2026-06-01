@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Old boys' War3-老男孩天梯排行榜</title>
-    <link rel="stylesheet" href="styles.css?v=20260601194500">
+    <link rel="stylesheet" href="styles.css?v=20260601201000">
 
 </head>
 <body>
@@ -102,6 +102,7 @@
                 <a href="#" class="level-tab level-E" data-level="E">E</a>
                 <a href="#" class="level-tab level-F" data-level="F">F</a>
                 <a href="#" class="level-tab level-G" data-level="G">G</a>
+                <a href="#" class="level-tab rules-tab" onclick="showPointsRules(event)">积分规则</a>
             </div>
             <div class="members-list-wrapper">
                 <table class="members-table">
@@ -649,6 +650,84 @@
         </div>
     </div>
 
+    <!-- 积分规则弹窗 -->
+    <div id="points-rules-modal" class="modal" onclick="closePointsRules()">
+        <div class="modal-content rules-modal-content" onclick="event.stopPropagation()">
+            <div class="rules-modal-header">
+                <h2>积分规则</h2>
+                <button class="modal-close" onclick="closePointsRules()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="rules-body">
+                <div class="rules-section">
+                    <h3>段位分配</h3>
+                    <p>段位根据<strong>总排名</strong>动态分配，积分越高排名越前：</p>
+                    <table class="rules-table">
+                        <thead><tr><th>段位</th><th>排名范围</th></tr></thead>
+                        <tbody>
+                            <tr><td class="level-cell level-SR">SR</td><td>第 1–5 名</td></tr>
+                            <tr><td class="level-cell level-S">S</td><td>第 6–15 名</td></tr>
+                            <tr><td class="level-cell level-A">A</td><td>第 16–25 名</td></tr>
+                            <tr><td class="level-cell level-B">B</td><td>第 26–35 名</td></tr>
+                            <tr><td class="level-cell level-C">C</td><td>第 36–45 名</td></tr>
+                            <tr><td class="level-cell level-D">D</td><td>第 46–55 名</td></tr>
+                            <tr><td class="level-cell level-E">E</td><td>第 56–65 名</td></tr>
+                            <tr><td class="level-cell level-F">F</td><td>第 66–75 名</td></tr>
+                            <tr><td class="level-cell level-G">G</td><td>第 76 名及以后</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="rules-section">
+                    <h3>个人赛积分</h3>
+                    <table class="rules-table">
+                        <thead><tr><th>项目</th><th>规则</th></tr></thead>
+                        <tbody>
+                            <tr><td>基础分</td><td>比分差值 × 10</td></tr>
+                            <tr><td>同段位对战</td><td>基础分不变（×1）</td></tr>
+                            <tr><td>以低打高（胜）</td><td>双倍积分（×2）</td></tr>
+                            <tr><td>以高打低（胜）</td><td>半倍积分（×0.5）</td></tr>
+                            <tr><td>败者扣分</td><td>扣除与胜者获得相同的分数</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="rules-example">例：A段位击败C段位，比分 2:1，基础分 = (2-1)×10 = 10，以低打高双倍 → 胜者 +20，败者 -20</p>
+                </div>
+
+                <div class="rules-section">
+                    <h3>团队赛积分</h3>
+                    <table class="rules-table">
+                        <thead><tr><th>项目</th><th>规则</th></tr></thead>
+                        <tbody>
+                            <tr><td>段位判定</td><td>按队伍<strong>平均积分</strong>对应的段位</td></tr>
+                            <tr><td>计算方式</td><td>与个人赛相同（基础分 × 段位倍数）</td></tr>
+                            <tr><td>积分分配</td><td>队伍中每位成员均获得/扣除相同分数</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="rules-section">
+                    <h3>段位等级值</h3>
+                    <p>用于判断段位高低关系：</p>
+                    <div class="rules-level-values">
+                        <span class="level-cell level-SR">SR=8</span>
+                        <span class="level-cell level-S">S=7</span>
+                        <span class="level-cell level-A">A=6</span>
+                        <span class="level-cell level-B">B=5</span>
+                        <span class="level-cell level-C">C=4</span>
+                        <span class="level-cell level-D">D=3</span>
+                        <span class="level-cell level-E">E=2</span>
+                        <span class="level-cell level-F">F=1</span>
+                        <span class="level-cell level-G">G=0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 登录弹窗 -->
     <div id="login-modal" class="modal">
         <div class="modal-content">
@@ -800,6 +879,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="static-app.js?v=20260601193042"></script>
+    <script src="static-app.js?v=20260601201000"></script>
 </body>
 </html>
