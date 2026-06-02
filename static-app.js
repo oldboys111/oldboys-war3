@@ -417,9 +417,11 @@ async function refreshData() {
 function navigateTo(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    
+    document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+
     document.getElementById(`page-${page}`)?.classList.add('active');
     document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+    document.querySelector(`.mobile-nav-item[data-page="${page}"]`)?.classList.add('active');
 
     renderCurrentPage(page);
 }
@@ -3928,3 +3930,36 @@ async function downloadShareCard() {
 function closeShareCard() {
     document.getElementById('share-card-overlay').style.display = 'none';
 }
+
+// ========================================
+// 移动端底部导航
+// ========================================
+(function initMobileNav() {
+    // 等待 DOM 加载完毕后再绑定（防止在 DOMContentLoaded 之前执行）
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindMobileNav);
+    } else {
+        bindMobileNav();
+    }
+
+    function bindMobileNav() {
+        // 移动端底部导航点击事件
+        document.querySelectorAll('.mobile-nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.dataset.page;
+                if (page) {
+                    navigateTo(page);
+                    // 滚动到顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        });
+
+        // 初始状态：根据当前页面设置激活项
+        const currentPage = getCurrentPage();
+        document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+        const activeItem = document.querySelector(`.mobile-nav-item[data-page="${currentPage}"]`);
+        if (activeItem) activeItem.classList.add('active');
+    }
+})();
