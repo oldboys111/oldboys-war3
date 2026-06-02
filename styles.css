@@ -5202,3 +5202,157 @@ body {
     font-size: 9px;
     color: #555;
 }
+
+/* 移动端底部导航 - 桌面端隐藏 */
+.mobile-bottom-nav { display: none; }
+
+/* ========================================
+   移动端适配 (max-width: 768px)
+   ======================================== */
+@media (max-width: 768px) {
+    /* 隐藏桌面端顶部导航，显示底部导航 */
+    .main-nav { display: none !important; }
+    .mobile-bottom-nav { display: flex !important; }
+
+    /* 顶部header精简 */
+    .main-header {
+        padding: 0 16px;
+        height: 52px;
+    }
+    .logo { font-size: 15px; }
+    .logo-icon { height: 36px; }
+
+    /* 主内容区 */
+    .main-content { padding: 16px 12px; }
+
+    /* 总览页网格单列 */
+    .overview-grid { grid-template-columns: 1fr; gap: 16px; }
+    .overview-card { padding: 16px; }
+
+    /* 成员页：表格横向滚动 */
+    .members-list-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .members-table { min-width: 580px; font-size: 13px; }
+    .members-table th, .members-table td { padding: 12px 8px; }
+    .members-table .kkname-col,
+    .members-table .kkname-cell { display: none; }
+    .level-group .members-table { min-width: 0; }
+    .level-group .members-table .kkname-col { display: none; }
+
+    /* 段位筛选标签换行 */
+    .level-tabs { gap: 4px; }
+    .level-tab { padding: 5px 10px; font-size: 12px; }
+
+    /* 种族标签换行 */
+    .race-tabs { gap: 4px; }
+    .race-tab { padding: 6px 10px; font-size: 12px; }
+
+    /* 对战页：筛选栏纵向 */
+    .match-filter-bar { flex-direction: column; gap: 8px; align-items: stretch; }
+    .filter-select, .player-search-input { max-width: none; width: 100%; }
+
+    /* 对战卡片移动端优化 */
+    .match-card { padding: 12px; }
+    .match-body-compact { flex-direction: column; gap: 10px; }
+    .match-body-compact .match-team { text-align: left !important; }
+    .match-body-compact .match-team:last-child { text-align: left !important; }
+    .match-body-compact .match-players { justify-content: flex-start !important; flex-wrap: wrap; }
+    .match-score { align-self: center; font-size: 24px !important; padding: 4px 12px !important; }
+    .match-header { flex-direction: column; gap: 6px; align-items: flex-start; }
+    .match-actions { justify-content: flex-start; }
+
+    /* 荣誉页：卡片单列 */
+    .honors-content { grid-template-columns: 1fr; gap: 12px; }
+    .honors-tabs { gap: 6px; }
+    .honors-tab { padding: 6px 12px; font-size: 13px; }
+
+    /* 赛事页 */
+    .events-grid { grid-template-columns: 1fr; gap: 12px; }
+    .events-filter-bar { margin-bottom: 16px; }
+    .events-status-tabs { gap: 6px; }
+    .status-tab { padding: 6px 12px; font-size: 13px; }
+
+    /* 弹窗全屏 */
+    .modal { padding: 0 !important; }
+    .modal-content { width: 100% !important; height: 100% !important; border-radius: 0 !important; max-height: 100vh !important; max-width: none !important; }
+
+    /* 赛事详情页 */
+    .event-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .event-info-card { flex-direction: column; text-align: center; }
+    .event-name-line { justify-content: center; flex-wrap: wrap; }
+    .event-avatar-large { width: 56px; height: 56px; font-size: 28px; margin: 0 auto; }
+    .event-stat-card { padding: 10px 8px; }
+    .event-stat-card .event-stat-value { font-size: 14px; }
+    .event-stat-icon { font-size: 18px; }
+
+    /* 个人详情页 */
+    .player-detail-content { padding: 0 0 80px; }
+    .player-info-card { flex-direction: column; text-align: center; padding: 16px; }
+    .player-info-left { flex-direction: column; }
+    .player-info-right { flex-direction: row; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .player-total-stats { gap: 8px; }
+    .player-glory-battles-section,
+    .player-battles-section,
+    .player-racevs-section,
+    .player-honors-section,
+    .player-kk-rank-section,
+    .player-trait-section { padding: 14px; }
+
+    /* 分享战绩卡弹窗 */
+    .share-card-overlay { padding: 0; }
+    .share-card-modal { max-height: 100vh; width: 100%; }
+    .share-card-container { width: 100% !important; border-radius: 0; }
+
+    /* 积分规则弹窗 */
+    .rules-modal-content { width: 100% !important; max-height: 100vh; border-radius: 0; }
+
+    /* 底部导航样式 */
+    .mobile-bottom-nav {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        height: 56px;
+        background: rgba(20, 20, 20, 0.97);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        z-index: 1000;
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding: 4px 8px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 10px;
+        transition: color 0.2s;
+        -webkit-tap-highlight-color: transparent;
+        min-width: 44px;
+    }
+    .mobile-nav-item.active { color: var(--accent-gold); }
+    .mobile-nav-icon { font-size: 20px; line-height: 1; }
+    .mobile-nav-label { font-size: 10px; line-height: 1; white-space: nowrap; }
+
+    /* 主内容区给底部导航留空间 */
+    .main-content { padding-bottom: 72px; }
+    body { padding-bottom: 0; }
+}
+
+/* 超小屏幕额外优化 (max-width: 480px) */
+@media (max-width: 480px) {
+    .main-header { padding: 0 12px; }
+    .logo { font-size: 13px; }
+    .logo-icon { height: 30px; }
+    .main-content { padding: 12px 8px; }
+    .section-header h2 { font-size: 17px; }
+    .match-score { font-size: 20px !important; }
+    .mobile-bottom-nav { height: 52px; }
+    .mobile-nav-icon { font-size: 18px; }
+    .mobile-nav-label { font-size: 9px; }
+    .main-content { padding-bottom: 68px; }
+}
