@@ -5243,7 +5243,7 @@ body {
     .level-group .members-table col.col-name   { width: auto; }
     .level-group .members-table col.col-race   { width: 48px; }
     .level-group .members-table col.col-points  { width: 56px; }
-    .level-group .members-table .name-col { overflow: hidden; }
+    .level-group .members-table .name-col { overflow: hidden; padding-left: 8px; min-width: 0; }
     .level-group .members-table .name-col .name-cell { display: flex; align-items: center; gap: 4px; }
     .level-group .members-table .name-col .player-id-glow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .level-group .members-table .points-col { white-space: nowrap; text-align: right; }
