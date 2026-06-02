@@ -665,9 +665,9 @@ function renderRaceHeatmap() {
                     bgColor = 'rgba(159,64,100,' + (0.20 + 0.35 * t) + ')';
                     textColor = 'rgba(255,210,225,' + (0.80 + 0.20 * t) + ')';
                 } else {
-                    // 石灰系：均衡，接近无色
-                    bgColor = 'rgba(150,150,150,0.10)';
-                    textColor = 'rgba(200,200,200,0.70)';
+                    // 浅蓝系：均衡
+                    bgColor = 'rgba(56,178,172,0.12)';
+                    textColor = 'rgba(56,178,172,0.85)';
                 }
                 
                 const label = total >= 3 ? rate + '%' : '—';
@@ -687,7 +687,7 @@ function renderRaceHeatmap() {
     // 图例
     table += '<div class="heatmap-legend">' +
              '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(159,64,100,0.6)"></span>克制弱</span>' +
-             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(150,150,150,0.25)"></span>均衡</span>' +
+             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(56,178,172,0.5)"></span>均衡</span>' +
              '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(56,178,172,0.6)"></span>克制强</span>' +
              '</div>';
     
