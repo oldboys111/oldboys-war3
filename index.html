@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Old boys' War3-老男孩天梯排行榜</title>
-    <link rel="stylesheet" href="styles.css?v=20260602215200">
+    <link rel="stylesheet" href="styles.css?v=20260602234000">
 
 </head>
 <body>
@@ -558,6 +558,30 @@
         </div>
     </main>
 
+    <!-- 移动端底部导航 -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <a href="javascript:void(0)" class="mobile-nav-item active" data-page="overview">
+            <span class="mobile-nav-icon">📊</span>
+            <span class="mobile-nav-label">总览</span>
+        </a>
+        <a href="javascript:void(0)" class="mobile-nav-item" data-page="members">
+            <span class="mobile-nav-icon">🏆</span>
+            <span class="mobile-nav-label">排行榜</span>
+        </a>
+        <a href="javascript:void(0)" class="mobile-nav-item" data-page="matches">
+            <span class="mobile-nav-icon">⚔️</span>
+            <span class="mobile-nav-label">对战</span>
+        </a>
+        <a href="javascript:void(0)" class="mobile-nav-item" data-page="honors">
+            <span class="mobile-nav-icon">🏅</span>
+            <span class="mobile-nav-label">荣誉</span>
+        </a>
+        <a href="javascript:void(0)" class="mobile-nav-item" data-page="events">
+            <span class="mobile-nav-icon">📅</span>
+            <span class="mobile-nav-label">赛事</span>
+        </a>
+    </nav>
+
     <!-- 荣誉届次详情弹窗 -->
     <div id="honor-detail-modal" class="modal honor-detail-modal" onclick="closeHonorDetail()">
         <div class="honor-detail-content" onclick="event.stopPropagation()">
@@ -859,6 +883,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="static-app.js?v=20260602215200"></script>
+    <script src="static-app.js?v=20260602234000"></script>
 </body>
 </html>
