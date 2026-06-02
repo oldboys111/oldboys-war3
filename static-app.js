@@ -647,26 +647,25 @@ function renderRaceHeatmap() {
                 // 对角线：空白
                 table += '<td class="heatmap-cell heatmap-diagonal">—</td>';
             } else {
-                // 计算背景色
+                // 计算背景色 — 哑光深调配色
                 let bgColor, textColor;
                 if (total < 3) {
                     bgColor = 'rgba(255,255,255,0.03)';
-                    textColor = 'rgba(255,255,255,0.3)';
+                    textColor = 'rgba(255,255,255,0.22)';
                 } else if (rate >= 60) {
-                    // 绿色系：胜率高
-                    const intensity = 0.15 + 0.35 * Math.min((rate - 60) / 40, 1);
-                    bgColor = 'rgba(46,204,113,' + intensity + ')';
-                    textColor = '#fff';
+                    // 冷青系：优势
+                    const t = Math.min((rate - 60) / 35, 1);
+                    bgColor = 'rgba(56,178,172,' + (0.18 + 0.32 * t) + ')';
+                    textColor = 'rgba(200,245,243,' + (0.85 + 0.15 * t) + ')';
                 } else if (rate <= 40) {
-                    // 红色系：胜率低
-                    const intensity = 0.15 + 0.35 * Math.min((40 - rate) / 40, 1);
-                    bgColor = 'rgba(231,76,60,' + intensity + ')';
-                    textColor = '#fff';
+                    // 暗玫系：劣势
+                    const t = Math.min((40 - rate) / 35, 1);
+                    bgColor = 'rgba(159,64,100,' + (0.20 + 0.35 * t) + ')';
+                    textColor = 'rgba(255,210,225,' + (0.80 + 0.20 * t) + ')';
                 } else {
-                    // 黄色系：均衡
-                    const intensity = 0.10 + 0.20 * Math.abs(rate - 50) / 10;
-                    bgColor = 'rgba(241,196,15,' + intensity + ')';
-                    textColor = '#fff';
+                    // 石灰系：均衡，接近无色
+                    bgColor = 'rgba(150,150,150,0.10)';
+                    textColor = 'rgba(200,200,200,0.70)';
                 }
                 
                 const label = total >= 3 ? rate + '%' : '—';
@@ -685,9 +684,9 @@ function renderRaceHeatmap() {
     
     // 图例
     table += '<div class="heatmap-legend">' +
-             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(231,76,60,0.5)"></span>克制弱</span>' +
-             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(241,196,15,0.3)"></span>均衡</span>' +
-             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(46,204,113,0.5)"></span>克制强</span>' +
+             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(159,64,100,0.6)"></span>克制弱</span>' +
+             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(150,150,150,0.25)"></span>均衡</span>' +
+             '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(56,178,172,0.6)"></span>克制强</span>' +
              '</div>';
     
     container.innerHTML = table;
