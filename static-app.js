@@ -689,30 +689,27 @@ function renderRaceHeatmap() {
              '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(56,178,172,0.6)"></span>克制强</span>' +
              '</div>';
 
-    // 当前群内种族王者：统计每个种族的总胜率，取最高者
+    // 当前群内种族王者：从winMatrix汇总，与热力图数据一致
     const raceStat = {};
-    raceKeys.forEach(r => { raceStat[r] = { w: 0, t: 0 }; });
-    matches.forEach(m => {
-        if (!m.redPlayers || !m.bluePlayers) return;
-        const redScore = Number(m.redScore) || 0;
-        const blueScore = Number(m.blueScore) || 0;
-        if (redScore === blueScore) return;
-        const redWin = redScore > blueScore;
-        const wIds = redWin ? m.redPlayers : m.bluePlayers;
-        const lIds = redWin ? m.bluePlayers : m.redPlayers;
-        wIds.forEach(id => { const p = players.find(pp => pp.id === id); if (p && p.race) { raceStat[p.race].w++; raceStat[p.race].t++; } });
-        lIds.forEach(id => { const p = players.find(pp => pp.id === id); if (p && p.race) { raceStat[p.race].t++; } });
+    raceKeys.forEach(r => { raceStat[r] = { w: 0, l: 0 }; });
+    raceKeys.forEach(a => {
+        raceKeys.forEach(d => {
+            if (a === d) return;
+            raceStat[a].w += winMatrix[a][d].w;
+            raceStat[a].l += winMatrix[a][d].l;
+        });
     });
     const raceKingArr = raceKeys.map(r => {
         const s = raceStat[r];
-        const rate = s.t >= 3 ? Math.round(s.w / s.t * 100) : -1;
-        return { race: r, w: s.w, t: s.t, rate: rate };
+        const t = s.w + s.l;
+        const rate = t >= 3 ? Math.round(s.w / t * 100) : -1;
+        return { race: r, w: s.w, l: s.l, t: t, rate: rate };
     }).filter(x => x.rate >= 0).sort((a, b) => b.rate - a.rate || b.w - a.w);
     if (raceKingArr.length > 0) {
         const k = raceKingArr[0];
         table += '<div class="race-king-line">' +
                  '👑 当前群内种族王者：<span style="color:' + raceColors[k.race] + ';font-weight:600;">' + raceNames[k.race] + '</span>' +
-                 '（胜率 ' + k.rate + '%，' + k.w + '胜' + (k.t - k.w) + '负，共' + k.t + '场）' +
+                 '（胜率 ' + k.rate + '%，' + k.w + '胜' + k.l + '负，共' + k.t + '场）' +
                  '</div>';
     }
 
