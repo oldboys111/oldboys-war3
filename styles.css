@@ -5235,14 +5235,19 @@ body {
     .members-table th, .members-table td { padding: 12px 8px; }
     .members-table .kkname-col,
     .members-table .kkname-cell { display: none; }
-    /* 移动端排行榜表格：自然布局 + 横向滚动，避免列重叠 */
-    .level-group .members-table { min-width: 460px; width: 100%; }
+    /* 移动端排行榜：完整覆盖桌面端列宽/padding，改为横向滚动 */
+    .level-group .members-table { min-width: 0; width: max-content; }
     .level-group .members-table .kkname-col { display: none; }
     .level-group .members-table td,
     .level-group .members-table th { white-space: nowrap; }
-    .level-group .members-table .name-col { padding-left: 8px; min-width: 0; }
-    .level-group .members-table .name-col .name-cell { gap: 6px; }
-    .level-group .members-table .points-col { text-align: right; }
+    /* 覆盖桌面端所有列的 min-width / max-width / padding */
+    .level-group .members-table .rank-cell  { min-width: 0; max-width: none; width: 32px; padding: 10px 6px; }
+    .level-group .members-table .level-col  { min-width: 0; max-width: none; width: 44px; padding: 10px 4px; padding-left: 4px; text-align: center; }
+    .level-group .members-table .name-col   { min-width: 0; max-width: none; width: auto; padding: 10px 8px; padding-left: 8px; }
+    .level-group .members-table .race-col   { min-width: 0; max-width: none; width: 60px; padding: 10px 4px; }
+    .level-group .members-table .points-col { min-width: 0; max-width: none; width: 60px; padding: 10px 6px; text-align: right; font-size: 13px; }
+    .level-group .members-table .name-col .name-cell { gap: 4px; }
+    .level-group .members-table .member-avatar-small { width: 28px; height: 28px; flex-shrink: 0; }
 
     /* 段位筛选标签换行 */
     .level-tabs { gap: 4px; }
