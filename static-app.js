@@ -486,12 +486,10 @@ function renderOverview() {
     `).join('');
     document.getElementById('top-players-list').innerHTML = topHtml || '<p style="color:var(--text-muted)">暂无成员</p>';
 
-    // 最近排名提升最多（最近30场中净胜场最高Top3）
-    // 说明：取最近30场，统计每位选手净胜场(wins-losses)，取最高Top3
+    // 净胜场次最多选手（所有比赛）
     const allMatches = getMatches();
-    const recent30Matches = [...allMatches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 30);
     const risingStats = {};
-    recent30Matches.forEach(m => {
+    allMatches.forEach(m => {
         // 只处理新格式（redPlayers/bluePlayers），getMatches() 保证返回此格式
         if (!m.redPlayers || !m.bluePlayers) return;
         const redScore = Number(m.redScore) || 0;
@@ -690,7 +688,34 @@ function renderRaceHeatmap() {
              '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(120,190,255,0.5)"></span>均衡</span>' +
              '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(56,178,172,0.6)"></span>克制强</span>' +
              '</div>';
-    
+
+    // 当前群内种族王者：统计每个种族的总胜率，取最高者
+    const raceStat = {};
+    raceKeys.forEach(r => { raceStat[r] = { w: 0, t: 0 }; });
+    matches.forEach(m => {
+        if (!m.redPlayers || !m.bluePlayers) return;
+        const redScore = Number(m.redScore) || 0;
+        const blueScore = Number(m.blueScore) || 0;
+        if (redScore === blueScore) return;
+        const redWin = redScore > blueScore;
+        const wIds = redWin ? m.redPlayers : m.bluePlayers;
+        const lIds = redWin ? m.bluePlayers : m.redPlayers;
+        wIds.forEach(id => { const p = players.find(pp => pp.id === id); if (p && p.race) { raceStat[p.race].w++; raceStat[p.race].t++; } });
+        lIds.forEach(id => { const p = players.find(pp => pp.id === id); if (p && p.race) { raceStat[p.race].t++; } });
+    });
+    const raceKingArr = raceKeys.map(r => {
+        const s = raceStat[r];
+        const rate = s.t >= 3 ? Math.round(s.w / s.t * 100) : -1;
+        return { race: r, w: s.w, t: s.t, rate: rate };
+    }).filter(x => x.rate >= 0).sort((a, b) => b.rate - a.rate || b.w - a.w);
+    if (raceKingArr.length > 0) {
+        const k = raceKingArr[0];
+        table += '<div class="race-king-line">' +
+                 '👑 当前群内种族王者：<span style="color:' + raceColors[k.race] + ';font-weight:600;">' + raceNames[k.race] + '</span>' +
+                 '（胜率 ' + k.rate + '%，' + k.w + '胜' + (k.t - k.w) + '负，共' + k.t + '场）' +
+                 '</div>';
+    }
+
     container.innerHTML = table;
 }
 
