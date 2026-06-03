@@ -571,6 +571,16 @@ body {
     border-radius: 50%;
 }
 
+.race-king-line {
+    text-align: center;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
 .recent-matches {
     display: flex;
     flex-direction: column;
