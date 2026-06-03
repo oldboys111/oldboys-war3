@@ -5235,18 +5235,14 @@ body {
     .members-table th, .members-table td { padding: 12px 8px; }
     .members-table .kkname-col,
     .members-table .kkname-cell { display: none; }
-    .level-group .members-table { min-width: 320px; table-layout: fixed; }
+    /* 移动端排行榜表格：自然布局 + 横向滚动，避免列重叠 */
+    .level-group .members-table { min-width: 460px; width: 100%; }
     .level-group .members-table .kkname-col { display: none; }
-    /* 移动端排行榜列宽：防止人名和积分重叠 */
-    .level-group .members-table col.col-rank   { width: 36px; }
-    .level-group .members-table col.col-level  { width: 48px; }
-    .level-group .members-table col.col-name   { width: auto; }
-    .level-group .members-table col.col-race   { width: 48px; }
-    .level-group .members-table col.col-points  { width: 56px; }
-    .level-group .members-table .name-col { overflow: hidden; padding-left: 8px; min-width: 0; }
-    .level-group .members-table .name-col .name-cell { display: flex; align-items: center; gap: 4px; }
-    .level-group .members-table .name-col .player-id-glow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .level-group .members-table .points-col { white-space: nowrap; text-align: right; }
+    .level-group .members-table td,
+    .level-group .members-table th { white-space: nowrap; }
+    .level-group .members-table .name-col { padding-left: 8px; min-width: 0; }
+    .level-group .members-table .name-col .name-cell { gap: 6px; }
+    .level-group .members-table .points-col { text-align: right; }
 
     /* 段位筛选标签换行 */
     .level-tabs { gap: 4px; }
