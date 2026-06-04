@@ -486,12 +486,10 @@ function renderOverview() {
     `).join('');
     document.getElementById('top-players-list').innerHTML = topHtml || '<p style="color:var(--text-muted)">暂无成员</p>';
 
-    // 最近排名提升最多（最近30场中净胜场最高Top3）
-    // 说明：取最近30场，统计每位选手净胜场(wins-losses)，取最高Top3
+    // 净胜场次最多选手（所有比赛）
     const allMatches = getMatches();
-    const recent30Matches = [...allMatches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 30);
     const risingStats = {};
-    recent30Matches.forEach(m => {
+    allMatches.forEach(m => {
         // 只处理新格式（redPlayers/bluePlayers），getMatches() 保证返回此格式
         if (!m.redPlayers || !m.bluePlayers) return;
         const redScore = Number(m.redScore) || 0;
@@ -690,7 +688,31 @@ function renderRaceHeatmap() {
              '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(120,190,255,0.5)"></span>均衡</span>' +
              '<span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(56,178,172,0.6)"></span>克制强</span>' +
              '</div>';
-    
+
+    // 当前群内种族王者：从winMatrix汇总，与热力图数据一致
+    const raceStat = {};
+    raceKeys.forEach(r => { raceStat[r] = { w: 0, l: 0 }; });
+    raceKeys.forEach(a => {
+        raceKeys.forEach(d => {
+            if (a === d) return;
+            raceStat[a].w += winMatrix[a][d].w;
+            raceStat[a].l += winMatrix[a][d].l;
+        });
+    });
+    const raceKingArr = raceKeys.map(r => {
+        const s = raceStat[r];
+        const t = s.w + s.l;
+        const rate = t >= 3 ? Math.round(s.w / t * 100) : -1;
+        return { race: r, w: s.w, l: s.l, t: t, rate: rate };
+    }).filter(x => x.rate >= 0).sort((a, b) => b.rate - a.rate || b.w - a.w);
+    if (raceKingArr.length > 0) {
+        const k = raceKingArr[0];
+        table += '<div class="race-king-line">' +
+                 '👑 当前群内种族王者：<span style="color:' + raceColors[k.race] + ';font-weight:600;">' + raceNames[k.race] + '</span>' +
+                 '（胜率 ' + k.rate + '%，' + k.w + '胜' + k.l + '负，共' + k.t + '场）' +
+                 '</div>';
+    }
+
     container.innerHTML = table;
 }
 
