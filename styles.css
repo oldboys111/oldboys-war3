@@ -5256,7 +5256,7 @@ body {
     .level-group .members-table .name-col   { min-width: 0; max-width: none; width: auto; padding: 10px 8px; padding-left: 8px; }
     .level-group .members-table .race-col   { min-width: 0; max-width: none; width: 60px; padding: 10px 4px; }
     .level-group .members-table .points-col { min-width: 0; max-width: none; width: 60px; padding: 10px 6px; text-align: right; font-size: 13px; }
-    .level-group .members-table .name-col .name-cell { gap: 18px; }
+    .level-group .members-table .name-col .name-cell { gap: 4px; }
     .level-group .members-table .member-avatar-small { width: 28px; height: 28px; flex-shrink: 0; }
 
     /* 段位筛选标签换行 */
