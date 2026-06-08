@@ -1018,7 +1018,7 @@ function renderPlayerDetail(playerId) {
     renderGloryBattles(playerId);
     // 计算种族对抗胜率
     renderRaceVsStats(playerId);
-    // 计算群内互殴数据
+    // 计算历史战绩数据
     renderPlayerBattles(playerId);
 }
 
@@ -1178,6 +1178,10 @@ function renderPlayerBattles(playerId) {
     const currentPlayer = players.find(p => p.id === playerId);
     
     if (!currentPlayer) return;
+
+    // 动态更新标题为"XXX的历史战绩"
+    const titleEl = document.getElementById('detail-battles-title');
+    if (titleEl) titleEl.textContent = currentPlayer.name + '的历史战绩';
     
     // 计算与每个对手的胜负（增强版：连胜连败、最近比分）
     const battleStats = {};
