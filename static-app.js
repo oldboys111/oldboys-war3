@@ -903,11 +903,13 @@ function renderMembers(filterRace = 'all', filterLevel = 'all', searchText = '')
 
 let currentPlayerId = null;
 let previousPage = 'members';
+let previousScrollY = 0;  // 记录跳转前的滚动位置，供返回时恢复
 
 function showPlayerDetail(playerId) {
     currentPlayerId = playerId;
     previousPage = getCurrentPage();
-    
+    previousScrollY = window.scrollY;  // 跳转前保存当前滚动位置
+
     // 隐藏其他页面，显示详情页
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -923,14 +925,17 @@ function goBack() {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-    window.scrollTo({ top: 0, behavior: 'instant' });
-
     if (previousPage === 'player-detail') {
         navigateTo('members');
     } else {
         document.getElementById(`page-${previousPage}`)?.classList.add('active');
         document.querySelector(`.nav-item[data-page="${previousPage}"]`)?.classList.add('active');
     }
+
+    // 等DOM切换完成后恢复之前的滚动位置
+    requestAnimationFrame(() => {
+        window.scrollTo({ top: previousScrollY, behavior: 'instant' });
+    });
 }
 
 function renderPlayerDetail(playerId) {
