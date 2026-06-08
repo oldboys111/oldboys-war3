@@ -912,14 +912,19 @@ function showPlayerDetail(playerId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('page-player-detail').classList.add('active');
-    
+
+    // 回到顶部（避免停留在上一页的滚动位置）
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
     renderPlayerDetail(playerId);
 }
 
 function goBack() {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    
+
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
     if (previousPage === 'player-detail') {
         navigateTo('members');
     } else {
