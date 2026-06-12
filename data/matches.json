@@ -988,5 +988,59 @@
     "result": "冠希胜",
     "date": "2026-06-11",
     "id": "m110"
+  },
+  {
+    "player1": "p3_auto",
+    "player2": "p8",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "橙子胜",
+    "date": "2026-06-12",
+    "id": "m111"
+  },
+  {
+    "player1": "p17",
+    "player2": "p22",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "7LG胜",
+    "date": "2026-06-12",
+    "id": "m112"
+  },
+  {
+    "player1": "p19",
+    "player2": "p31",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "艾伦胜",
+    "date": "2026-06-12",
+    "id": "m113"
+  },
+  {
+    "player1": "p68",
+    "player2": "p53",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "决战胜",
+    "date": "2026-06-12",
+    "id": "m114"
+  },
+  {
+    "player1": "p74",
+    "player2": "p50",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "爽歪歪胜",
+    "date": "2026-06-12",
+    "id": "m115"
+  },
+  {
+    "player1": "p77",
+    "player2": "p84",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "无燕祖胜",
+    "date": "2026-06-12",
+    "id": "m116"
   }
 ]
