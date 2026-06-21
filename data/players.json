@@ -1384,5 +1384,19 @@
     "glory": "",
     "honors": "",
     "id": "p99"
+  },
+  {
+    "name": "龙",
+    "kkname": "",
+    "race": "HUM",
+    "kkRank": "",
+    "points": 2500,
+    "wins": 0,
+    "losses": 0,
+    "apm": 0,
+    "trait": "",
+    "glory": "",
+    "honors": "",
+    "id": "p100"
   }
 ]
