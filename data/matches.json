@@ -1519,5 +1519,131 @@
     "result": "熊猫胜",
     "date": "2026-07-02",
     "id": "m169"
+  },
+  {
+    "player1": "p24",
+    "player2": "p11",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "头环胜",
+    "date": "2026-07-11",
+    "id": "m170"
+  },
+  {
+    "player1": "p22",
+    "player2": "p25",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "熊猫胜",
+    "date": "2026-07-11",
+    "id": "m171"
+  },
+  {
+    "player1": "p27",
+    "player2": "p43",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "韵光胜",
+    "date": "2026-07-11",
+    "id": "m172"
+  },
+  {
+    "player1": "p47",
+    "player2": "p95",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "Key胜",
+    "date": "2026-07-11",
+    "id": "m173"
+  },
+  {
+    "player1": "p48",
+    "player2": "p46",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "然胜",
+    "date": "2026-07-11",
+    "id": "m174"
+  },
+  {
+    "player1": "p53",
+    "player2": "p70",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "Ymevol胜",
+    "date": "2026-07-11",
+    "id": "m175"
+  },
+  {
+    "player1": "p48",
+    "player2": "p95",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "然胜",
+    "date": "2026-07-11",
+    "id": "m176"
+  },
+  {
+    "player1": "p97",
+    "player2": "p8",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "胡子胜",
+    "date": "2026-07-11",
+    "id": "m177"
+  },
+  {
+    "player1": "p21",
+    "player2": "p23",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "贝爷胜",
+    "date": "2026-07-11",
+    "id": "m178"
+  },
+  {
+    "player1": "p29",
+    "player2": "p30",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "54胜",
+    "date": "2026-07-11",
+    "id": "m179"
+  },
+  {
+    "player1": "p28",
+    "player2": "p35",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "华安leo胜",
+    "date": "2026-07-11",
+    "id": "m180"
+  },
+  {
+    "player1": "p98",
+    "player2": "p74",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "魂锁胜",
+    "date": "2026-07-11",
+    "id": "m181"
+  },
+  {
+    "player1": "p77",
+    "player2": "p73",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "无燕祖胜",
+    "date": "2026-07-11",
+    "id": "m182"
+  },
+  {
+    "player1": "p71",
+    "player2": "p77",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "Steam胜",
+    "date": "2026-07-11",
+    "id": "m183"
   }
 ]
