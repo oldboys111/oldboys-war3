@@ -210,20 +210,6 @@
     "id": "p15"
   },
   {
-    "name": "西瓜",
-    "race": "ORC",
-    "kkname": "",
-    "points": 3200,
-    "wins": 0,
-    "losses": 0,
-    "apm": 0,
-    "trait": "",
-    "glory": "",
-    "honors": "",
-    "kkRank": "钻石三",
-    "id": "p16"
-  },
-  {
     "name": "7LG",
     "kkname": "",
     "race": "HUM",
@@ -326,7 +312,7 @@
     "kkname": "",
     "race": "ORC",
     "kkRank": "钻石三",
-    "points": 3180,
+    "points": 3430,
     "wins": 5,
     "losses": 0,
     "apm": 0,
@@ -616,20 +602,6 @@
     "id": "p44"
   },
   {
-    "name": "呆头鸭",
-    "race": "HUM",
-    "kkname": "",
-    "points": 2830,
-    "wins": 0,
-    "losses": 0,
-    "apm": 0,
-    "trait": "",
-    "glory": "",
-    "honors": "",
-    "kkRank": "",
-    "id": "p45"
-  },
-  {
     "name": "子龙",
     "race": "HUM",
     "kkname": "",
@@ -648,7 +620,7 @@
     "kkname": "",
     "race": "HUM",
     "kkRank": "钻石四",
-    "points": 2820,
+    "points": 2950,
     "wins": 5,
     "losses": 5,
     "apm": 0,
