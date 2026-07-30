@@ -1717,5 +1717,104 @@
     "result": "橙子胜",
     "date": "2026-07-19",
     "id": "m191"
+  },
+  {
+    "player1": "p44",
+    "player2": "p50",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "窒息胜",
+    "date": "2026-07-30",
+    "id": "m192"
+  },
+  {
+    "player1": "p33",
+    "player2": "p99",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "飞鱼胜",
+    "date": "2026-07-30",
+    "id": "m193"
+  },
+  {
+    "player1": "p95",
+    "player2": "p35",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "苏州hum胜",
+    "date": "2026-07-30",
+    "id": "m194"
+  },
+  {
+    "player1": "p46",
+    "player2": "p66",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "子龙胜",
+    "date": "2026-07-30",
+    "id": "m195"
+  },
+  {
+    "player1": "p55",
+    "player2": "p53",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "在心胜",
+    "date": "2026-07-30",
+    "id": "m196"
+  },
+  {
+    "player1": "p33",
+    "player2": "p44",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "飞鱼胜",
+    "date": "2026-07-30",
+    "id": "m197"
+  },
+  {
+    "player1": "p95",
+    "player2": "p43",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "苏州hum胜",
+    "date": "2026-07-30",
+    "id": "m198"
+  },
+  {
+    "player1": "p55",
+    "player2": "p31",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "在心胜",
+    "date": "2026-07-30",
+    "id": "m199"
+  },
+  {
+    "player1": "p95",
+    "player2": "p33",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "苏州hum胜",
+    "date": "2026-07-30",
+    "id": "m200"
+  },
+  {
+    "player1": "p55",
+    "player2": "p46",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "在心胜",
+    "date": "2026-07-30",
+    "id": "m201"
+  },
+  {
+    "player1": "p55",
+    "player2": "p95",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "在心胜",
+    "date": "2026-07-30",
+    "id": "m202"
   }
 ]
