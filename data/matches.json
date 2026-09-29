@@ -2212,5 +2212,275 @@
     "result": "盐上胜",
     "date": "2026-09-13",
     "id": "m246"
+  },
+  {
+    "player1": "p25",
+    "player2": "p29",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "哈拉少胜",
+    "date": "2026-09-29",
+    "id": "m247"
+  },
+  {
+    "player1": "p65",
+    "player2": "p51",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "山东胜",
+    "date": "2026-09-29",
+    "id": "m248"
+  },
+  {
+    "player1": "p69",
+    "player2": "p81",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "舍得哥胜",
+    "date": "2026-09-29",
+    "id": "m249"
+  },
+  {
+    "player1": "p97",
+    "player2": "p21",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "胡子胜",
+    "date": "2026-09-29",
+    "id": "m250"
+  },
+  {
+    "player1": "p43",
+    "player2": "p44",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "DYJ胜",
+    "date": "2026-09-29",
+    "id": "m251"
+  },
+  {
+    "player1": "p62",
+    "player2": "p71",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "盐上胜",
+    "date": "2026-09-29",
+    "id": "m252"
+  },
+  {
+    "player1": "p75",
+    "player2": "p101",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "星河胜",
+    "date": "2026-09-29",
+    "id": "m253"
+  },
+  {
+    "player1": "p24",
+    "player2": "p20",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "头环胜",
+    "date": "2026-09-29",
+    "id": "m254"
+  },
+  {
+    "player1": "p95",
+    "player2": "p55",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "苏州hum胜",
+    "date": "2026-09-29",
+    "id": "m255"
+  },
+  {
+    "player1": "p28",
+    "player2": "p38",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "华安leo胜",
+    "date": "2026-09-29",
+    "id": "m256"
+  },
+  {
+    "player1": "p61",
+    "player2": "p74",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "老张胜",
+    "date": "2026-09-29",
+    "id": "m257"
+  },
+  {
+    "player1": "p93",
+    "player2": "p89",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "贾维斯胜",
+    "date": "2026-09-29",
+    "id": "m258"
+  },
+  {
+    "player1": "p40",
+    "player2": "p19",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "肉爷胜",
+    "date": "2026-09-29",
+    "id": "m259"
+  },
+  {
+    "player1": "p99",
+    "player2": "p30",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "官羽东文胜",
+    "date": "2026-09-29",
+    "id": "m260"
+  },
+  {
+    "player1": "p56",
+    "player2": "p50",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "狙击胜",
+    "date": "2026-09-29",
+    "id": "m261"
+  },
+  {
+    "player1": "p88",
+    "player2": "p60",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "Miss胜",
+    "date": "2026-09-29",
+    "id": "m262"
+  },
+  {
+    "player1": "p84",
+    "player2": "p78",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "天赋胜",
+    "date": "2026-09-29",
+    "id": "m263"
+  },
+  {
+    "player1": "p1",
+    "player2": "p24",
+    "score": "3-1",
+    "type": "天梯",
+    "result": "LNR.Lyn胜",
+    "date": "2026-09-29",
+    "id": "m264"
+  },
+  {
+    "player1": "p95",
+    "player2": "p25",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "苏州hum胜",
+    "date": "2026-09-29",
+    "id": "m265"
+  },
+  {
+    "player1": "p23",
+    "player2": "p31",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "老陈胜",
+    "date": "2026-09-29",
+    "id": "m266"
+  },
+  {
+    "player1": "p65",
+    "player2": "p61",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "山东胜",
+    "date": "2026-09-29",
+    "id": "m267"
+  },
+  {
+    "player1": "p81",
+    "player2": "p93",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "牙医胜",
+    "date": "2026-09-29",
+    "id": "m268"
+  },
+  {
+    "player1": "p99",
+    "player2": "p44",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "官羽东文胜",
+    "date": "2026-09-29",
+    "id": "m269"
+  },
+  {
+    "player1": "p33",
+    "player2": "p48",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "飞鱼胜",
+    "date": "2026-09-29",
+    "id": "m270"
+  },
+  {
+    "player1": "p58",
+    "player2": "p50",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "歌手胜",
+    "date": "2026-09-29",
+    "id": "m271"
+  },
+  {
+    "player1": "p88",
+    "player2": "p62",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "Miss胜",
+    "date": "2026-09-29",
+    "id": "m272"
+  },
+  {
+    "player1": "p69",
+    "player2": "p75",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "舍得哥胜",
+    "date": "2026-09-29",
+    "id": "m273"
+  },
+  {
+    "player1": "p1",
+    "player2": "p97",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "LNR.Lyn胜",
+    "date": "2026-09-29",
+    "id": "m274"
+  },
+  {
+    "player1": "p25",
+    "player2": "p44",
+    "score": "2-1",
+    "type": "天梯",
+    "result": "哈拉少胜",
+    "date": "2026-09-29",
+    "id": "m275"
+  },
+  {
+    "player1": "p65",
+    "player2": "p62",
+    "score": "2-0",
+    "type": "天梯",
+    "result": "山东胜",
+    "date": "2026-09-29",
+    "id": "m276"
   }
 ]
